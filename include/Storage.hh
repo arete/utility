@@ -23,8 +23,8 @@
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
 
-#ifndef __STORAGE_HH__
-#define __STORAGE_HH__
+#ifndef UTILITY__STORAGE_HH__
+#define UTILITY__STORAGE_HH__
 
 #include <string>
 #include <vector>
@@ -111,4 +111,4 @@ class Serializer {
 
 #include "Storage.tcc"
 
-#endif // __STORAGE__
+#endif // UTILITY__STORAGE__

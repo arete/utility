@@ -1,4 +1,7 @@
 
+#ifndef UTILITY__ARGUMENTLIST_TCC__
+#define UTILITY__ARGUMENTLIST_TCC__
+
 #include "Compiler.hh"
 
 #if GCC_VERSION < 30400 || __INCLUDE_LEVEL__ == 1
@@ -17,3 +20,4 @@ template <> bool Argument<bool>::Read (const std::string& arg) {
 
 #endif
 
+#endif // UTILITY__ARGUMENTLIST_TCC__

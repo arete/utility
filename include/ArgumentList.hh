@@ -23,8 +23,8 @@
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
 
-#ifndef __ARGUMENTLIST_HH__
-#define __ARGUMENTLIST_HH__
+#ifndef UTILITY__ARGUMENTLIST_HH__
+#define UTILITY__ARGUMENTLIST_HH__
 
 #include <iostream>
 
@@ -161,4 +161,4 @@ class ArgumentList {
 
 #include "ArgumentList.tcc"
 
-#endif // __ARGUMENTLIST_HH__
+#endif // UTILITY__ARGUMENTLIST_HH__
