@@ -27,11 +27,9 @@ TOPDIR  = ../..
 NOT_SRCS := 
 include $(TOPDIR)/Rules.pre
 
-LIBUTILITY := libutility.so
+BUILD_LIBS := libutility.so
 
-all: lib
-lib: $(LIBUTILITY)
-
+all: $(BUILD_LIBS)
 
 INCDIRS := . ../include
 
