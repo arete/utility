@@ -50,22 +50,22 @@
 
 namespace Utility
 {
-  // to delete container of objects via for_each ...
-  template <class T>
-  class DelFunctor
-  {
-  public:
-    void operator () (T& del_obj) {
-      delete del_obj;
-      del_obj = 0;
-    }
-  };
-  
-  template <class T>
+
+  template <typename T>
   void DelFunction (T& del_obj) {
     delete del_obj;
     del_obj = 0;
   }
+
+// to delete container of objects via for_each ...
+  template <typename T>
+  class DelFunctor
+  {
+  public:
+    void operator () (T& del_obj) {
+      DelFunction <T> (del_obj);
+    }
+  };
   
 } // end namespace utility
 
