@@ -16,7 +16,7 @@ namespace Utility {
   }
   
   template <> bool Argument<bool>::Read (const std::string& arg) {
-    std::cout << "Error: No argument allowed for boolean values!" << std::endl;
+    std::cout << "Error: No parameter allowed for boolean values!" << std::endl;
     return false;
   }
   

@@ -42,7 +42,7 @@ namespace Utility
   
     BasicArgument (const std::string& i_sname, const std::string& i_lname,
 		   const std::string& i_desc,  int i_min_count, int i_max_count,
-		   bool i_fragmented);
+		   bool i_fragmented, bool i_list);
   
     virtual ~BasicArgument ();
   
@@ -59,7 +59,7 @@ namespace Utility
     std::string desc;
   
     int min_count, max_count;
-    bool needs_arg, fragmented;
+    bool no_arg, fragmented, list;
     int count, pass_count;
   };
 
@@ -70,23 +70,26 @@ namespace Utility
   
     Argument (const std::string& i_sname, const std::string& i_lname,
 	      const std::string& i_desc,
-	      int i_min_count = 0, int i_max_count = 0, bool i_fragmented = false) 
-      : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count, i_fragmented)
+	      int i_min_count = 0, int i_max_count = 0,
+	      bool i_fragmented = false, bool i_list = true)
+      : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count,
+		       i_fragmented, i_list)
     {
-      // if bool (or other special option) always containing one value
-      if (!needs_arg)
+      // if bool (or other special option) always use exaclty one value
+      if (no_arg)
 	values.push_back (T () );
     }
 
     Argument (const std::string& i_sname, const std::string& i_lname,
 	      const std::string& i_desc, 
 	      const T& i_value, int i_min_count = 0, int i_max_count = 0,
-	      bool i_fragmented = false)
-      : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count, i_fragmented)
+	      bool i_fragmented = false, bool i_list = true)
+      : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count,
+		       i_fragmented, i_list)
     {
       values.push_back (i_value);
       // if bool (or other special option) always containing one value
-      if (!needs_arg)
+      if (no_arg)
 	values.push_back (T () );
     }
   

@@ -32,7 +32,7 @@ using namespace Utility;
 
 BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_lname,
 			      const std::string& i_desc,  int i_min_count, int i_max_count,
-			      bool i_fragmented)
+			      bool i_fragmented, bool i_list)
   : count (0), pass_count (0)
 {
   sname = i_sname;
@@ -42,12 +42,13 @@ BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_l
   min_count  = i_min_count;
   max_count = i_max_count;
   fragmented = i_fragmented;
+  list = i_list;
   
   // sanity check
   if (min_count > max_count)
     max_count = min_count;
   
-  needs_arg = max_count != 0;
+  no_arg = max_count == 0;
 }
 
 BasicArgument::~BasicArgument ()
@@ -59,8 +60,9 @@ bool BasicArgument::Probe () {
 }
 
 bool BasicArgument::Interrupt () {
-  if (needs_arg && pass_count == 0) {
-    std::cout << "Error: No parameter for argument " << lname << " specified!" << std::endl;
+  if (!no_arg && pass_count == 0) {
+    std::cout << "Error: No parameter for argument " << lname << " specified!"
+	      << std::endl;
     return false;
   }
   else if (!fragmented && count < min_count) {
@@ -152,7 +154,7 @@ bool ArgumentList::Read (int argc, char** argv)
     
     // immediately throw into argument if it does not need parameters
     // (most often bools)
-    if (argument && !argument->needs_arg) {
+    if (argument && argument->no_arg) {
       if (!argument->Read () ) {
 	argument = 0;
 	++ errors;
@@ -195,9 +197,8 @@ const std::vector<std::string>& ArgumentList::Residuala () const
 void ArgumentList::Usage (const std::ostream& os) const
 {
   for (const_iterator it = long_content.begin (); it != long_content.end (); ++it)
-    {
+    if (it->second->list)
       std::cout << "  -" << it->second->sname << ", --" << it->second->lname
 		<< std::endl << "\t"
 		<< it->second->desc << std::endl;
-    }
 }
