@@ -45,10 +45,13 @@ namespace Utility
     File (const std::string& str);
     ~File ();
   
-  bool IsDirectory ();
-  bool IsSymlink ();
-  bool IsFile ();
-
+    const std::string& Basename ();
+    const std::string& Extension ();
+    
+    bool IsDirectory ();
+    bool IsSymlink ();
+    bool IsFile ();
+    
     const std::string Name () const {
       return filename;
     }
@@ -57,9 +60,12 @@ namespace Utility
     
  private:
   
-  inline bool updateStat ();
+    inline bool updateStat ();
+    void updateBaseExt ();
     
     std::string filename;
+    std::string basename; // just cached
+    std::string extension; // just cached
     
     struct stat c_stat;
     bool c_stat_valid;

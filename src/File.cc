@@ -29,12 +29,31 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <iostream>
+
 Utility::File::File (const std::string& str) {
   filename = str;
   c_stat_valid = false;
 }
 
 Utility::File::~File (){
+}
+
+const std::string& Utility::File::Basename ()
+{
+  // we always have a basename - a leading dot forms a hidden Unix file ....
+  if (basename == "")
+    updateBaseExt ();
+  return basename;
+}
+
+const std::string& Utility::File::Extension ()
+{
+  // this is slightly unoptimal if we really do not have an extension
+  // but since this is rare we keep this simple
+  if (extension == "")
+    updateBaseExt ();
+  return extension;
 }
 
 bool Utility::File::IsDirectory () {
@@ -49,9 +68,24 @@ bool Utility::File::IsFile () {
   return updateStat() && S_ISREG(c_stat.st_mode);
 }
 
-bool Utility::File::updateStat (){
+bool Utility::File::updateStat () {
   if (c_stat_valid)
     return true;
   
   return stat (filename.c_str(), &c_stat) == 0;
+}
+
+void Utility::File::updateBaseExt () {
+  // parse the filename extension
+  std::string::size_type idx = filename.rfind ('.');
+  
+  // ignore leading dots - they mark hidden Unix files ...
+  if (idx && idx != std::string::npos) {
+    basename = filename.substr (0, idx);
+    extension = filename.substr (idx + 1);
+  }
+  else {
+    basename = filename;
+    extension.clear (); // slightly redundant - but just to be sure
+  }
 }
