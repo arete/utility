@@ -47,6 +47,8 @@ namespace Utility
     long long Delta ();
     long long PerSecond ();
     
+    long long Value ();
+    
   private:
     timeval m_start;
   };
@@ -59,6 +61,8 @@ namespace Utility
     void Reset ();
     long long Delta ();
     long long PerSecond ();
+    
+    long long Value ();
     
   private:
     struct tms m_times;

@@ -153,7 +153,7 @@ namespace Utility
     bool Read (int argc, char** argv);
   
     // return the vector of gathered residuals (if residual parsing enabled)
-    const std::vector<std::string>& Residuala () const;
+    const std::vector<std::string>& Residuals () const;
 
     // printout the usual usage list, generated from the registered arguments
     void Usage (const std::ostream& os) const;

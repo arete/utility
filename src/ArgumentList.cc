@@ -189,7 +189,7 @@ bool ArgumentList::Read (int argc, char** argv)
   return errors == 0;
 }
 
-const std::vector<std::string>& ArgumentList::Residuala () const
+const std::vector<std::string>& ArgumentList::Residuals () const
 {
   return residuals;
 }

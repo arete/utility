@@ -54,6 +54,14 @@ long long Utility::Timer::Delta ()
   return ctime;
 }
 
+long long Utility::Timer::Value ()
+{
+  timeval t_time;
+  gettimeofday (&t_time, NULL);
+  
+  return (t_time.tv_sec * 1000000) + t_time.tv_usec;
+}
+
 long long Utility::Timer::PerSecond ()
 {
   return 1000000;
@@ -75,6 +83,14 @@ long long Utility::TickTimer::Delta ()
   times (&t_times);
   
   return t_times.tms_utime - m_times.tms_utime;
+}
+
+long long Utility::TickTimer::Value ()
+{
+  tms t_times;
+  times (&t_times);
+  
+  return t_times.tms_utime;
 }
 
 long long Utility::TickTimer::PerSecond ()
