@@ -26,6 +26,7 @@
 #include <sstream>
 
 #include "ArgumentList.hh"
+#include "ArgumentList.tcc"
 
 BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_lname,
 			      const std::string& i_desc,  int i_min_count, int i_max_count)
@@ -46,20 +47,6 @@ BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_l
 BasicArgument::~BasicArgument ()
 {
 }
-
-
-template <> bool Argument<bool>::Read () {
-  // the ctor garuantees we have one value!
-  values[0] = true;
-  ++ count;
-  return true;
-}
-
-template <> bool Argument<bool>::Read (const std::string& arg) {
-  std::cout << "Error: No argument allowed for boolean values!" << std::endl;
-  return false;
-}
-
 
 void ArgumentList::Add (BasicArgument* arg)
 {

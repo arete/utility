@@ -23,6 +23,11 @@
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
 
+/* Short Description:
+ *   An empty class sometimes handy.
+ */
+
+
 #ifndef UTILITY__EMPTY_HH__
 #define UTILITY__EMPTY_HH__
 
