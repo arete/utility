@@ -70,6 +70,7 @@ namespace Utility
 
     const std::string& Dirname ();
     const std::string& Basename ();
+    std::string BasenameWOExtension ();
     const std::string& Extension ();
     
     const FileType Type ();

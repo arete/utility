@@ -67,6 +67,17 @@ const std::string& Utility::File::Basename ()
   return basename;
 }
 
+std::string Utility::File::BasenameWOExtension ()
+{
+  // we always have a basename - a leading dot forms a hidden Unix file ....
+  if (basename == "")
+    updateDirBaseExt ();
+
+  std::string::size_type idx = extension.size(); if (idx) ++idx;
+  std::string bwoe = basename.substr(0, basename.size() - idx);
+  return bwoe;
+}
+
 const std::string& Utility::File::Extension ()
 {
   // this is slightly unoptimal if we really do not have an extension
