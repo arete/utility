@@ -33,7 +33,7 @@ SRCS    := $(filter-out $(NOT_SRCS), $(wildcard *.cc))
 OBJS := $(addsuffix .o, $(basename $(SRCS)))
 DEPS := $(addsuffix .d, $(basename $(SRCS)))
 
-LIBUTILITY := libutility.a
+LIBUTILITY := libutility.so
 
 # Flags
 #######
