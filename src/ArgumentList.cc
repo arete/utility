@@ -47,6 +47,20 @@ BasicArgument::~BasicArgument ()
 {
 }
 
+
+template <> bool Argument<bool>::Read () {
+  // the ctor garuantees we have one value!
+  values[0] = true;
+  ++ count;
+  return true;
+}
+
+template <> bool Argument<bool>::Read (const std::string& arg) {
+  std::cout << "Error: No argument allowed for boolean values!" << std::endl;
+  return false;
+}
+
+
 void ArgumentList::Add (BasicArgument* arg)
 {
   short_content [arg->sname] = arg;
@@ -105,7 +119,7 @@ bool ArgumentList::Read (int argc, char** argv)
   return errors == 0;
 }
 
-void ArgumentList::Useage (const std::ostream& os)
+void ArgumentList::Usage (const std::ostream& os)
 {
   for (iterator it = long_content.begin (); it != long_content.end (); ++it)
     {

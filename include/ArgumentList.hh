@@ -109,18 +109,8 @@ class Argument : public BasicArgument {
 };
 
 // some bool specialisations ...
-
-bool Argument<bool>::Read () {
-  // the ctor garuantees we have one value!
-  values[0] = true;
-  ++ count;
-  return true;
-}
-
-bool Argument<bool>::Read (const std::string& arg) {
-  std::cout << "Error: No argument allowed for boolean values!" << std::endl;
-  return false;
-}
+template <> bool Argument<bool>::Read ();
+template <> bool Argument<bool>::Read (const std::string& arg);
 
 class ArgumentList {
 
@@ -129,7 +119,7 @@ class ArgumentList {
   void Add (BasicArgument* arg);
   bool Read (int argc, char** argv);
   
-  void Useage (const std::ostream& os);
+  void Usage (const std::ostream& os);
   
   template <typename T>
   T Get (const std::string& name, unsigned int i = 0) {
