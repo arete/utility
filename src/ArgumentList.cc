@@ -31,7 +31,7 @@
 BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_lname,
 			      const std::string& i_desc,  int i_min_count, int i_max_count,
 			      bool i_fragmented)
-  : count (0)
+  : count (0), pass_count (0)
 {
   sname = i_sname;
   lname = i_lname;
@@ -45,11 +45,45 @@ BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_l
   if (min_count > max_count)
     max_count = min_count;
   
-  needs_arg = min_count != 0;
+  needs_arg = max_count != 0;
 }
 
 BasicArgument::~BasicArgument ()
 {
+}
+
+bool BasicArgument::Interrupt () {
+  if (needs_arg && pass_count == 0) {
+    std::cout << "Error: No parameter for argument " << lname << " specified!" << std::endl;
+    return false;
+  }
+  else if (!fragmented && count < min_count) {
+    std::cout << "Error: No fragmentation for argument " << lname << " allowed!"
+	      << std::endl
+	      << "       At least " << min_count << " parameter required!" << std::endl;
+    pass_count = 0;
+    return false;
+  }
+  pass_count = 0;
+  return true;
+}
+  
+bool BasicArgument::Finalize () {
+  if (count < min_count) {
+    std::cout << "Error: Too few parameter for argument " << lname
+	      << ", at least " << min_count << " required!" << std::endl;
+    return false;
+  }
+  return true;
+}
+
+ArgumentList::ArgumentList (bool i_residual)
+{
+  residual = i_residual;
+}
+  
+ArgumentList::~ArgumentList() {
+  
 }
 
 void ArgumentList::Add (BasicArgument* arg)
@@ -117,6 +151,9 @@ bool ArgumentList::Read (int argc, char** argv)
     }
     ++ argv;
   }
+  // interrupt the last parsed argument
+  if (argument && !argument->Interrupt () )
+    ++ errors;
   
   // final checks
   for (iterator it = long_content.begin (); it != long_content.end (); ++it) {
@@ -127,9 +164,14 @@ bool ArgumentList::Read (int argc, char** argv)
   return errors == 0;
 }
 
-void ArgumentList::Usage (const std::ostream& os)
+const std::vector<std::string>& ArgumentList::Residual () const
 {
-  for (iterator it = long_content.begin (); it != long_content.end (); ++it)
+  return residual_param;
+}
+
+void ArgumentList::Usage (const std::ostream& os) const
+{
+  for (const_iterator it = long_content.begin (); it != long_content.end (); ++it)
     {
       std::cout << "  -" << it->second->sname << ", --" << it->second->lname
 		<< std::endl << "\t"

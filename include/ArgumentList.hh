@@ -47,8 +47,8 @@ class BasicArgument {
   virtual bool Read () = 0;
   virtual bool Read (const std::string& arg) = 0;
   
-  virtual bool Interrupt () = 0;
-  virtual bool Finalize () = 0;
+  virtual bool Interrupt ();
+  virtual bool Finalize ();
   
   std::string sname;
   std::string lname;
@@ -56,7 +56,7 @@ class BasicArgument {
   
   int min_count, max_count;
   bool needs_arg, fragmented;
-  int count;
+  int count, pass_count;
 };
 
 template <typename T> 
@@ -109,27 +109,8 @@ class Argument : public BasicArgument {
     else
       values.push_back (value);
     
-    ++count;
+    ++count; ++pass_count;
     
-    return true;
-  }
-
-  bool Interrupt () {
-    if (!this->fragmented && count < min_count) {
-      std::cout << "Error: No fragmentation for argument " << lname << " allowed!"
-		<< std::endl
-		<< "       At least " << min_count << " parameter required!" << std::endl;
-      return false;
-    }
-    return true;
-  }
-  
-  bool Finalize () {
-    if (count < min_count) {
-      std::cout << "Error: Too few parameter for argument " << lname
-		<< ", at least " << min_count << " required!" << std::endl;
-      return false;
-    }
     return true;
   }
   
@@ -154,22 +135,32 @@ template <> bool Argument<bool>::Read (const std::string& arg);
 class ArgumentList {
 
  public:
+  
+  ArgumentList (bool i_residual = false);
+  ~ArgumentList ();
 
   // register a to be parsed argument
   void Add (BasicArgument* arg);
   // parse options specified
   bool Read (int argc, char** argv);
   
-  // printout the usual usage list, generated from the
-  // registered arguments
-  void Usage (const std::ostream& os);
-  
+  // return the vector of gathered residuals (if residual parsing enabled)
+  const std::vector<std::string>& Residual () const;
+
+  // printout the usual usage list, generated from the registered arguments
+  void Usage (const std::ostream& os) const;
+    
  private:
   typedef std::map<std::string, BasicArgument*> container;
   typedef container::iterator iterator;
+  typedef container::const_iterator const_iterator;
   
   container short_content;
   container long_content;
+  
+  std::vector<std::string> residual_param;
+  
+  bool residual;
 };
 
 #include "template/ArgumentList.tcc"
