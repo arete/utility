@@ -56,7 +56,7 @@ main ()
   logA.NoLogFile ();
   logB.SwitchLogFile (lfile);
 
-  logA.SplitLog <LC> () << "file (not realy)" << endl;
+  logA.SplitLog <LC> () << "file (not really)" << endl;
   logA.SplitLog <SC> () << "stdout" << endl;
   logA.SplitLog <BC> () << "both (means stdout)" << endl;
   logB.SplitLog <LC> () << "file" << endl;
