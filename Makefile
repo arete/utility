@@ -24,5 +24,6 @@
 
 SUBDIRS =	src
 
-include ../Rules
+TOPDIR  = ..
+include $(TOPDIR)/Rules
 

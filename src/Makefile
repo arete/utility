@@ -33,7 +33,8 @@ LIBUTILITY := libutility.so
 all: lib
 lib: $(LIBUTILITY)
 
-include ../../Rules
+TOPDIR  = ../..
+include $(TOPDIR)/Rules
 
 INCDIRS := . ../include
 
