@@ -1,10 +1,10 @@
 
-#ifndef UTILITY__ARGUMENTLIST_TCC__
-#define UTILITY__ARGUMENTLIST_TCC__
-
 #include "Compiler.hh"
 
 #if GCC_VERSION < 30400 || __INCLUDE_LEVEL__ == 1
+
+#ifndef UTILITY__ARGUMENTLIST_TCC__
+#define UTILITY__ARGUMENTLIST_TCC__
 
 template <> bool Argument<bool>::Read () {
   // the ctor garuantees we have one value!
@@ -18,6 +18,7 @@ template <> bool Argument<bool>::Read (const std::string& arg) {
   return false;
 }
 
+#endif // UTILITY__ARGUMENTLIST_TCC__
+
 #endif
 
-#endif // UTILITY__ARGUMENTLIST_TCC__

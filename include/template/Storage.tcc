@@ -1,10 +1,10 @@
 
-#ifndef UTILITY__STORAGE_TCC__
-#define UTILITY__STORAGE_TCC__
-
 #include "Compiler.hh"
 
 #if GCC_VERSION < 30400 || __INCLUDE_LEVEL__ == 1
+
+#ifndef UTILITY__STORAGE_TCC__
+#define UTILITY__STORAGE_TCC__
 
 template <> std::istream& Storage<bool>::Read (std::istream& is) {
   // TODO: error handling
@@ -27,7 +27,7 @@ template <> std::istream& Storage<bool>::Read (std::istream& is) {
   return is;
 }
 
-#endif
-
 #endif // UTILITY__STORAGE_TCC__
+
+#endif
 
