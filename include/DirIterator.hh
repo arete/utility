@@ -39,43 +39,73 @@ namespace Utility
   /* Find a unique filename, "fname + i". The first i can be
      specified.  The fname is overwritten - the used index is
      returned. - A file is unique when there is no file with the
-     tested name -> even if the trailing path is not available
-     ... !!?!? ... */
+     tested name -> even if the trailing path is not available */
   int FindUniqueName (std::string& fname, const std::string& base,
 		      const std::string& ext,
 		      int first_tried_index = 0);
   
   /* this is some wrapping arround the (ugly) posix directory stuff
      not really an iterator ... */
-  class DirIterator
+  class DirList
   {
   public:
-    DirIterator ();
-    DirIterator (const std::string& i_dir);
-    ~DirIterator ();
-   
-    bool Open (const std::string& n_dirname);
-    bool Close ();
+    class Iterator
+    {
+    public:
+      Iterator ();
+      Iterator (DirList* i_dirlist);
+      Iterator (const Iterator& i_other);
+      ~Iterator ();
+      
+      const Iterator& operator++ ();
+      const Iterator operator++ (int);
+      
+      const std::string& operator* ();
+      
+      bool operator== (const Iterator& other);
+      bool operator!= (const Iterator& other);
+      
+      friend class Utility::DirList;
+      
+    private:
+      
+      void Open ();
+      void Close ();
+      void Next ();
+      
+      // direct state
+      bool m_open;
+      bool m_end;
+      DirList* m_dirlist;
+      std::string m_entry_name;
+      
+      // indirect state of C API
+      DIR* m_internal_dir;
+      dirent* m_internal_dir_entry;
+  
+    };
     
-    const DirIterator& operator++ ();
-    const DirIterator& operator++ (int);
+    DirList (const std::string& i_dirmname = "/");
+    ~DirList ();
     
-    bool End ();
+#ifdef TODO
+    // navigate in the directory tree
+    void Down ();
+    bool Up (const Iterator& it);
+    // navigation alias
+    bool Enter (const Iterator& it) {
+      return Up (it);
+    };
+#endif
     
-    const std::string& operator* ();
+    const Iterator Begin ();
+    const Iterator End ();
     
-  private:
-    void Next ();
+    friend class Iterator;
     
-    const DirIterator& operator= (const DirIterator src);
+  protected:
     
-    bool m_open;
-    bool m_end;
     std::string m_dirname;
-    
-    DIR* m_internal_dir;
-    dirent* m_internal_dir_entry;
-    std::string m_entry_name;
   };
   
 } // end namespace utility

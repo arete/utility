@@ -53,76 +53,114 @@ int Utility::FindUniqueName (std::string& fname, const std::string& base,
   return t_index;
 }
 
+// ---
 
-Utility::DirIterator::DirIterator (const std::string& i_dir)
+Utility::DirList::Iterator::Iterator ()
 {
   m_open = false;
   m_end = false;
-  Open (i_dir);
+  m_dirlist = 0;
 }
 
-Utility::DirIterator::~DirIterator ()
+Utility::DirList::Iterator::Iterator (DirList* i_dirlist)
+{
+  m_open = false;
+  m_end = false;
+  m_dirlist = i_dirlist;
+  m_entry_name = "";
+  
+  Open ();
+}
+
+Utility::DirList::Iterator::Iterator (const Iterator& i_other)
+{
+  m_open = false;
+  m_end = i_other.m_end;
+  m_dirlist = i_other.m_dirlist;
+  m_entry_name = i_other.m_entry_name;
+}
+
+Utility::DirList::Iterator::~Iterator ()
 {
   if (m_open)
     Close ();
 }
 
-bool Utility::DirIterator::Open (const std::string& n_dirname)
+const Utility::DirList::Iterator& Utility::DirList::Iterator::operator++ ()
+{
+  Next ();
+  return *this;
+}
+
+const Utility::DirList::Iterator Utility::DirList::Iterator::operator++ (int)
+{
+  Iterator it (*this);
+  Next ();
+  return it;
+}
+
+void Utility::DirList::Iterator::Open ()
 {
   if (m_open)
-    return false;
+    return;
   
-  m_dirname = n_dirname;
+  // special case: we have a dirname but are not yet open (e.g.
+  // after a operator= and so want to search to the correct entry
+  std::string t_entry_name = m_entry_name;
   
-  m_internal_dir = opendir (m_dirname.c_str () );
-  if (m_internal_dir == 0)
-    return false;
-  
-  m_open = true;
-  m_end = false;
-  
-  Next ();
-  
-  return true;
+  m_internal_dir = opendir (m_dirlist->m_dirname.c_str () );
+  if (m_internal_dir == 0) {
+    m_end = true;
+  }
+  else {
+    m_open = true;
+    m_end = false;
+    
+    Next ();
+    
+    // special case (also see above) we want to search an entry
+    if (t_entry_name != "") {
+      while (m_entry_name != t_entry_name && !m_end)
+	Next ();
+    }
+  }
 }
 
-bool Utility::DirIterator::Close ()
+void Utility::DirList::Iterator::Close ()
 {
   if (!m_open)
-    return false;
+    return;
   
-  if (closedir (m_internal_dir) < 0)
-    return false;
+  //if (closedir (m_internal_dir) < 0)
   
   m_open = false;
-  return true;
 }
 
-const Utility::DirIterator& Utility::DirIterator::operator++ ()
-{
-  Next ();
-}
-
-const Utility::DirIterator& Utility::DirIterator::operator++ (int)
-{
-  Next ();
-}
-
-bool Utility::DirIterator::End ()
-{
-  return m_end;
-}
-
-const std::string& Utility::DirIterator::operator* ()
+const std::string& Utility::DirList::Iterator::operator* ()
 {
   return m_entry_name;
 }
 
-
-void Utility::DirIterator::Next ()
+bool Utility::DirList::Iterator::operator== (const DirList::Iterator& other)
 {
-  if (!m_open)
+  return (m_dirlist == other.m_dirlist &&
+	  m_end == other.m_end &&
+	  m_entry_name == other.m_entry_name);
+}
+
+bool Utility::DirList::Iterator::operator!= (const DirList::Iterator& other)
+{
+  return (m_dirlist != other.m_dirlist ||
+	  m_end != other.m_end ||
+	  m_entry_name != other.m_entry_name);
+}
+
+void Utility::DirList::Iterator::Next ()
+{
+  if (!m_open) {
+    m_end = true;
     return;
+  }
   
   m_internal_dir_entry = readdir (m_internal_dir);
   if (m_internal_dir_entry == 0) {
@@ -131,5 +169,36 @@ void Utility::DirIterator::Next ()
     return;
   }
   
+  // skip . and .. - any dir has those and apps normally do not need them
   m_entry_name = m_internal_dir_entry->d_name;
+  if (m_entry_name == "." || m_entry_name == "..")
+    Next ();
+}
+
+// ---
+
+Utility::DirList::DirList (const std::string& i_dirname)
+{
+  m_dirname = i_dirname;
+}
+
+Utility::DirList::~DirList ()
+{
+  
+}
+
+const Utility::DirList::Iterator Utility::DirList::Begin ()
+{
+  // create a virgin Iterator
+  Iterator it (this);
+  return it;
+}
+
+const Utility::DirList::Iterator Utility::DirList::End ()
+{
+  // create a Iterator with end flag set
+  Iterator it (this);
+  it.m_end = true;
+  it.m_entry_name = "";
+  return it;
 }
