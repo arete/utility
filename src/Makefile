@@ -30,8 +30,6 @@ include $(TOPDIR)/Rules.pre
 
 BUILD_LIBS := libutility.so
 
-all: $(BUILD_LIBS)
-
 INCDIRS := . ../include
 
 INCLUDES := $(SIGCINCS) \
@@ -41,6 +39,8 @@ INCLUDES := $(SIGCINCS) \
 LIBS := $(SIGCLIBS) -ldl -lpthread
 
 include $(TOPDIR)/Rules
+
+all: $(BUILD_LIBS)
 
 ####
 
