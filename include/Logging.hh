@@ -6,7 +6,7 @@
  * the GSMP-COPYRIGHT-NOTE-END tag. Otherwise it might get removed by
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
- * GSMP: lowlevel/include/Logging.hh
+ * GSMP: utility/include/Logging.hh
  * General Sound Manipulation Program is Copyright (C) 2000 - 2003
  *   Valentin Ziegler and René Rebe
  * 
