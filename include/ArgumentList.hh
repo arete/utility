@@ -47,6 +47,8 @@ class BasicArgument {
   virtual bool Read () = 0;
   virtual bool Read (const std::string& arg) = 0;
   
+  virtual bool Probe();
+  
   virtual bool Interrupt ();
   virtual bool Finalize ();
   
@@ -136,6 +138,7 @@ class ArgumentList {
 
  public:
   
+  // inresidual mode the last stray parameters are gathered
   ArgumentList (bool i_residual = false);
   ~ArgumentList ();
 
@@ -145,7 +148,7 @@ class ArgumentList {
   bool Read (int argc, char** argv);
   
   // return the vector of gathered residuals (if residual parsing enabled)
-  const std::vector<std::string>& Residual () const;
+  const std::vector<std::string>& Residuala () const;
 
   // printout the usual usage list, generated from the registered arguments
   void Usage (const std::ostream& os) const;
@@ -158,7 +161,7 @@ class ArgumentList {
   container short_content;
   container long_content;
   
-  std::vector<std::string> residual_param;
+  std::vector<std::string> residuals;
   
   bool residual;
 };

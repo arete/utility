@@ -52,6 +52,10 @@ BasicArgument::~BasicArgument ()
 {
 }
 
+bool BasicArgument::Probe () {
+  return count < max_count;
+}
+
 bool BasicArgument::Interrupt () {
   if (needs_arg && pass_count == 0) {
     std::cout << "Error: No parameter for argument " << lname << " specified!" << std::endl;
@@ -101,6 +105,7 @@ bool ArgumentList::Read (int argc, char** argv)
   ++argv;
 
   BasicArgument* argument = 0;
+  bool residual_gathering = false;
   
   // parse all arguments
   while (argv != argv_end) {
@@ -131,12 +136,19 @@ bool ArgumentList::Read (int argc, char** argv)
       argument = new_argument;
     }
     // try to parse via the last matched argument
+    // start residual gathering if not parseable
     else if (argument) {
-      if (!argument->Read (arg) )
-	++ errors;
+      if (residual && !argument->Probe()) {
+	argument = 0;
+	residual_gathering = true;
+      }
+      else {
+	if (!argument->Read (arg) )
+	  ++ errors;
+      }
     }
     
-    // immediately throw into argument if it does not need arguments
+    // immediately throw into argument if it does not need parameters
     // (most often bools)
     if (argument && !argument->needs_arg) {
       if (!argument->Read () ) {
@@ -145,10 +157,19 @@ bool ArgumentList::Read (int argc, char** argv)
       }
     }
     
-    if (!argument) {
-      std::cout << "Error: Unrecognized argument: " << arg << std::endl;
-      ++ errors;
+    // warning if in residual_gathering mode
+    if (residual_gathering) {
+      residuals.push_back (arg);
+      if (argument)
+	std::cout << "Warning: Residual parameter " << arg
+		  << " matches an argument" <<  std::endl;
     }
+    else
+      if (!argument) {
+	std::cout << "Error: Unrecognized argument: " << arg << std::endl;
+	++ errors;
+      }
+    
     ++ argv;
   }
   // interrupt the last parsed argument
@@ -164,9 +185,9 @@ bool ArgumentList::Read (int argc, char** argv)
   return errors == 0;
 }
 
-const std::vector<std::string>& ArgumentList::Residual () const
+const std::vector<std::string>& ArgumentList::Residuala () const
 {
-  return residual_param;
+  return residuals;
 }
 
 void ArgumentList::Usage (const std::ostream& os) const
