@@ -36,7 +36,7 @@ public:
   ~Obj () {cout << "dtor" << endl;}
 };
 
-main ()
+int main ()
 {
   vector<Obj*> v;
   v.push_back (new Obj ());
@@ -46,4 +46,6 @@ main ()
   vector<Obj*>::iterator end = v.end ();
 
   for_each (begin, end, Utility::DelFunctor<Obj*> ());
+
+  return 0;
 }

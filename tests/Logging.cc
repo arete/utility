@@ -63,7 +63,7 @@ public:
 };
 
 
-main ()
+int main ()
 {
 
   logA.SplitLog <LC> () << "This should be file only" << endl;
@@ -100,5 +100,6 @@ main ()
   ObjWLog ol;
   Q_LOG(ol.m_logger) << "some logging" << endl;
   Q_WARN(ol.m_logger) << "some warning" << endl;
- 
+
+  return 0;
 };
