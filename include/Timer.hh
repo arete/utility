@@ -33,6 +33,7 @@
 #include <sys/time.h>  // used by Timer
 #include <sys/times.h> // used by TickTimer
 
+#include <iostream>
 #include <string>
 
 namespace Utility
