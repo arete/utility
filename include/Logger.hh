@@ -147,5 +147,9 @@ namespace Utility
 #  define Q_WARN(logger)   if (logger.DoWarn ()) logger.Warn (__PRETTY_FUNCION__)
 #endif
 
+#define UTILITY__LOGGER_TMPL__
+#include "template/Logger.tcc"
+#undef UTILITY__LOGGER_TMPL__
+
 #endif // UTILITY__LOGGER_HH__
 

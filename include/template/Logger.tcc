@@ -39,7 +39,7 @@ namespace Utility
 
 
   template <typename LDEVC>
-  LogDevice<LDEVC>::LogDevice ()
+  LogDevice<LDEVC>::~LogDevice ()
   {
     if (log_file)
       DeallocateSplitStreams ();  
@@ -64,6 +64,25 @@ namespace Utility
       DeallocateSplitStreams ();
     log_file = &logfile;
   }
+
+
+  template <typename LDEVC> template <typename LDESC>
+  std::ostream& LogDevice<LDEVC>::SplitLog ()
+  {
+    if (LDESC::echo_log_std_out || (!log_file))
+      {
+	if (LDESC::log_to_file && log_file)
+	  return *split_stream_cout;
+	else
+	  return cout;
+      }
+    else if (LDESC::log_to_file)
+      return *log_file;
+  }
+
+  template <typename LDESC>
+  std::ostream& SplitWarn ();
+
 
 
   template <typename LDEVC>
