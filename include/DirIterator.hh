@@ -66,6 +66,8 @@ namespace Utility
       
       const std::string& operator* ();
       
+      const Iterator& operator= (const Iterator& other);
+      
       bool operator== (const Iterator& other);
       bool operator!= (const Iterator& other);
       

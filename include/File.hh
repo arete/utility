@@ -43,8 +43,7 @@ namespace Utility
     int type;
     
   public:
-    FileType () {};
-    FileType (int i_type) {type = i_type;}
+    FileType (int i_type = 0) {type = i_type;}
     
     const FileType& operator= (int n_type) {type = n_type; return *this;}
     
@@ -56,7 +55,6 @@ namespace Utility
     bool IsFIFO () const {return S_ISFIFO(type);}
     bool IsSymlink () const {return S_ISLNK(type);}
     bool IsSocket () const {return S_ISSOCK(type);}
-    
   };
   
   /* this is some wrapping around the (ugly) posix directory stuff

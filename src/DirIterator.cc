@@ -60,6 +60,7 @@ Utility::DirList::Iterator::Iterator ()
   m_open = false;
   m_end = false;
   m_dirlist = 0;
+  m_internal_dir_entry = 0;
 }
 
 Utility::DirList::Iterator::Iterator (DirList* i_dirlist)
@@ -68,16 +69,12 @@ Utility::DirList::Iterator::Iterator (DirList* i_dirlist)
   m_end = false;
   m_dirlist = i_dirlist;
   m_entry_name = "";
-  
-  Open ();
 }
 
 Utility::DirList::Iterator::Iterator (const Iterator& i_other)
 {
   m_open = false;
-  m_end = i_other.m_end;
-  m_dirlist = i_other.m_dirlist;
-  m_entry_name = i_other.m_entry_name;
+  operator=(i_other);
 }
 
 Utility::DirList::Iterator::~Iterator ()
@@ -88,21 +85,19 @@ Utility::DirList::Iterator::~Iterator ()
 
 const Utility::FileType Utility::DirList::Iterator::Type ()
 {
+  if (!m_open)
+    Open();
+  
   FileType type;
   
-  // d_type usable ...
-  if (m_internal_dir_entry)
+  // use d_type _if_ usable ...
+  if (m_internal_dir_entry && m_internal_dir_entry->d_type)
     type = DTTOIF(m_internal_dir_entry->d_type);
-  
-  if (type.IsUnknown ()) {
-    /*std::cout << "type unknown - fallback to stat ..." << std::endl;
-      std::cout << m_dirlist->m_dirname + '/' + m_entry_name << std::endl;*/
-    // we do not use a temporary to save object construction
-    // and profit from caching
+  else {
     m_file.SetFile (m_dirlist->m_dirname + '/' + m_entry_name);
     type = m_file.Type();
   }
-  
+
   return type;
 }
 
@@ -121,8 +116,10 @@ const Utility::DirList::Iterator Utility::DirList::Iterator::operator++ (int)
 
 void Utility::DirList::Iterator::Open ()
 {
-  if (m_open)
+  if (m_open) {
+    std::cout << "  already open" << std::endl;
     return;
+  }
   
   // special case: we have a dirname but are not yet open (e.g.
   // after a operator= and so want to search to the correct entry
@@ -148,17 +145,36 @@ void Utility::DirList::Iterator::Open ()
 
 void Utility::DirList::Iterator::Close ()
 {
-  if (!m_open)
+  if (!m_open || !m_internal_dir)
     return;
   
-  //if (closedir (m_internal_dir) < 0)
-  
+  closedir (m_internal_dir);
+
   m_open = false;
+  m_internal_dir = 0;
 }
 
 const std::string& Utility::DirList::Iterator::operator* ()
 {
+  // maybe Open() was delayed?
+  if (!m_open && !m_end)
+    Open();
   return m_entry_name;
+}
+
+const Utility::DirList::Iterator&
+Utility::DirList::Iterator::operator= (const Iterator& other)
+{
+  if (m_open)
+    Close ();
+  
+  m_end = other.m_end;
+  m_dirlist = other.m_dirlist;
+  m_entry_name = other.m_entry_name;
+
+  // no Open() here - delayed until next access
+  
+  return *this;
 }
 
 bool Utility::DirList::Iterator::operator== (const DirList::Iterator& other)
@@ -178,8 +194,7 @@ bool Utility::DirList::Iterator::operator!= (const DirList::Iterator& other)
 void Utility::DirList::Iterator::Next ()
 {
   if (!m_open) {
-    m_end = true;
-    return;
+    Open();
   }
   
   m_internal_dir_entry = readdir (m_internal_dir);
@@ -190,9 +205,16 @@ void Utility::DirList::Iterator::Next ()
   }
   
   // skip . and .. - any dir has those and apps normally do not need them
+  // here are some optimizations since Next() is performance critical
   m_entry_name = m_internal_dir_entry->d_name;
+  
+  // short path
+  if (m_entry_name.size() > 2)
+    return;
+  
+  // expensive checks
   if (m_entry_name == "." || m_entry_name == "..")
-    Next ();
+    return Next ();
 }
 
 // ---
@@ -211,12 +233,13 @@ const Utility::DirList::Iterator Utility::DirList::Begin ()
 {
   // create a virgin Iterator
   Iterator it (this);
+  it.Open();
   return it;
 }
 
 const Utility::DirList::Iterator Utility::DirList::End ()
 {
-  // create a Iterator with end flag set
+  // create an Iterator with end flag set
   Iterator it (this);
   it.m_end = true;
   it.m_entry_name = "";
