@@ -44,7 +44,7 @@ namespace Utility
 		      const std::string& ext,
 		      int first_tried_index = 0);
   
-  /* this is some wrapping arround the (ugly) posix directory stuff
+  /* this is some wrapping around the (ugly) posix directory stuff
      not really an iterator ... */
   class DirList
   {
