@@ -48,6 +48,9 @@
 //	#include <FlexLexer.h>
 //	...
 
+// To encapsulate yyFlecLexer in some namespace, define yyNamespace
+// and combine with the -P flag, e.g. -Pnamespace::yy
+
 #ifndef __FLEX_LEXER_H
 // Never included before - need to define base class.
 #define __FLEX_LEXER_H
@@ -106,6 +109,10 @@ protected:
 // or this is a repeated include to define a different flavor of
 // yyFlexLexer, as discussed in the flex man page.
 #define yyFlexLexerOnce
+
+#ifdef yyNamespace
+namespace yyNamespace {
+#endif
 
 class yyFlexLexer : public FlexLexer {
 public:
@@ -189,5 +196,9 @@ protected:
 	int yy_more_offset;
 	int yy_prev_more_offset;
 };
+
+#ifdef yyNamespace
+}
+#endif
 
 #endif
