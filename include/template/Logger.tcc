@@ -193,13 +193,13 @@ namespace Utility
     : Logger<LDESC, LDEVC, WL_TRAITS> (i_destination)
   {
     parent = i_parent;
-    Q_LOG((*this)) << "new " << FilteredTypeName <OBJ> () << endl;
+    Q_LOG((*this)) << "new " << FilteredTypeName <OBJ> () << std::endl;
   }
 
   template <typename LDESC, typename LDEVC, typename WL_TRAITS, typename OBJ>
   ObjectLogger<LDESC, LDEVC, WL_TRAITS, OBJ>::~ObjectLogger()
   {
-    Q_LOG((*this)) << "deleted" << endl;
+    Q_LOG((*this)) << "deleted" << std::endl;
   }
 
 
