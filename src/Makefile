@@ -25,6 +25,7 @@
 # Compilers
 ###########
 CXX := c++
+AR := ar
 
 NOT_SRCS := 
 SRCS    := $(filter-out $(NOT_SRCS), $(wildcard *.cc))
@@ -32,11 +33,11 @@ SRCS    := $(filter-out $(NOT_SRCS), $(wildcard *.cc))
 OBJS := $(addsuffix .o, $(basename $(SRCS)))
 DEPS := $(addsuffix .d, $(basename $(SRCS)))
 
-LIBUTILITY := libutility.so
+LIBUTILITY := libutility.a
 
 # Flags
 #######
-OPTFLAGS   := -O0
+OPTFLAGS   := -O1
 DEBUGFLAGS := -g
 CXXFLAGS   :=
 
@@ -46,7 +47,7 @@ INCLUDES := $(SIGCINCS) \
 	$(filter-out $(NOT_INCS), \
 	$(foreach dir, $(INCDIRS), -I$(dir)))
 
-FLAGS      := $(CXXFLAGS) $(EXTRAFLAGS)
+FLAGS      := $(CXXFLAGS) $(OPTFLAGS) $(DEBUGFLAGS) $(EXTRAFLAGS)
 
 EXTRALDFLAGS := -shared $(DEBUGFLAGS)
 LDFLAGS      :=  $(EXTRALDFLAGS)
@@ -68,6 +69,9 @@ lib: $(LIBUTILITY)
 
 %.so: $(OBJS)
 	$(CXX) $(LDFLAGS) $(LIBS) -o $@ $^
+
+%.a: $(OBJS)
+	$(AR) r $@ $^
 
 -include $(DEPS)
 
