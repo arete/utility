@@ -22,18 +22,16 @@
 # 
 # --- GSMP-COPYRIGHT-NOTE-END ---
 
-NOT_SRCS := 
-SRCS    := $(filter-out $(NOT_SRCS), $(wildcard *.cc))
+TOPDIR  = ../..
 
-OBJS := $(addsuffix .o, $(basename $(SRCS)))
-DEPS := $(addsuffix .d, $(basename $(SRCS)))
+NOT_SRCS := 
+include $(TOPDIR)/Rules.pre
 
 LIBUTILITY := libutility.so
 
 all: lib
 lib: $(LIBUTILITY)
 
-TOPDIR  = ../..
 include $(TOPDIR)/Rules
 
 INCDIRS := . ../include

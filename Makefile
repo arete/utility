@@ -22,8 +22,7 @@
 # 
 # --- GSMP-COPYRIGHT-NOTE-END ---
 
-SUBDIRS =	src
-
 TOPDIR  = ..
+SUBDIRS = src
 include $(TOPDIR)/Rules
 
