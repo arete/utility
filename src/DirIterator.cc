@@ -7,7 +7,7 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/src/DirIterator.cc
- * General Sound Manipulation Program is Copyright (C) 2000 - 2003
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2004
  *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
