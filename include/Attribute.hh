@@ -35,9 +35,10 @@
 namespace Utility
 {
   
-  // the base of all attributes just holding the value and a Get() method
+  // the public base of all attributes just holding the value and
+  // a Get() method
   template <class T>
-  class BaseAttribute {
+  class PublicAttribute {
   public:
     const T& Get () const {
       return value;
@@ -48,14 +49,14 @@ namespace Utility
   
   // the real Attribute with control about signalling ...
   template <class T, bool do_signal = true>
-  class Attribute : public BaseAttribute<T>
+  class Attribute : public PublicAttribute<T>
   {
   public:
     const T& Set (const T& n_value) { this->value = n_value; };
   };
   
   template <class T>
-  class Attribute <T, true>  : public BaseAttribute<T>
+  class Attribute <T, true>  : public PublicAttribute<T>
   {
   public:
     sigc::signal <void, const T&> changed;
@@ -65,29 +66,7 @@ namespace Utility
       changed.emit (this->value);
     };
   };
-
-  /*
-  template <class T>
-  class Property
-  {
-  public:
-      
-    cont T& Set (const T& n_val) {
-      val = Utility::limit_min_max (n_val,min, max);
-      return val;
-    }
-      
-    const T& Val () const { return val; }
-    const T& Min () const { return min; }
-    const T& Max () const { return max; }
-      
-  private:
-    T val;
-    T min;
-    T max;
-    };
-  */
-
+  
 } // end namespace Utility
 
 #endif // UTILITY__ATTRIBUTE_HH__
