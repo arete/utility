@@ -32,7 +32,6 @@ LIBUTILITY := libutility.so
 all: lib
 lib: $(LIBUTILITY)
 
-include $(TOPDIR)/Rules
 
 INCDIRS := . ../include
 
@@ -41,6 +40,8 @@ INCLUDES := $(SIGCINCS) \
 	$(foreach dir, $(INCDIRS), -I$(dir)))
 
 LIBS := $(SIGCLIBS) -ldl -lpthread
+
+include $(TOPDIR)/Rules
 
 ####
 
