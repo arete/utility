@@ -1,9 +1,6 @@
 
 #include "Compiler.hh"
 
-#warning GCC_VERSION
-#warning __INCLUDE_LEVEL__
-
 #if GCC_VERSION < 30400 || __INCLUDE_LEVEL__ == 1
 
 template <> bool Argument<bool>::Read () {
