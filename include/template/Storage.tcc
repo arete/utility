@@ -1,4 +1,6 @@
 
+#include "Compiler.hh"
+
 #if GCC_VERSION < 30400 || __INCLUDE_LEVEL__ == 1
 
 template <> std::istream& Storage<bool>::Read (std::istream& is) {
