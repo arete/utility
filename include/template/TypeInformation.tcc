@@ -29,7 +29,7 @@
 #endif
 
 
-namespace UTILITY
+namespace Utility
 {
   template <typename T>
   const char* SysTypeName ()
@@ -44,4 +44,4 @@ namespace UTILITY
     return FilteredName (SysTypeName <T> ());
   }
 
-} // end namespace UTILITY
+} // end namespace Utility

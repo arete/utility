@@ -163,5 +163,63 @@ namespace Utility
   }
 
 
+  template <typename LDESC, typename LDEVC, typename WL_TRAITS>
+  Logger<LDESC, LDEVC, WL_TRAITS>::Logger(Destination& i_destination)
+    : destination (i_destination)
+  {
+  }
+
+
+  template <typename LDESC, typename LDEVC, typename WL_TRAITS>
+  std::ostream& Logger<LDESC, LDEVC, WL_TRAITS>::Log (const char* pretty_function_name)
+  {
+    std::ostream& r_stream = destination.Log ();
+    if (LDESC::function_names_in_log)
+      r_stream << pretty_function_name << " ";
+    return r_stream;
+  }
+
+  template <typename LDESC, typename LDEVC, typename WL_TRAITS>
+  std::ostream& Logger<LDESC, LDEVC, WL_TRAITS>::Warn (const char* pretty_function_name)
+  {
+    std::ostream& r_stream = destination.Warn ();
+    if (LDESC::function_names_in_warn)
+      r_stream << pretty_function_name << " : "; 
+    return r_stream;
+  }
+
+  template <typename LDESC, typename LDEVC, typename WL_TRAITS, typename OBJ>
+  ObjectLogger<LDESC, LDEVC, WL_TRAITS, OBJ>::ObjectLogger(Destination& i_destination, OBJ* i_parent)
+    : Logger<LDESC, LDEVC, WL_TRAITS> (i_destination)
+  {
+    parent = i_parent;
+    Q_LOG((*this)) << "new " << FilteredTypeName <OBJ> () << endl;
+  }
+
+  template <typename LDESC, typename LDEVC, typename WL_TRAITS, typename OBJ>
+  ObjectLogger<LDESC, LDEVC, WL_TRAITS, OBJ>::~ObjectLogger()
+  {
+    Q_LOG((*this)) << "deleted" << endl;
+  }
+
+
+  template <typename LDESC, typename LDEVC, typename WL_TRAITS, typename OBJ>
+  std::ostream& ObjectLogger<LDESC, LDEVC, WL_TRAITS, OBJ>::Log (const char* pretty_function_name)
+  {
+    std::ostream& r_stream = Logger<LDESC, LDEVC, WL_TRAITS>::Log (pretty_function_name);
+    r_stream << parent << " ";
+    return r_stream;
+  }
+
+  template <typename LDESC, typename LDEVC, typename WL_TRAITS, typename OBJ>
+  std::ostream& ObjectLogger<LDESC, LDEVC, WL_TRAITS, OBJ>::Warn (const char* pretty_function_name)
+  {
+    std::ostream& r_stream = Logger<LDESC, LDEVC, WL_TRAITS>::Warn (pretty_function_name);
+    r_stream << parent << " ";
+    return r_stream;
+  }
+
+
+
 
 } // end namespace Utility

@@ -21,12 +21,26 @@ typedef stdoutLogDestinationConfig SC;
 typedef bothLogDestinationsConfig BC;
 typedef LogDestinationConfig LC;
 
+
+ofstream lfile ("test.log");
+LogDevice <> logA (lfile);
+LogDevice <> logB;
+
+LogDestination <LogDestinationConfig, LogDeviceConfig> logDst ("test", logB);
+
+class ObjWLog
+{
+public:
+  ObjWLog ()
+    : m_logger (logDst, this)
+  { }
+
+  ObjectLogger <LogDestinationConfig, LogDeviceConfig, WL_Verbose, ObjWLog> m_logger;
+};
+
+
 main ()
 {
-  ofstream lfile ("test.log");
-
-  LogDevice <> logA (lfile);
-  LogDevice <> logB;
 
   logA.SplitLog <LC> () << "This should be file only" << endl;
   logA.SplitLog <SC> () << "This should be stdout only" << endl;
@@ -50,7 +64,17 @@ main ()
   logB.SplitLog <SC> () << "stdout" << endl;
 
 
-  LogDestination <LogDestinationConfig, LogDeviceConfig> log ("test", logB);
-  log.Log () << "logging" << endl;
-  log.Warn () << "warning" << endl;
+ 
+  logDst.Log () << "logging" << endl;
+  logDst.Warn () << "warning" << endl;
+
+  Logger <LogDestinationConfig, LogDeviceConfig, WL_Verbose> logger (logDst);
+  
+  Q_LOG(logger) << "logger logging" << endl;
+  Q_WARN(logger) << "logger warning" << endl;
+
+  ObjWLog ol;
+  Q_LOG(ol.m_logger) << "some logging" << endl;
+  Q_WARN(ol.m_logger) << "some warning" << endl;
+ 
 };

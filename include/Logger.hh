@@ -3,7 +3,7 @@
 
 #include "SplitStreamBuffer.hh"
 #include <fstream>
-#include <string>
+#include "TypeInformation.hh"
 
 namespace Utility
 {
@@ -33,6 +33,30 @@ namespace Utility
     static const bool function_names_in_warn = true;
     static const bool context_in_warn = true;
   };
+
+
+  // WL_TRAITS predefined configs
+  class WL_Quiet
+  {
+  public:
+    static const bool warn = false;
+    static const bool log = false;
+  };
+
+  class WL_Warn
+  {
+  public:
+    static const bool warn = true;
+    static const bool log = false;
+  };
+
+  class WL_Verbose
+  {
+  public:
+    static const bool warn = true;
+    static const bool log = true;
+  };
+
 
 
   class BasicLogDevice
@@ -96,7 +120,7 @@ namespace Utility
     typedef LogDevice <LDEVC> Device;
     typedef typename LogDevice <LDEVC>::Config DeviceConfig;
 
-    LogDestination (std::string i_context, LogDevice <LDEVC>& i_device);
+    LogDestination (std::string i_context, Device& i_device);
 
     inline bool DoLog ()  {return (!LDEVC::disabled) && (LDESC::echo_log_stdout || LDESC::log_to_file);}
     inline bool DoWarn () {return (!LDEVC::disabled) && (LDESC::echo_warn_stderr || LDESC::warn_to_file);}
@@ -115,13 +139,16 @@ namespace Utility
   class Logger
   {
   public:
-    Logger (LogDestination <LDESC, LDEVC>& i_destination);
+    typedef LogDestination <LDESC, LDEVC> Destination;
+    Logger (Destination& i_destination);
   
     inline bool DoLog () {return destination.DoLog () && WL_TRAITS::log; }
     inline bool DoWarn () {return destination.DoLog () && WL_TRAITS::warn; }
 
     std::ostream& Log (const char* pretty_function_name);
     std::ostream& Warn (const char* pretty_function_name);
+  private:
+    Destination& destination;
   };
 
 
@@ -129,10 +156,14 @@ namespace Utility
   class ObjectLogger : public Logger <LDESC, LDEVC, WL_TRAITS>
   { 
   public:
-    ObjectLogger (LogDestination <LDESC, LDEVC>& i_destination, OBJ* parent);
+    typedef typename Logger <LDESC, LDEVC, WL_TRAITS>::Destination Destination;
+    ObjectLogger (Destination& i_destination, OBJ* i_parent);
+    ~ObjectLogger ();
 
     std::ostream& Log (const char* pretty_function_name);
     std::ostream& Warn (const char* pretty_function_name);
+  private:
+    OBJ* parent;
   };
 
 
@@ -158,7 +189,7 @@ namespace Utility
 #    warning "the Q_WARN macro is already defined"
 #  endif
 #else
-#  define Q_WARN(logger)   if (logger.DoWarn ()) logger.Warn (__PRETTY_FUNCION__)
+#  define Q_WARN(logger)   if (logger.DoWarn ()) logger.Warn (__PRETTY_FUNCTION__)
 #endif
 
 #define UTILITY__LOGGER_TMPL__
