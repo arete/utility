@@ -159,5 +159,6 @@ class ArgumentList {
   container long_content;
 };
 
+#include "ArgumentList.tcc"
 
 #endif // __ARGUMENTLIST_HH__

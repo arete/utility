@@ -109,4 +109,6 @@ class Serializer {
   container content;
 };
 
+#include "Storage.tcc"
+
 #endif // __STORAGE__
