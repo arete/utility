@@ -209,7 +209,7 @@ void Utility::DirList::Iterator::Next ()
   m_entry_name = m_internal_dir_entry->d_name;
   
   // short path
-  if (m_entry_name.size() > 2)
+  if (m_entry_name[0] != '.' || m_entry_name.size() > 2)
     return;
   
   // expensive checks
