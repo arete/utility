@@ -29,19 +29,23 @@
 #include "template/ArgumentList.tcc"
 
 BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_lname,
-			      const std::string& i_desc,  int i_min_count, int i_max_count)
+			      const std::string& i_desc,  int i_min_count, int i_max_count,
+			      bool i_fragmented)
   : count (0)
 {
-  min_count  = i_min_count;
-  max_count = i_max_count;
-  
   sname = i_sname;
   lname = i_lname;
   desc = i_desc;
+
+  min_count  = i_min_count;
+  max_count = i_max_count;
+  fragmented = i_fragmented;
   
+  // sanity check
   if (min_count > max_count)
     max_count = min_count;
-  needs_arg = max_count != 0;
+  
+  needs_arg = min_count != 0;
 }
 
 BasicArgument::~BasicArgument ()
@@ -68,28 +72,38 @@ bool ArgumentList::Read (int argc, char** argv)
   while (argv != argv_end) {
     std::string arg (*argv);
     std::string targ = arg; // temp. mangled argument
+
+    BasicArgument* new_argument = 0;
     
     // match long options
     if (arg.size () >= 2 && arg[0] == '-' && arg[1] == '-') {
       targ.erase (0, 2);
       iterator it = long_content.find (targ);
-      if (it != long_content.end () )
-	argument = it->second;
+      if (it != long_content.end () ) {
+	new_argument = it->second;
+      }
     }
     // match short options
     else if (arg.size () >= 1 && arg[0] == '-') {
       targ.erase (0, 1);
       iterator it = short_content.find (targ);
       if (it != short_content.end () )
-	argument = it->second;
+	new_argument = it->second;
     }
-    // try to pass to the last matched argument
+    
+    if (new_argument) {
+      if (argument && !argument->Interrupt () )
+	++ errors;
+      argument = new_argument;
+    }
+    // try to parse via the last matched argument
     else if (argument) {
       if (!argument->Read (arg) )
 	++ errors;
     }
     
-    // throw into argument if it does not need arguments (most often bools)
+    // immediately throw into argument if it does not need arguments
+    // (most often bools)
     if (argument && !argument->needs_arg) {
       if (!argument->Read () ) {
 	argument = 0;
@@ -103,6 +117,13 @@ bool ArgumentList::Read (int argc, char** argv)
     }
     ++ argv;
   }
+  
+  // final checks
+  for (iterator it = long_content.begin (); it != long_content.end (); ++it) {
+    if (!it->second->Finalize())
+      ++ errors;
+  }
+  
   return errors == 0;
 }
 

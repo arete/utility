@@ -90,27 +90,6 @@ class Serializer {
   
   std::istream& Read (std::istream& is, bool verbose = true);
   
-  template <typename T>
-  T Get (const std::string& name) {
-    iterator it = content.find (name);
-    
-    if (it == content.end () ) {
-      std::cout << "Warning: Storage " << name << " not available!"
-		<< std::endl;
-      return T ();
-    }
-    
-    Storage<T>* s;
-    s = dynamic_cast<Storage<T>*> (it->second);
-    if (s)
-      return s->Get();
-    else {
-      std::cout << "Warning: Type mismatch for storage " << name << "!"
-		<< std::endl;
-      return T ();
-    }
-  }
-  
  private:
   typedef std::map<std::string, BasicStorage*> container;
   typedef container::iterator iterator;
