@@ -76,6 +76,10 @@ namespace Utility {
     T Get () {
       return value;
     }
+
+    void Set (const T& v) {
+      value = v;
+    }
   
   private:
     T value;
