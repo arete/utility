@@ -28,19 +28,19 @@ NOT_INCS := ../include/BinomiHeap.hh
 NOT_SRCS := 
 include $(TOPDIR)/Rules.pre
 
-BUILD_LIBS := libutility.so
+BUILD_LIBS := libgsmutil.so
 
 all: $(BUILD_LIBS)
 
+include $(TOPDIR)/Rules
+
 INCDIRS := . ../include
 
-INCLUDES := $(SIGCINCS) \
+INCLUDES := $(SIGC2INCS) \
 	$(filter-out $(NOT_INCS), \
 	$(foreach dir, $(INCDIRS), -I$(dir)))
 
-LIBS := $(SIGCLIBS) -ldl -lpthread
-
-include $(TOPDIR)/Rules
+LIBS := $(SIGC2LIBS) -ldl -lpthread
 
 ####
 

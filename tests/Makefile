@@ -28,7 +28,7 @@ NOT_SRCS :=
 
 include $(TOPDIR)/Rules.pre
 
-BUILD_PROGS := Delete Logging Thread
+BUILD_PROGS := Delete Logging Thread Attribute
 
 all: $(BUILD_OBJS) $(BUILD_PROGS)
 
@@ -36,11 +36,9 @@ include $(TOPDIR)/Rules
 
 INCDIRS := . ../include ../../dam/include
 
-INCLUDES := $(SIGCINCS) \
+INCLUDES := $(SIGC2INCS) \
             $(filter-out $(NOT_INCS), \
             $(foreach dir, $(INCDIRS), -I$(dir)))
 
-LIBS := $(SIGCLIBS) -ldl ../src/libutility.so
-
-include $(TOPDIR)/Rules.post
+LIBS := $(SIGCLIBS) -ldl ../src/libgsmutil.so
 
