@@ -23,6 +23,10 @@
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
 
+/* Short Description:
+ *   Object oriented trival "Storage" I/O.
+ */
+
 #ifndef UTILITY__STORAGE_HH__
 #define UTILITY__STORAGE_HH__
 
@@ -67,6 +71,11 @@ class Storage : public BasicStorage {
     return os;
   }
   
+  T Get () {
+    return value;
+  }
+  
+private:
   T value;
 };
 
@@ -80,7 +89,7 @@ class Serializer {
   void Add (BasicStorage* storage);
   
   std::istream& Read (std::istream& is, bool verbose = true);
-
+  
   template <typename T>
   T Get (const std::string& name) {
     iterator it = content.find (name);
@@ -94,7 +103,7 @@ class Serializer {
     Storage<T>* s;
     s = dynamic_cast<Storage<T>*> (it->second);
     if (s)
-      return s->value;
+      return s->Get();
     else {
       std::cout << "Warning: Type mismatch for storage " << name << "!"
 		<< std::endl;

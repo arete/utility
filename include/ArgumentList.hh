@@ -23,6 +23,10 @@
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
 
+/* Short Description:
+ *   Object oriented argument list parsing.
+ */
+
 #ifndef UTILITY__ARGUMENTLIST_HH__
 #define UTILITY__ARGUMENTLIST_HH__
 
@@ -105,6 +109,17 @@ class Argument : public BasicArgument {
     return true;
   }
   
+  T Get (unsigned int i = 0) {
+    if (values.size () > i) {
+      return values [i];
+    }
+    else
+      std::cout << "Error: There is no value " << i << "present for argument "
+		<< this->lname << std::endl;
+    return T ();
+  }
+  
+private:
   std::vector<T> values;
 };
 
@@ -116,9 +131,13 @@ class ArgumentList {
 
  public:
 
+  // register a to be parsed argument
   void Add (BasicArgument* arg);
+  // parse options specified
   bool Read (int argc, char** argv);
   
+  // printout the usual usage list, generated from the
+  // registered arguments
   void Usage (const std::ostream& os);
   
   template <typename T>
@@ -129,27 +148,23 @@ class ArgumentList {
     if (it == long_content.end () ) {
       it = short_content.find (name);
       if (it == short_content.end () ) {
-	std::cout << "Warning: Argument " << name << " not available!"
-		  << std::endl;
-	return T ();
+       std::cout << "Warning: Argument " << name << " not available!"
+                 << std::endl;
+       return T ();
       }
     }
     
     Argument<T>* s;
     s = dynamic_cast<Argument<T>*> (it->second);
     if (s) {
-      if (s->values.size () > i) {
-	return s->values [i];
-      }
-      else
-	std::cout << "Error: There is no value " << i << "present for argument "
-		  << name << std::endl;
+      return s->Get();
     }
     else
       std::cout << "Error: Type mismatch for argument " << name << "!"
-		<< std::endl;
+               << std::endl;
     return T ();
   }
+
   
  private:
   typedef std::map<std::string, BasicArgument*> container;
