@@ -101,19 +101,6 @@ const Utility::FileType Utility::DirList::Iterator::Type ()
   return type;
 }
 
-const Utility::DirList::Iterator& Utility::DirList::Iterator::operator++ ()
-{
-  Next ();
-  return *this;
-}
-
-const Utility::DirList::Iterator Utility::DirList::Iterator::operator++ (int)
-{
-  Iterator it (*this);
-  Next ();
-  return it;
-}
-
 void Utility::DirList::Iterator::Open ()
 {
   if (m_open) {
@@ -152,69 +139,6 @@ void Utility::DirList::Iterator::Close ()
 
   m_open = false;
   m_internal_dir = 0;
-}
-
-const std::string& Utility::DirList::Iterator::operator* ()
-{
-  // maybe Open() was delayed?
-  if (!m_open && !m_end)
-    Open();
-  return m_entry_name;
-}
-
-const Utility::DirList::Iterator&
-Utility::DirList::Iterator::operator= (const Iterator& other)
-{
-  if (m_open)
-    Close ();
-  
-  m_end = other.m_end;
-  m_dirlist = other.m_dirlist;
-  m_entry_name = other.m_entry_name;
-
-  // no Open() here - delayed until next access
-  
-  return *this;
-}
-
-bool Utility::DirList::Iterator::operator== (const DirList::Iterator& other)
-{
-  return (m_dirlist == other.m_dirlist &&
-	  m_end == other.m_end &&
-	  m_entry_name == other.m_entry_name);
-}
-
-bool Utility::DirList::Iterator::operator!= (const DirList::Iterator& other)
-{
-  return (m_dirlist != other.m_dirlist ||
-	  m_end != other.m_end ||
-	  m_entry_name != other.m_entry_name);
-}
-
-void Utility::DirList::Iterator::Next ()
-{
-  if (!m_open) {
-    Open();
-  }
-  
-  m_internal_dir_entry = readdir (m_internal_dir);
-  if (m_internal_dir_entry == 0) {
-    m_entry_name = "";
-    m_end = true;
-    return;
-  }
-  
-  // skip . and .. - any dir has those and apps normally do not need them
-  // here are some optimizations since Next() is performance critical
-  m_entry_name = m_internal_dir_entry->d_name;
-  
-  // short path
-  if (m_entry_name[0] != '.' || m_entry_name.size() > 2)
-    return;
-  
-  // expensive checks
-  if (m_entry_name == "." || m_entry_name == "..")
-    return Next ();
 }
 
 // ---

@@ -7,7 +7,7 @@
 #include "DirIterator.hh"
 
 // !sorted might be faster but less sorted ...
-const bool sorted = false;
+const bool sorted = true;
 
 std::deque<std::string> todo_queue;
 

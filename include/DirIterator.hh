@@ -61,15 +61,47 @@ namespace Utility
       
       const FileType Type ();
       
-      const Iterator& operator++ ();
-      const Iterator operator++ (int);
+      const Iterator& operator++ () {
+	Next ();
+	return *this;
+      }
+
+      const Iterator operator++ (int) {
+	Iterator it (*this);
+	Next ();
+	return it;
+      }
       
-      const std::string& operator* ();
+      const std::string& operator* () {
+	// maybe Open() was delayed?
+	if (!m_open && !m_end)
+	  Open();
+	return m_entry_name;
+      }
       
-      const Iterator& operator= (const Iterator& other);
+      const Iterator& operator= (const Iterator& other) {
+	if (m_open)
+	  Close ();
+	
+	m_end = other.m_end;
+	m_dirlist = other.m_dirlist;
+	m_entry_name = other.m_entry_name;
+	
+	// no Open() here - delayed until next access
+	return *this;
+      }
+
+      bool operator== (const Iterator& other) {
+	return (m_dirlist == other.m_dirlist &&
+		m_end == other.m_end &&
+		m_entry_name == other.m_entry_name);
+      }
       
-      bool operator== (const Iterator& other);
-      bool operator!= (const Iterator& other);
+      bool operator!= (const Iterator& other) {
+	return (m_dirlist != other.m_dirlist ||
+		m_end != other.m_end ||
+		m_entry_name != other.m_entry_name);
+      }
       
       friend class Utility::DirList;
       
@@ -77,7 +109,32 @@ namespace Utility
       
       void Open ();
       void Close ();
-      void Next ();
+      
+      // must be Opened!
+      void Utility::DirList::Iterator::Next () {
+	
+	// avoid recursion ;-)
+	while (true) {
+	  m_internal_dir_entry = readdir (m_internal_dir);
+	  if (m_internal_dir_entry == 0) {
+	    m_entry_name = "";
+	    m_end = true;
+	    return;
+	  }
+	  
+	  // skip . and .. - any dir has those and apps normally do not need them
+	  // here are some optimizations since Next() is performance critical
+	  m_entry_name = m_internal_dir_entry->d_name;
+	  
+	  // short path
+	  if (m_entry_name[0] != '.' || m_entry_name.size() > 2)
+	    return;
+	  
+	  // expensive checks
+	  if (!(m_entry_name == "." || m_entry_name == ".."))
+	    return;
+	}
+      }
       
       // direct state
       bool m_open;
