@@ -94,7 +94,7 @@ namespace Utility
   std::ostream& LogDevice<LDEVC>::SplitLog ()
   {
     direction d = DetermineDirection (LDESC::echo_log_stdout, LDESC::log_to_file);
-    std::ostream* r_stream;
+    std::ostream* r_stream = 0;
     switch (d)
       {
       case std:
@@ -117,7 +117,7 @@ namespace Utility
   std::ostream& LogDevice<LDEVC>::SplitWarn ()
   {
     direction d = DetermineDirection (LDESC::echo_warn_stderr, LDESC::warn_to_file);
-    std::ostream* r_stream;
+    std::ostream* r_stream = 0;
     switch (d)
       {
       case std:
