@@ -7,10 +7,8 @@
 void scan (const std::string s)
 {
   Utility::DirList dir (s);
-  Utility::DirList::Iterator it, it_end;
-  
-  it = dir.Begin ();
-  it_end = dir.End ();
+  Utility::DirList::Iterator it (dir.Begin());
+  Utility::DirList::Iterator it_end (dir.End ());
   
   while  (it != it_end) {
     std::cout << s + '/' + *it << std::endl;
