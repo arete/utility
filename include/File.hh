@@ -36,21 +36,44 @@
 
 namespace Utility
 {
-   
+  
+  class FileType
+  {
+  private:
+    int type;
+    
+  public:
+    FileType () {};
+    FileType (int i_type) {type = i_type;}
+    
+    const FileType& operator= (int n_type) {type = n_type; return *this;}
+    
+    bool IsUnknown () const {return (type & S_IFMT) == 0;}
+    bool IsFile () const {return S_ISREG(type);}
+    bool IsDirectory () const {return S_ISDIR(type);}
+    bool IsCharDevice () const {return S_ISCHR(type);}
+    bool IsBlockDevice () const {return S_ISBLK(type);}
+    bool IsFIFO () const {return S_ISFIFO(type);}
+    bool IsSymlink () const {return S_ISLNK(type);}
+    bool IsSocket () const {return S_ISSOCK(type);}
+    
+  };
+  
   /* this is some wrapping around the (ugly) posix directory stuff
      not really a perfectly crafted object */
   class File
   {
   public:
+    File ();
     File (const std::string& str);
     ~File ();
-  
+    
+    void SetFile (const std::string& str);
+    
     const std::string& Basename ();
     const std::string& Extension ();
     
-    bool IsDirectory ();
-    bool IsSymlink ();
-    bool IsFile ();
+    const FileType Type ();
     
     const std::string Name () const {
       return filename;
@@ -63,6 +86,8 @@ namespace Utility
     inline bool updateStat ();
     void updateBaseExt ();
     
+    void reset ();
+    
     std::string filename;
     std::string basename; // just cached
     std::string extension; // just cached
@@ -71,10 +96,7 @@ namespace Utility
     bool c_stat_valid;
   };
   
-  std::ostream& operator<< (std::ostream& os, const File& file) {
-    os << file.Name ();
-    return os;
-  }
+  std::ostream& operator<< (std::ostream& os, const File& file);
 
 } // namespace Utility
 

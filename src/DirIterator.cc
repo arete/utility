@@ -86,6 +86,26 @@ Utility::DirList::Iterator::~Iterator ()
     Close ();
 }
 
+const Utility::FileType Utility::DirList::Iterator::Type ()
+{
+  FileType type;
+  
+  // d_type usable ...
+  if (m_internal_dir_entry)
+    type = DTTOIF(m_internal_dir_entry->d_type);
+  
+  if (type.IsUnknown ()) {
+    /*std::cout << "type unknown - fallback to stat ..." << std::endl;
+      std::cout << m_dirlist->m_dirname + '/' + m_entry_name << std::endl;*/
+    // we do not use a temporary to save object construction
+    // and profit from caching
+    m_file.SetFile (m_dirlist->m_dirname + '/' + m_entry_name);
+    type = m_file.Type();
+  }
+  
+  return type;
+}
+
 const Utility::DirList::Iterator& Utility::DirList::Iterator::operator++ ()
 {
   Next ();

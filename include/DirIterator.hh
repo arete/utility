@@ -33,6 +33,8 @@
 #include <dirent.h>    // used by directory iterator
 #include <string>
 
+#include <File.hh>
+
 namespace Utility
 {
   
@@ -56,6 +58,8 @@ namespace Utility
       Iterator (DirList* i_dirlist);
       Iterator (const Iterator& i_other);
       ~Iterator ();
+      
+      const FileType Type ();
       
       const Iterator& operator++ ();
       const Iterator operator++ (int);
@@ -82,7 +86,10 @@ namespace Utility
       // indirect state of C API
       DIR* m_internal_dir;
       dirent* m_internal_dir_entry;
-  
+      
+      // a File object for the case the dirent does not yield a
+      // valid d_type
+      File m_file;
     };
     
     DirList (const std::string& i_dirmname = "/");

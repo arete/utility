@@ -23,20 +23,31 @@
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
 
-#include "File.hh"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include <iostream>
 
+#include "File.hh"
+
+Utility::File::File () {
+  c_stat_valid = false;
+}
+
 Utility::File::File (const std::string& str) {
   filename = str;
   c_stat_valid = false;
 }
 
-Utility::File::~File (){
+Utility::File::~File () {
+}
+
+void Utility::File::SetFile (const std::string& str) {
+  if (str != filename) {
+    reset();
+    filename = str;
+  }
 }
 
 const std::string& Utility::File::Basename ()
@@ -56,16 +67,16 @@ const std::string& Utility::File::Extension ()
   return extension;
 }
 
-bool Utility::File::IsDirectory () {
-  return updateStat() && S_ISDIR(c_stat.st_mode);
+const Utility::FileType Utility::File::Type ()
+{
+  updateStat();
+  return FileType(c_stat.st_mode);
 }
 
-bool Utility::File::IsSymlink () {
-  return updateStat() && S_ISLNK(c_stat.st_mode);
-}
-
-bool Utility::File::IsFile () {
-  return updateStat() && S_ISREG(c_stat.st_mode);
+void Utility::File::reset () {
+  basename.clear();
+  extension.clear();
+  c_stat_valid = false;
 }
 
 bool Utility::File::updateStat () {
@@ -88,4 +99,9 @@ void Utility::File::updateBaseExt () {
     basename = filename;
     extension.clear (); // slightly redundant - but just to be sure
   }
+}
+
+std::ostream& Utility::operator<< (std::ostream& os, const File& file) {
+  os << file.Name ();
+  return os;
 }
