@@ -43,6 +43,8 @@ class TestThread : public Utility::Threads::Thread
   void* main (void* obj) {
     std::cout << __PRETTY_FUNCTION__ << std::endl;
     std::cout << "In thread" << std::endl;
+    
+    return 0;
   }
 
 };
