@@ -50,11 +50,20 @@ void Utility::File::SetFile (const std::string& str) {
   }
 }
 
+const std::string& Utility::File::Dirname ()
+{
+  // this is slightly unoptimal if we really do not have a dirname
+  // but since this is rare we keep this simple
+  if (dirname == "")
+    updateDirBaseExt ();
+  return dirname;
+}
+
 const std::string& Utility::File::Basename ()
 {
   // we always have a basename - a leading dot forms a hidden Unix file ....
   if (basename == "")
-    updateBaseExt ();
+    updateDirBaseExt ();
   return basename;
 }
 
@@ -63,7 +72,7 @@ const std::string& Utility::File::Extension ()
   // this is slightly unoptimal if we really do not have an extension
   // but since this is rare we keep this simple
   if (extension == "")
-    updateBaseExt ();
+    updateDirBaseExt ();
   return extension;
 }
 
@@ -86,18 +95,26 @@ bool Utility::File::updateStat () {
   return stat (filename.c_str(), &c_stat) == 0;
 }
 
-void Utility::File::updateBaseExt () {
+void Utility::File::updateDirBaseExt () {
   // parse the filename extension
-  std::string::size_type idx = filename.rfind ('.');
+  std::string::size_type idx_ext = filename.rfind ('.');
+  std::string::size_type idx_base = filename.rfind ('/');
   
   // ignore leading dots - they mark hidden Unix files ...
-  if (idx && idx != std::string::npos) {
-    basename = filename.substr (0, idx);
-    extension = filename.substr (idx + 1);
+  if (idx_ext && idx_ext != std::string::npos) {
+    extension = filename.substr (idx_ext + 1);
   }
   else {
-    basename = filename;
-    extension.clear (); // slightly redundant - but just to be sure
+    extension.clear ();
+  }
+
+  if (idx_base == std::string::npos) {
+    dirname.clear ();
+    basename = filename.substr (0, std::string::npos);
+  }
+  else {
+    dirname = filename.substr (0, idx_base);
+    basename = filename.substr (idx_base + 1, std::string::npos);
   }
 }
 

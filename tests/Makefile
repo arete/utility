@@ -28,7 +28,7 @@ NOT_SRCS :=
 
 include $(TOPDIR)/Rules.pre
 
-BUILD_PROGS := Delete Logging Thread Attribute Find ThreadedFind
+BUILD_PROGS := Delete Logging Thread Attribute File Find ThreadedFind
 
 all: $(BUILD_OBJS) $(BUILD_PROGS)
 

@@ -67,7 +67,8 @@ namespace Utility
     ~File ();
     
     void SetFile (const std::string& str);
-    
+
+    const std::string& Dirname ();
     const std::string& Basename ();
     const std::string& Extension ();
     
@@ -82,11 +83,12 @@ namespace Utility
  private:
   
     inline bool updateStat ();
-    void updateBaseExt ();
+    void updateDirBaseExt ();
     
     void reset ();
     
     std::string filename;
+    std::string dirname; // just cached
     std::string basename; // just cached
     std::string extension; // just cached
     
