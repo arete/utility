@@ -50,9 +50,9 @@ class TestThread : public Utility::Threads::Thread
 int main ()
 {
   TestThread thread;
-  thread.start (0);
+  thread.Start (0);
 
-  thread.join ();
+  thread.Join ();
 
   return 0;
 }

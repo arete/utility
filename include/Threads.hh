@@ -42,9 +42,9 @@ namespace Utility
 {
   namespace Threads
   {
-    struct CondAttr { pthread_condattr_t* impl_; };
-    struct MutexAttr { pthread_mutexattr_t* impl_; };
-    struct ThreadAttr { pthread_attr_t* impl_; };
+    struct CondAttr { pthread_condattr_t* impl; };
+    struct MutexAttr { pthread_mutexattr_t* impl; };
+    struct ThreadAttr { pthread_attr_t* impl; };
 
     typedef pthread_mutex_t MutexImpl;
     typedef pthread_cond_t CondImpl;
@@ -59,33 +59,33 @@ namespace Utility
     public:
       
       static THREAD_API MutexAttr Default;
-      operator Impl* ()  { return (Impl*)(&mutex_); }
+      operator Impl* ()  { return (Impl*)(&mutex); }
 
       Mutex (const MutexAttr attr = Default) {
-	pthread_mutex_init (&mutex_, attr.impl_);
+	pthread_mutex_init (&mutex, attr.impl);
       };
       
       // (needs work) 
-      ~Mutex() { destroy (); };
+      ~Mutex() { Destroy (); };
       
-      int lock () { return pthread_mutex_lock(&mutex_); };
-      int trylock() { return pthread_mutex_trylock(&mutex_); };
-      int unlock() { return pthread_mutex_unlock(&mutex_); };
+      int Lock () { return pthread_mutex_lock (&mutex); };
+      int TryLock() { return pthread_mutex_trylock (&mutex); };
+      int Unlock() { return pthread_mutex_unlock (&mutex); };
       
     private:
-      Impl mutex_;
-      int destroy() { return pthread_mutex_destroy(&mutex_); };
+      Impl mutex;
+      int Destroy() { return pthread_mutex_destroy (&mutex); };
     };
 
     // A lazy way to unlock at end of scope
     class MLock
     {
     public:
-      MLock (Mutex& mutex):mutex_(mutex) { mutex_.lock(); };
-      ~MLock () { mutex_.unlock(); };
+      MLock (Mutex& mutex) : mutex(mutex) { mutex.Lock(); };
+      ~MLock () { mutex.Unlock(); };
       
     private:
-      Mutex &mutex_;
+      Mutex& mutex;
     };
 
     // Condition Variable
@@ -96,54 +96,53 @@ namespace Utility
     
     public:
       static THREAD_API CondAttr Default;
-      operator Impl* ()  { return (Impl*)(&cond_); };
+      operator Impl* ()  { return (Impl*)(&cond); };
 
       Condition (const CondAttr &attr = Default) {
-	pthread_cond_init (&cond_,attr.impl_);
+	pthread_cond_init (&cond, attr.impl);
       };
 	
-      ~Condition () { destroy (); };
+      ~Condition () { Destroy (); };
       
       // restarts exactly one thread hung on condition
-      int signal()       { return pthread_cond_signal (&cond_); }
+      int Signal ()       { return pthread_cond_signal (&cond); }
 
       // restarts all threads waiting on condition
-      int broadcast()    { return pthread_cond_broadcast(&cond_); }
+      int Broadcast ()    { return pthread_cond_broadcast (&cond); }
 
       // unlocks a mutex while waiting on a condition, then reaquires lock.
-      int wait(Mutex &m) { return pthread_cond_wait (&cond_,m); }
+      int Wait (Mutex &m) { return pthread_cond_wait (&cond, m); }
 
       // unlocks a mutex while waiting on a condition, then reaquires lock
       // with a fixed maximum duration.
-      int wait (Mutex &m, struct timespec* spec) {
-	return pthread_cond_timedwait (&cond_, m, spec);
+      int Wait (Mutex &m, struct timespec* spec) {
+	return pthread_cond_timedwait (&cond, m, spec);
       }
       
     private:
-      Impl cond_;
+      Impl cond;
       
-      int destroy () { return pthread_cond_destroy (&cond_); }
+      int Destroy () { return pthread_cond_destroy (&cond); }
     };
 
     // Integer Semaphore
     class Semaphore
     {
     public:
-      Semaphore (int value = 1)
-	: value_ (value) {}
+      Semaphore (int i_value = 1)
+	: value (i_value) {}
       ~Semaphore () {}
       
-      void up();
-      void down();
+      void Up ();
+      void Down ();
       
     private:
-      int value_;
-      Condition sig_;
-      Mutex access_;
+      int value;
+      Condition sig;
+      Mutex access;
     };
     
-    /* This is a very basic thread skeleton which does not perform
-     * and automatic operation (such as joining in the dtor ...)
+    /* This is a very basic thread skeleton.
      */
     class Thread
     {
@@ -152,18 +151,70 @@ namespace Utility
       static THREAD_API ThreadAttr Default;
       
     public:
-      Thread (const ThreadAttr& attr = Default);
+      Thread (const ThreadAttr& i_attr = Default);
       virtual ~Thread ();
 
-      int detach ();
-      void* join ();
+      /* Detach () put the thread th in the detached state. This
+	 guarantees that the memory resources consumed by th will be
+	 freed immediately when th terminates. However, this prevents
+	 other threads from synchronizing on the termination of this
+	 thread using Join (). */
+      int Detach ();
       
-      // arg is for passing extra data to main, but never pass a
-      // local variable or address of local variable. Arg must
-      // be available throughout life of program.
-      int start (void* arg = 0);
+      /* Join () suspends the execution of the calling Thread until
+	 this thread terminates, either by returning from the main ()
+	 method or by being Cancel ()ed. */
+      void* Join ();
+      
+      /* arg is for passing extra data to main, but never pass a
+	 local variable or address of local variable. Arg must
+	 be available throughout life of program. */
+      int Start (void* arg = 0);
+      
+      /* StopInDebugger () will emit a SIGTRAP (or pefroming other
+	 actions valid for the given plaform) from the calling
+	 thread. */
+      static void StopInDebugger ();
+      
+      /* EnableRealtimeScheduling () enables rea-time scheduling for
+	 the calling thread. */
+      static bool EnableRealtimeScheduling ();
+      
+      /* USleep () suspends execution of the calling thread/process
+	 for (at least) usec microseconds.  The sleep may be
+	 lengthened slightly by any system activity or by the time
+	 spent processing the call or by the granularity of system
+	 timers. If high_precission is set to false (the default)
+	 USleep will limit the minimal value where the Operating
+	 System will release sleep instead of an busy loop (2ms on
+	 Linux) */
+      static void USleep (int usec, bool high_precission = false);
+      
+      /* NSleep () suspsends execution of the calling thread/process
+	 in the same was as USleep - but with nanosecond precission */
+      static void NSleep (int nsec, bool high_precission = false);
+      
+      /* A thread can relinquish the processor voluntarily without
+	 blocking by calling Yield. The thread will then be moved to
+	 the end of the queue for its static priority and a new
+	 thread/process gets to run.
 
-      operator Impl* () { return &thread_; }
+	 Note: If the current thread is the only thread/process in the
+	 highest priority list at that time, this process will
+	 continue to run after a call to sched_yield. */
+      static void Yield ();
+      
+      /* SetPriotry () sets the scheduling priority of the
+	 thread. Priority is a value in the range -20 to 20. The
+	 default priority is 0; lower priorities cause more favorable
+	 scheduling. */
+      static bool SetPriority (int priority);
+      
+      /* Priority obtains the current priority of the calling
+	 thread. */
+      static int Priority ();
+      
+      operator Impl* () { return &thread; }
       
     protected:
       
@@ -174,9 +225,9 @@ namespace Utility
       void* call_main_ (void* arg);
       static void* call_main_static_ (void* arg);
       
-      Impl thread_;
+      Impl thread;
       void* arg_;
-      ThreadAttr attr_;
+      ThreadAttr attr;
     };
     
   } /* namespace Threads */

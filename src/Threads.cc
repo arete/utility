@@ -25,7 +25,13 @@
 
 #include <unistd.h>
 
+#include <signal.h>
+#include <sched.h>        // Linux/POSIX scheduler / realtime scheduling ...
+#include <sys/resource.h> // set_priority
+
 #include "Threads.hh"
+
+#include "Logging.hh"
 
 using namespace Utility::Threads;
 
@@ -33,25 +39,25 @@ MutexAttr Mutex::Default = {0};
 CondAttr Condition::Default = {0};
 ThreadAttr Thread::Default = {0};
 
-void Semaphore::up()
+void Semaphore::Up()
 {
-  access_.lock();
-  value_++;
-  access_.unlock();
-  sig_.signal();
+  access.Lock();
+  ++ value;
+  access.Unlock();
+  sig.Signal();
 }
 
-void Semaphore::down()
+void Semaphore::Down()
 {
-  access_.lock();
-  while (value_<1)
-    {sig_.wait(access_);}
-  value_--;
-  access_.unlock();
+  access.Lock();
+  while (value < 1)
+    sig.Wait (access);
+  -- value;
+  access.Unlock();
 }
 
-Thread::Thread (const ThreadAttr &attr)
-  : attr_(attr)
+Thread::Thread (const ThreadAttr &i_attr)
+  : attr(i_attr)
 {
 }
 
@@ -59,26 +65,95 @@ Thread::~Thread ()
 {
 }
 
-int Thread::detach ()
+int Thread::Detach ()
 {
-  return pthread_detach (thread_);
+  return pthread_detach (thread);
 }
 
-void* Thread::join ()
+void* Thread::Join ()
 {
-  void* thread_return_;
-  if (pthread_join (thread_, &thread_return_) == 0)
-    return thread_return_;
+  void* thread_return;
+  if (pthread_join (thread, &thread_return) == 0)
+    return thread_return;
   else
     return 0;
 }
 
-int Thread::start (void* arg)
+int Thread::Start (void* arg)
 {
-  arg_ = arg; // save the arg for the static trampoline
+  arg_ = arg; // copy the arg for the static trampoline
 
   Thread *t = this;
-  return pthread_create (&thread_, attr_.impl_, call_main_static_, t);
+  return pthread_create (&thread, attr.impl, call_main_static_, t);
+}
+
+
+void Thread::StopInDebugger ()
+{
+  pid_t m_pid = getpid ();
+  kill (m_pid, SIGTRAP);
+}
+
+bool Thread::EnableRealtimeScheduling ()
+{
+  int t_pri = sched_get_priority_min (SCHED_FIFO);
+  Q_LOG (UtilityLog) << "priority_min: " << t_pri << std::endl;
+  
+  if (t_pri >= 0) {
+    sched_param t_params;
+    t_params.sched_priority = t_pri;
+    
+    int error = sched_setscheduler (0, SCHED_FIFO, &t_params);
+    
+    if (error < 0) {
+      Q_WARN (UtilityLog) << "WARNING POSIX realtime-scheduling "
+			  << "not available (not root?)!" << std::endl;
+    }
+    return error >= 0;
+  }
+  Q_WARN (UtilityLog) << "WARNING minimal priority is positive!"
+		      << std::endl;
+  return false;
+}
+
+void Thread::USleep (int delay, bool high_precission)
+{
+  /* From the nanosleep man-page:
+   * 
+   * If  the process is scheduled under a real-time policy like
+   * SCHED_FIFO or SCHED_RR, then pauses of up to 2 ms will be
+   * performed as busy waits with microsecond precision.
+   */
+  
+  if (!high_precission || delay > 2000)
+    usleep (delay);
+  else
+    sched_yield ();
+}
+
+void Thread::NSleep (int delay, bool high_precission)
+{
+  /* From the nanosleep man-page:
+   * 
+   * If  the process is scheduled under a real-time policy like
+   * SCHED_FIFO or SCHED_RR, then pauses of up to 2 ms will be
+   * performed as busy waits with microsecond precision.
+   */
+  
+  if (!high_precission || delay > 2000000)
+    usleep (delay);
+  else
+    sched_yield ();
+}
+
+void Thread::Yield ()
+{
+  sched_yield ();
+}
+
+bool Thread::SetPriority (int priority)
+{
+  return setpriority (PRIO_PROCESS, 0, priority) >= 0;
 }
 
 void* Thread::call_main_ (void* arg)
@@ -90,6 +165,6 @@ void* Thread::call_main_ (void* arg)
 
 void* Thread::call_main_static_ (void* obj)
 {
-  Thread *thread = (Thread*)obj;
-  return thread->call_main_ (thread->arg_);
+  Thread *thread_ = (Thread*)obj;
+  return thread_->call_main_ (thread_->arg_);
 }
