@@ -6,7 +6,7 @@
 # the GSMP-COPYRIGHT-NOTE-END tag. Otherwise it might get removed by
 # the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
 # 
-# GSMP: utility/Makefile
+# GSMP: pcm/tests/Makefile
 # General Sound Manipulation Program is Copyright (C) 2000 - 2004
 #   Valentin Ziegler and René Rebe
 # 
@@ -22,9 +22,25 @@
 # 
 # --- GSMP-COPYRIGHT-NOTE-END ---
 
-TOPDIR  = ..
-SUBDIRS = src tests
+TOPDIR  = ../..
+
+NOT_SRCS := 
+
+include $(TOPDIR)/Rules.pre
+
+BUILD_PROGS := Delete Logging Thread
+
+all: $(BUILD_OBJS) $(BUILD_PROGS)
+
 include $(TOPDIR)/Rules
 
-all: $(SUBDIRS)
+INCDIRS := . ../include ../../dam/include
+
+INCLUDES := $(SIGCINCS) \
+            $(filter-out $(NOT_INCS), \
+            $(foreach dir, $(INCDIRS), -I$(dir)))
+
+LIBS := $(SIGCLIBS) -ldl ../src/libutility.so
+
+include $(TOPDIR)/Rules.post
 

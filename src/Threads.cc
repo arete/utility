@@ -65,6 +65,14 @@ Thread::~Thread ()
 {
 }
 
+int Thread::Create (void* arg)
+{
+  arg_ = arg; // copy the arg for the static trampoline
+
+  Thread *t = this;
+  return pthread_create (&thread, attr.impl, call_main_static_, t);
+}
+
 int Thread::Detach ()
 {
   return pthread_detach (thread);
@@ -78,15 +86,6 @@ void* Thread::Join ()
   else
     return 0;
 }
-
-int Thread::Start (void* arg)
-{
-  arg_ = arg; // copy the arg for the static trampoline
-
-  Thread *t = this;
-  return pthread_create (&thread, attr.impl, call_main_static_, t);
-}
-
 
 void Thread::StopInDebugger ()
 {

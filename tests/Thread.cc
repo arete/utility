@@ -50,7 +50,7 @@ class TestThread : public Utility::Threads::Thread
 int main ()
 {
   TestThread thread;
-  thread.Start (0);
+  thread.Create (0);
 
   thread.Join ();
 

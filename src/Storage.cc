@@ -24,7 +24,7 @@
  */
 
 #include "Storage.hh"
-#include "Storage.tcc"
+#include "template/Storage.tcc"
 
 #include <sstream>
 

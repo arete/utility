@@ -154,6 +154,14 @@ namespace Utility
       Thread (const ThreadAttr& i_attr = Default);
       virtual ~Thread ();
 
+      /* Create () creates the new thread of execution of the given
+	 instance.  Internally the thread of execution starts in the
+	 private main method. arg is for passing extra data to main,
+	 but never pass a local variable or address of local
+	 variable. Arg must be available throughout the lifetime of
+	 the program. */
+      int Create (void* arg = 0);
+      
       /* Detach () put the thread th in the detached state. This
 	 guarantees that the memory resources consumed by th will be
 	 freed immediately when th terminates. However, this prevents
@@ -165,13 +173,6 @@ namespace Utility
 	 this thread terminates, either by returning from the main ()
 	 method or by being Cancel ()ed. */
       void* Join ();
-      
-      /* Start () starts the threaded execution of the given instance.
-	 Internally the thead of execution start in the private main
-	 method. arg is for passing extra data to main, but never pass
-	 a local variable or address of local variable. Arg must be
-	 available throughout life of program. */
-      int Start (void* arg = 0);
       
       /* StopInDebugger () will emit a SIGTRAP (or pefroming other
 	 actions valid for the given plaform) from the calling
