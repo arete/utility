@@ -166,9 +166,11 @@ namespace Utility
 	 method or by being Cancel ()ed. */
       void* Join ();
       
-      /* arg is for passing extra data to main, but never pass a
-	 local variable or address of local variable. Arg must
-	 be available throughout life of program. */
+      /* Start () starts the threaded execution of the given instance.
+	 Internally the thead of execution start in the private main
+	 method. arg is for passing extra data to main, but never pass
+	 a local variable or address of local variable. Arg must be
+	 available throughout life of program. */
       int Start (void* arg = 0);
       
       /* StopInDebugger () will emit a SIGTRAP (or pefroming other
