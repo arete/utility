@@ -46,4 +46,5 @@ LIBS := $(SIGCLIBS) -ldl -lpthread
 
 ####
 
--include $(DEPS)
+include $(TOPDIR)/Rules.post
+
