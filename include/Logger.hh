@@ -7,7 +7,6 @@
 
 namespace Utility
 {
-
   class LogDeviceConfig
   {
   public:
@@ -40,21 +39,37 @@ namespace Utility
   {
   protected:
     typedef u_int64_t timestamp_t;
+    typedef enum {std,file,both} direction;
 
     static timestamp_t current;
+    static direction last_direction;
     static BasicLogDevice* last_device;
+    
 
     BasicLogDevice ();
-    bool TimeStamp ();
-  };
 
-  extern bool basic_log_device_initialized;
+    bool TimeStamp (direction d);
+    void PrintPrelude ();
+    void PrintTimeStamp (std::ostream* str);
+
+    void AllocateSplitStreams ();
+    void DeallocateSplitStreams ();
+
+    SplitStreamBuffer* split_buffer_cout;
+    SplitStreamBuffer* split_buffer_cerr;
+    
+    std::ostream* split_stream_cout;
+    std::ostream* split_stream_cerr;
+
+    std::ofstream* log_file;
+  };
 
 
   template <typename LDEVC = LogDeviceConfig>
   class LogDevice : public BasicLogDevice
   {
   public:
+    typedef LDEVC Config;
 
     LogDevice (std::ofstream& logfile);
     LogDevice ();
@@ -70,17 +85,7 @@ namespace Utility
     std::ostream& SplitWarn ();
 
   protected:
-    void AllocateSplitStreams ();
-    void DeallocateSplitStreams ();
-
-    SplitStreamBuffer* split_buffer_cout;
-    SplitStreamBuffer* split_buffer_cerr;
-    
-    std::ostream* split_stream_cout;
-    std::ostream* split_stream_cerr;
-
-    std::ofstream* log_file;
-
+    direction DetermineDirection (const bool to_std, const bool to_file);
   };
 
 
@@ -88,16 +93,21 @@ namespace Utility
   class LogDestination
   {
   public:
-    LogDestination (std::string context, LogDevice <LDEVC>& device);  // with logfile
+    typedef LogDevice <LDEVC> Device;
+    typedef typename LogDevice <LDEVC>::Config DeviceConfig;
+
+    LogDestination (std::string i_context, LogDevice <LDEVC>& i_device);
 
     inline bool DoLog ()  {return (!LDEVC::disabled) && (LDESC::echo_log_stdout || LDESC::log_to_file);}
     inline bool DoWarn () {return (!LDEVC::disabled) && (LDESC::echo_warn_stderr || LDESC::warn_to_file);}
 
     std::ostream& Log ();
+
     std::ostream& Warn ();
 
-  private:
-
+  protected:
+    std::string context;
+    Device& device;
   };
 
 
@@ -125,6 +135,10 @@ namespace Utility
     std::ostream& Warn (const char* pretty_function_name);
   };
 
+
+  // we export cout and cerr to avoid <iostream> inclusion
+  extern std::ostream& wrap_cout;
+  extern std::ostream& wrap_cerr;
 
 } // end namespace Utility
 

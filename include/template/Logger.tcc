@@ -10,13 +10,20 @@
 namespace Utility
 {
 
-  inline bool BasicLogDevice::TimeStamp ()
+  inline bool BasicLogDevice::TimeStamp (direction d)
   {
     if (last_device != this)
       {
 	last_device = this;
+	last_direction = d;
 	return true;
       }
+
+    if (last_direction != d)
+      {
+	last_direction = d;
+	return true;
+      };
 
     return false;
   }
@@ -53,8 +60,8 @@ namespace Utility
       DeallocateSplitStreams ();
     log_file = &logfile;
     AllocateSplitStreams ();
-    //    if (LDEVC::print_log_prelude)
-    //     PrintPrelude (*log_prelude);
+    if (LDEVC::print_log_prelude)
+      PrintPrelude ();
   };
 
   template <typename LDEVC>
@@ -62,46 +69,99 @@ namespace Utility
   {
     if (log_file)
       DeallocateSplitStreams ();
-    log_file = &logfile;
+    log_file = 0;
+  }
+
+
+  template <typename LDEVC>
+  BasicLogDevice::direction LogDevice<LDEVC>::DetermineDirection (const bool to_std, const bool to_file)
+  {
+    if (to_std || (!log_file))
+      {
+	if (to_file && log_file)
+	  return both;
+	else // file only or no logging at all
+	  return std;
+      }
+    else if (to_file)
+      return file;
+
+    return std; // no-log-at-all case : return std for savety.
   }
 
 
   template <typename LDEVC> template <typename LDESC>
   std::ostream& LogDevice<LDEVC>::SplitLog ()
   {
-    if (LDESC::echo_log_std_out || (!log_file))
+    direction d = DetermineDirection (LDESC::echo_log_stdout, LDESC::log_to_file);
+    std::ostream* r_stream;
+    switch (d)
       {
-	if (LDESC::log_to_file && log_file)
-	  return *split_stream_cout;
-	else
-	  return cout;
+      case std:
+	r_stream = &wrap_cout;
+	break;
+      case both:
+	r_stream = split_stream_cout;
+	break;
+      case file:
+	r_stream = log_file;
       }
-    else if (LDESC::log_to_file)
-      return *log_file;
+
+    if (LDEVC::do_timestamping)
+      if (TimeStamp (d))
+	PrintTimeStamp (r_stream);
+    return *r_stream;
   }
 
-  template <typename LDESC>
-  std::ostream& SplitWarn ();
-
-
-
-  template <typename LDEVC>
-  void LogDevice<LDEVC>::AllocateSplitStreams ()
+  template <typename LDEVC> template <typename LDESC>
+  std::ostream& LogDevice<LDEVC>::SplitWarn ()
   {
-    split_buffer_cout = new SplitStreamBuffer (cout, *log_file);
-    split_buffer_cerr = new SplitStreamBuffer (cerr, *log_file);
-    split_stream_cout = new std::ostream (split_buffer_cout);
-    split_stream_cerr = new std::ostream (split_buffer_cerr);
+    direction d = DetermineDirection (LDESC::echo_warn_stderr, LDESC::warn_to_file);
+    std::ostream* r_stream;
+    switch (d)
+      {
+      case std:
+	r_stream = &wrap_cerr;
+	break;
+      case both:
+	r_stream = split_stream_cerr;
+	break;
+      case file:
+	r_stream = log_file;
+      }
+
+    if (LDEVC::do_timestamping)
+      if (TimeStamp (d))
+	PrintTimeStamp (r_stream);
+    return *r_stream;
   }
 
-  
-  template <typename LDEVC>
-  void LogDevice<LDEVC>::DeallocateSplitStreams ()
+
+  template <typename LDESC, typename LDEVC>
+  LogDestination<LDESC, LDEVC>::LogDestination (std::string i_context, LogDevice <LDEVC>& i_device)
+    : device (i_device)
   {
-    delete split_stream_cout;
-    delete split_stream_cerr;
-    delete split_buffer_cout;
-    delete split_buffer_cerr;
+    context = i_context;
   }
+
+  template <typename LDESC, typename LDEVC>
+  std::ostream& LogDestination<LDESC, LDEVC>::Log ()
+  {    
+    std::ostream& r_stream = device.LogDevice<>::SplitLog<LDESC> ();
+    if (LDESC::context_in_log)
+      r_stream << context << ": ";
+    return r_stream;
+  }
+
+  template <typename LDESC, typename LDEVC>
+  std::ostream& LogDestination<LDESC, LDEVC>::Warn ()
+  {    
+    std::ostream& r_stream = device.LogDevice<>::SplitWarn<LDESC> ();
+    if (LDESC::context_in_warn)
+      r_stream << context << " warning : ";
+    return r_stream;
+  }
+
+
 
 } // end namespace Utility
