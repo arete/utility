@@ -22,15 +22,7 @@
 # 
 # --- GSMP-COPYRIGHT-NOTE-END ---
 
-all: 
-	make -C src
+SUBDIRS =	src
 
-clean:
-	find -name "*.d" -o -name "*.o" -o -name "*.so" | xargs rm -vf
-
-distclean: clean
-	find -name "*~" -o -name "core" | xargs rm -vf
-
-ungen: clean
-	rm -vf $(CC_SRCS) $(HH_SRCS) $(TMPL_SRCS)
+include ../Rules
 

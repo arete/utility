@@ -22,11 +22,6 @@
 # 
 # --- GSMP-COPYRIGHT-NOTE-END ---
 
-# Compilers
-###########
-CXX := g++
-AR := ar
-
 NOT_SRCS := 
 SRCS    := $(filter-out $(NOT_SRCS), $(wildcard *.cc))
 
@@ -35,11 +30,10 @@ DEPS := $(addsuffix .d, $(basename $(SRCS)))
 
 LIBUTILITY := libutility.so
 
-# Flags
-#######
-OPTFLAGS   := -O1
-DEBUGFLAGS := -g
-CXXFLAGS   :=
+all: lib
+lib: $(LIBUTILITY)
+
+include ../../Rules
 
 INCDIRS := . ../include
 
@@ -47,31 +41,8 @@ INCLUDES := $(SIGCINCS) \
 	$(filter-out $(NOT_INCS), \
 	$(foreach dir, $(INCDIRS), -I$(dir)))
 
-FLAGS      := $(CXXFLAGS) $(OPTFLAGS) $(DEBUGFLAGS) $(EXTRAFLAGS)
+LIBS := $(SIGCLIBS) -ldl -lpthread
 
-EXTRALDFLAGS := -shared $(DEBUGFLAGS)
-LDFLAGS      :=  $(EXTRALDFLAGS)
-
-LIBS := $(SIGCLIBS) -ldl
-
-# Main Targets
-##############
-# Build
-all: lib
-
-lib: $(LIBUTILITY)
-
-%.o: %.cc %.d
-	$(CXX) $(FLAGS) $(INCLUDES) -c -o $@ $<
-
-%.d: %.cc
-	$(CXX) -MM $(FLAGS) $(INCLUDES) $< > $@
-
-%.so: $(OBJS)
-	$(CXX) $(LDFLAGS) $(LIBS) -o $@ $^
-
-%.a: $(OBJS)
-	$(AR) r $@ $^
+####
 
 -include $(DEPS)
-
