@@ -35,136 +35,140 @@
 #include <map>
 #include <vector>
 
-class BasicArgument {
- public:
+namespace Utility
+{
+  class BasicArgument {
+  public:
   
-  BasicArgument (const std::string& i_sname, const std::string& i_lname,
-		 const std::string& i_desc,  int i_min_count, int i_max_count,
-		 bool i_fragmented);
+    BasicArgument (const std::string& i_sname, const std::string& i_lname,
+		   const std::string& i_desc,  int i_min_count, int i_max_count,
+		   bool i_fragmented);
   
-  virtual ~BasicArgument ();
+    virtual ~BasicArgument ();
   
-  virtual bool Read () = 0;
-  virtual bool Read (const std::string& arg) = 0;
+    virtual bool Read () = 0;
+    virtual bool Read (const std::string& arg) = 0;
   
-  virtual bool Probe();
+    virtual bool Probe();
   
-  virtual bool Interrupt ();
-  virtual bool Finalize ();
+    virtual bool Interrupt ();
+    virtual bool Finalize ();
   
-  std::string sname;
-  std::string lname;
-  std::string desc;
+    std::string sname;
+    std::string lname;
+    std::string desc;
   
-  int min_count, max_count;
-  bool needs_arg, fragmented;
-  int count, pass_count;
-};
+    int min_count, max_count;
+    bool needs_arg, fragmented;
+    int count, pass_count;
+  };
 
-template <typename T> 
-class Argument : public BasicArgument {
+  template <typename T> 
+  class Argument : public BasicArgument {
  
- public:
+  public:
   
-  Argument (const std::string& i_sname, const std::string& i_lname,
-	    const std::string& i_desc,
-	    int i_min_count = 0, int i_max_count = 0, bool i_fragmented = false) 
-    : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count, i_fragmented)
-  {
-    // if bool (or other special option) always containing one value
-    if (!needs_arg)
-      values.push_back (T () );
-  }
+    Argument (const std::string& i_sname, const std::string& i_lname,
+	      const std::string& i_desc,
+	      int i_min_count = 0, int i_max_count = 0, bool i_fragmented = false) 
+      : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count, i_fragmented)
+    {
+      // if bool (or other special option) always containing one value
+      if (!needs_arg)
+	values.push_back (T () );
+    }
 
-  Argument (const std::string& i_sname, const std::string& i_lname,
-	    const std::string& i_desc, 
-	    const T& i_value, int i_min_count = 0, int i_max_count = 0,
-	    bool i_fragmented = false)
-    : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count, i_fragmented)
-  {
-    values.push_back (i_value);
-    // if bool (or other special option) always containing one value
-    if (!needs_arg)
-      values.push_back (T () );
-  }
+    Argument (const std::string& i_sname, const std::string& i_lname,
+	      const std::string& i_desc, 
+	      const T& i_value, int i_min_count = 0, int i_max_count = 0,
+	      bool i_fragmented = false)
+      : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count, i_fragmented)
+    {
+      values.push_back (i_value);
+      // if bool (or other special option) always containing one value
+      if (!needs_arg)
+	values.push_back (T () );
+    }
   
-  bool Read () {
-    std::cout << "Error: Argument " << lname << " needs an parameter!" << std::endl;
-    return false;
-  }
-  
-  bool Read (const std::string& arg) {
-    if (count >= max_count) {
-      std::cout << "Error: Too many parameter for argument " << lname
-		<< ", only " << max_count << " allowed!" << std::endl;
+    bool Read () {
+      std::cout << "Error: Argument " << lname << " needs an parameter!" << std::endl;
       return false;
     }
-    
-    std::stringstream stream (arg);
-    // TODO: error handling
-    T value;
-    stream >> value;
-    
-    // special case if default was supplied -> overwrite the first ...
-    if (count == 0 & values.size () > 0)
-      values[0] = value;
-    else
-      values.push_back (value);
-    
-    ++count; ++pass_count;
-    
-    return true;
-  }
   
-  T Get (unsigned int i = 0) {
-    if (values.size () > i) {
-      return values [i];
+    bool Read (const std::string& arg) {
+      if (count >= max_count) {
+	std::cout << "Error: Too many parameter for argument " << lname
+		  << ", only " << max_count << " allowed!" << std::endl;
+	return false;
+      }
+    
+      std::stringstream stream (arg);
+      // TODO: error handling
+      T value;
+      stream >> value;
+    
+      // special case if default was supplied -> overwrite the first ...
+      if (count == 0 & values.size () > 0)
+	values[0] = value;
+      else
+	values.push_back (value);
+    
+      ++count; ++pass_count;
+    
+      return true;
     }
-    else
-      std::cout << "Error: There is no parameter: " << i
-		<< " present for argument " << this->lname << std::endl;
-    return T ();
-  }
   
-private:
-  std::vector<T> values;
-};
-
-// some bool specialisations ...
-template <> bool Argument<bool>::Read ();
-template <> bool Argument<bool>::Read (const std::string& arg);
-
-class ArgumentList {
-
- public:
+    T Get (unsigned int i = 0) {
+      if (values.size () > i) {
+	return values [i];
+      }
+      else
+	std::cout << "Error: There is no parameter: " << i
+		  << " present for argument " << this->lname << std::endl;
+      return T ();
+    }
   
-  // inresidual mode the last stray parameters are gathered
-  ArgumentList (bool i_residual = false);
-  ~ArgumentList ();
+  private:
+    std::vector<T> values;
+  };
 
-  // register a to be parsed argument
-  void Add (BasicArgument* arg);
-  // parse options specified
-  bool Read (int argc, char** argv);
+  // some bool specialisations ...
+  template <> bool Argument<bool>::Read ();
+  template <> bool Argument<bool>::Read (const std::string& arg);
+
+  class ArgumentList {
+
+  public:
   
-  // return the vector of gathered residuals (if residual parsing enabled)
-  const std::vector<std::string>& Residuala () const;
+    // inresidual mode the last stray parameters are gathered
+    ArgumentList (bool i_residual = false);
+    ~ArgumentList ();
 
-  // printout the usual usage list, generated from the registered arguments
-  void Usage (const std::ostream& os) const;
+    // register a to be parsed argument
+    void Add (BasicArgument* arg);
+    // parse options specified
+    bool Read (int argc, char** argv);
+  
+    // return the vector of gathered residuals (if residual parsing enabled)
+    const std::vector<std::string>& Residuala () const;
+
+    // printout the usual usage list, generated from the registered arguments
+    void Usage (const std::ostream& os) const;
     
- private:
-  typedef std::map<std::string, BasicArgument*> container;
-  typedef container::iterator iterator;
-  typedef container::const_iterator const_iterator;
+  private:
+    typedef std::map<std::string, BasicArgument*> container;
+    typedef container::iterator iterator;
+    typedef container::const_iterator const_iterator;
   
-  container short_content;
-  container long_content;
+    container short_content;
+    container long_content;
   
-  std::vector<std::string> residuals;
+    std::vector<std::string> residuals;
   
-  bool residual;
-};
+    bool residual;
+  };
+
+} // namespace Utility
 
 #include "template/ArgumentList.tcc"
 

@@ -32,7 +32,7 @@
 
 #include <sigc++/signal.h>
 
-namespace GSMP
+namespace Utility
 {
   
   // the base of all attributes just holding the value and a Get() method
@@ -88,6 +88,6 @@ namespace GSMP
     };
   */
 
-} // end namespace GSMP
+} // end namespace Utility
 
 #endif // UTILITY__ATTRIBUTE_HH__

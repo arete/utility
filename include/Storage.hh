@@ -35,67 +35,71 @@
 #include <map>
 #include <iostream>
 
-class BasicStorage {
- public:
-  
-  virtual ~BasicStorage () {};
-  
-  virtual std::istream& Read (std::istream& is) = 0;
-  virtual std::ostream& Write (std::ostream& os) = 0;
+namespace Utility {
 
-  std::string name;
-};
+  class BasicStorage {
+  public:
+  
+    virtual ~BasicStorage () {};
+  
+    virtual std::istream& Read (std::istream& is) = 0;
+    virtual std::ostream& Write (std::ostream& os) = 0;
 
-template <typename T> 
-class Storage : public BasicStorage {
+    std::string name;
+  };
+
+  template <typename T> 
+  class Storage : public BasicStorage {
  
- public:
+  public:
   
-  Storage (const std::string& i_name) {
-    name = i_name;
-  }
+    Storage (const std::string& i_name) {
+      name = i_name;
+    }
 
-  Storage (const std::string& i_name, const T& i_value) {
-    name = i_name;
-    value = i_value;
-  }
+    Storage (const std::string& i_name, const T& i_value) {
+      name = i_name;
+      value = i_value;
+    }
   
-  virtual std::istream& Read (std::istream& is) {
-    // TODO: error handling
-    is >> value;
-    return is;
-  }
+    virtual std::istream& Read (std::istream& is) {
+      // TODO: error handling
+      is >> value;
+      return is;
+    }
   
-  virtual std::ostream& Write (std::ostream& os) {
-    os << value;
-    return os;
-  }
+    virtual std::ostream& Write (std::ostream& os) {
+      os << value;
+      return os;
+    }
   
-  T Get () {
-    return value;
-  }
+    T Get () {
+      return value;
+    }
   
-private:
-  T value;
-};
+  private:
+    T value;
+  };
 
-// some bool specialisations ...
-template <> std::istream& Storage<bool>::Read (std::istream& is);
+  // some bool specialisations ...
+  template <> std::istream& Storage<bool>::Read (std::istream& is);
 
-class Serializer {
+  class Serializer {
 
- public:
+  public:
 
-  void Add (BasicStorage* storage);
+    void Add (BasicStorage* storage);
   
-  std::istream& Read (std::istream& is, bool verbose = true);
+    std::istream& Read (std::istream& is, bool verbose = true);
   
- private:
-  typedef std::map<std::string, BasicStorage*> container;
-  typedef container::iterator iterator;
+  private:
+    typedef std::map<std::string, BasicStorage*> container;
+    typedef container::iterator iterator;
   
-  container content;
-};
+    container content;
+  };
+
+} // namespace Utility
 
 #include "template/Storage.tcc"
 

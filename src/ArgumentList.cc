@@ -28,6 +28,8 @@
 #include "ArgumentList.hh"
 #include "template/ArgumentList.tcc"
 
+using namespace Utility;
+
 BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_lname,
 			      const std::string& i_desc,  int i_min_count, int i_max_count,
 			      bool i_fragmented)

@@ -28,6 +28,8 @@
 
 #include <sstream>
 
+using namespace Utility;
+
 void Serializer::Add (BasicStorage* storage) {
   content [storage->name] = storage;
 }
