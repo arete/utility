@@ -24,7 +24,7 @@
 
 # Compilers
 ###########
-CXX := c++
+CXX := g++
 AR := ar
 
 NOT_SRCS := 
