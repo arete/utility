@@ -46,9 +46,7 @@ BasicLogDevice::BasicLogDevice ()
       last_device = this;
       basic_log_device_initialized = true;
     }
-};
-
-
+}
 
 void BasicLogDevice::PrintPrelude ()
 {
@@ -62,7 +60,6 @@ void BasicLogDevice::PrintTimeStamp (std::ostream* str)
   (*str) << "[@t" << current++ << "] ";
 }
 
-
 void BasicLogDevice::AllocateSplitStreams ()
 {
   split_buffer_cout = new SplitStreamBuffer (std::cout, *log_file);
@@ -70,8 +67,6 @@ void BasicLogDevice::AllocateSplitStreams ()
   split_stream_cout = new std::ostream (split_buffer_cout);
   split_stream_cerr = new std::ostream (split_buffer_cerr);
 }
-
-  
 
 void BasicLogDevice::DeallocateSplitStreams ()
 {
