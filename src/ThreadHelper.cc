@@ -13,7 +13,7 @@
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2. A copy of the GNU General
- * Public License can be found at LICENSE.
+ * Public License can be found in the file LICENSE.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT-
@@ -34,13 +34,13 @@
 
 #include <iostream>
 
-void Utility::StopInDebugger ()
+void Utility::Threads::StopInDebugger ()
 {
   pid_t m_pid = getpid ();
   kill (m_pid, SIGTRAP);
 }
 
-bool Utility::EnableRealtimeScheduling ()
+bool Utility::Threads::EnableRealtimeScheduling ()
 {
   int t_pri = sched_get_priority_min (SCHED_FIFO);
   std::cout << "ThreadHelper:: priority_min: " << t_pri << std::endl;
@@ -59,7 +59,7 @@ bool Utility::EnableRealtimeScheduling ()
   return false;
 }
 
-void Utility::USleep (int delay)
+void Utility::Threads::USleep (int delay)
 {
   /* From the nanosleep man-page:
    * 
@@ -77,7 +77,7 @@ void Utility::USleep (int delay)
     usleep (delay);
 }
 
-bool Utility::SetPriority (int priority)
+bool Utility::Threads::SetPriority (int priority)
 {
   return setpriority (PRIO_PROCESS, 0, priority) >= 0;
 }
