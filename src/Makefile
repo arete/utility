@@ -24,6 +24,7 @@
 
 TOPDIR  = ../..
 
+NOT_INCS := ../include/BinomiHeap.hh
 NOT_SRCS := 
 include $(TOPDIR)/Rules.pre
 

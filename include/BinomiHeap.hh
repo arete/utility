@@ -205,7 +205,7 @@ public:
 
 // Implementationsschablone einbinden
 #define BIN_HEAP_HH__
-#include "BinomiHeap.cc"
+#include "template/BinomiHeap.tcc"
 #undef BIN_HEAP_HH__
 
 #endif BIN_HEAP_HH

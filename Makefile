@@ -26,3 +26,5 @@ TOPDIR  = ..
 SUBDIRS = src
 include $(TOPDIR)/Rules
 
+all: $(SUBDIRS)
+
