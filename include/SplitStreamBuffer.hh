@@ -27,7 +27,7 @@ namespace Utility
 } // end namespace Utility
 
 #define UTILITY__SPLITSTREAMBUFFER_TMPL__
-#include "SplitStreamBuffer.tcc"
+#include "template/SplitStreamBuffer.tcc"
 #undef UTILITY__SPLITSTREAMBUFFER_TMPL__
 
 #endif // UTILITY__SPLITSTREAMBUFFER_HH__
