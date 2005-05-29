@@ -1,5 +1,5 @@
 
-#ifdef UTILITY__GLOB_HH__
+#ifndef UTILITY__GLOB_HH__
 #define UTILITY__GLOB_HH__
 
 #include <glob.h>
@@ -40,5 +40,7 @@ class Glob
   private:
     glob_t g;
 };
+
+}
 
 #endif
