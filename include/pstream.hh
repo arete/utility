@@ -1,4 +1,6 @@
-//#include<pstream>
+
+#ifndef UTILITY__PSTREAM_HH__
+#define UTILITY__PSTREAM_HH__
 
 #include <unistd.h>
 
@@ -6,6 +8,8 @@
 #include <sys/wait.h>
 
 #include <iostream>
+
+namespace Utility {
 
 class processbuf : public std::streambuf
 {
@@ -22,7 +26,10 @@ protected:
 		if (write (sink[1], &cc, 1) != 1)
 			return EOF;
 	}
-	return EOF;
+	else {
+		close_sink();
+		return EOF;
+	}
   }
   virtual std::streamsize xsputn (const char* s, std::streamsize num) {
 	return write (sink[1], s, num);
@@ -71,6 +78,10 @@ public:
     close(source[0]); close(sink[1]);
     waitpid(pid, NULL, 0);
   }
+
+  void close_sink () {
+    close(sink[1]);
+  }
   
 };
 
@@ -101,21 +112,17 @@ class pstream : public std::iostream
 {
 public:
   pstream (const char* file, char* const argv[])
-  : std::iostream(&buf) , buf(file, argv) {
+  : std::iostream(&buf), buf(file, argv) {
+  }
+
+  void close_sink () {
+    buf.close_sink ();
   }
 
 protected:
   processbuf buf;
 };
 
-
-int main ()
-{
-	pistream cat ("cat", (char*[]){"cat", "/proc/cpuinfo", 0} );
-	pstream sed ("sed", (char*[]){"sed", "s/World/C++/", 0} );
-
-	cat >> std::cout.rdbuf();
-	sed << "Hello World!" << std::endl;
-	sed >> std::cout.rdbuf();
 }
 
+#endif
