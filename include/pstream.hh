@@ -30,6 +30,7 @@ protected:
 		close_sink();
 		return EOF;
 	}
+	return c;
   }
   virtual std::streamsize xsputn (const char* s, std::streamsize num) {
 	return write (sink[1], s, num);
