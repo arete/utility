@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#include <stdarg.h>
+
 #include <iostream>
 
 namespace Utility {
@@ -59,10 +61,39 @@ protected:
   }
 
 public:
-  processbuf (const char* file, char* const argv[])
-  {
+  processbuf () {
     setg (buffer+1, buffer+1, buffer+1);
+  }
 
+  processbuf (const char* file, char* const argv[]) {
+    setg (buffer+1, buffer+1, buffer+1);
+    exec (file, argv);
+  }
+
+  ~processbuf () {
+    close(source[0]); close(sink[1]);
+    waitpid(pid, NULL, 0);
+  }
+  
+  void exec (const char* file, const char* arg, va_list ap) {
+    const char* args[10];
+    // convert va_list into static char* array -sigh
+    int i = 0;
+    args[i++] = arg;
+    for (; i < sizeof(args)-1; ++i) {
+      const char* s = va_arg(ap, const char*);
+      if (s != NULL) {
+	// std::cout << "Got: " << s << std::endl;
+	args[i] = s;
+      }
+      else
+	break;
+    }
+    args[i] = NULL;
+    exec (file, (char* const*)args);
+  }
+
+  void exec (const char* file, char* const argv[]) {
     pipe (sink);
     pipe (source);
     if ( (pid = fork()) == 0) {
@@ -74,12 +105,7 @@ public:
     }
     close(source[1]); close(sink[0]);
   }
-
-  ~processbuf () {
-    close(source[0]); close(sink[1]);
-    waitpid(pid, NULL, 0);
-  }
-
+  
   void close_sink () {
     close(sink[1]);
   }
@@ -90,7 +116,18 @@ class postream : public std::ostream
 {
 public:
   postream (const char* file, char* const argv[])
-  : std::ostream(&buf) , buf(file, argv){
+  : std::ostream(&buf), buf(file, argv){
+  }
+
+  postream (const char* file, const char* args, ...)
+    : std::ostream(&buf) {
+    va_list ap, aq;
+    va_start (ap, args);
+    va_copy (aq, ap);
+    
+    buf.exec (file, args, ap);
+    va_end (aq);
+    va_end (ap);
   }
 
 protected:
@@ -101,7 +138,23 @@ class pistream : public std::istream
 {
 public:
   pistream (const char* file, char* const argv[])
-  : std::istream(&buf) , buf(file, argv) {
+  : std::istream(&buf), buf(file, argv) {
+  }
+
+  pistream (const char* file, const char* args, ...)
+    : std::istream(&buf) {
+    va_list ap, aq;
+    va_start (ap, args);
+    va_copy (aq, ap);
+    
+    buf.exec (file, args, ap);
+    va_end (aq);
+    va_end (ap);
+  }
+
+  pistream (...)
+    : std::istream(&buf) {
+    //    buf(", "");
   }
 
 protected:
@@ -113,7 +166,18 @@ class pstream : public std::iostream
 {
 public:
   pstream (const char* file, char* const argv[])
-  : std::iostream(&buf), buf(file, argv) {
+    : std::iostream(&buf), buf(file, argv) {
+  }
+
+  pstream (const char* file, const char* args, ...)
+    : std::iostream(&buf) {
+    va_list ap, aq;
+    va_start (ap, args);
+    va_copy (aq, ap);
+    
+    buf.exec (file, args, ap);
+    va_end (aq);
+    va_end (ap);
   }
 
   void close_sink () {
