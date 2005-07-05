@@ -109,6 +109,12 @@ public:
   void close_sink () {
     close(sink[1]);
   }
+
+  void terminate (int signal) {
+    close(source[0]);
+    close(sink[1]);
+    kill(pid, signal);
+  }
   
 };
 
@@ -182,6 +188,10 @@ public:
 
   void close_sink () {
     buf.close_sink ();
+  }
+
+  void terminate (int signal=SIGTERM) {
+    buf.terminate (signal);
   }
 
 protected:
