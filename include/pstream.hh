@@ -136,6 +136,10 @@ public:
     va_end (ap);
   }
 
+  void terminate (int signal=SIGTERM) {
+    buf.terminate (signal);
+  }
+
 protected:
   processbuf buf;
 };
@@ -161,6 +165,10 @@ public:
   pistream (...)
     : std::istream(&buf) {
     //    buf(", "");
+  }
+
+  void terminate (int signal=SIGTERM) {
+    buf.terminate (signal);
   }
 
 protected:
