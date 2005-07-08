@@ -80,7 +80,7 @@ public:
     // convert va_list into static char* array -sigh
     int i = 0;
     args[i++] = arg;
-    for (; i < sizeof(args)-1; ++i) {
+    for (; i < ((int) sizeof(args))-1; ++i) {
       const char* s = va_arg(ap, const char*);
       if (s != NULL) {
 	// std::cout << "Got: " << s << std::endl;
