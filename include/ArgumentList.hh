@@ -35,6 +35,8 @@
 #include <map>
 #include <vector>
 
+#include <sstream>
+
 namespace Utility
 {
   class BasicArgument {
