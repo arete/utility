@@ -8,7 +8,7 @@
  * 
  * GSMP: utility/include/ArgumentList.hh
  * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and René Rebe
+ *   Valentin Ziegler and René ’ebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -158,7 +158,7 @@ namespace Utility
     const std::vector<std::string>& Residuals () const;
 
     // printout the usual usage list, generated from the registered arguments
-    void Usage (const std::ostream& os) const;
+    void Usage (std::ostream& os) const;
     
   private:
     typedef std::map<std::string, BasicArgument*> container;

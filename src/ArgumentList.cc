@@ -8,7 +8,7 @@
  * 
  * GSMP: utility/src/ArgumentList.cc
  * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and René Rebe
+ *   Valentin Ziegler and René ’ebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -194,11 +194,17 @@ const std::vector<std::string>& ArgumentList::Residuals () const
   return residuals;
 }
 
-void ArgumentList::Usage (const std::ostream& os) const
+void ArgumentList::Usage (std::ostream& os) const
 {
   for (const_iterator it = long_content.begin (); it != long_content.end (); ++it)
-    if (it->second->list)
-      std::cout << "  -" << it->second->sname << ", --" << it->second->lname
-		<< std::endl << "\t"
-		<< it->second->desc << std::endl;
+    if (it->second->list) {
+      if (! it->second->sname.empty() )
+	os << "  -" << it->second->sname << ",";
+      else
+	os << "     ";
+      
+      os << " --" << it->second->lname
+	 << std::endl << "\t"
+	 << it->second->desc << std::endl;
+    }
 }
