@@ -199,11 +199,11 @@ void ArgumentList::Usage (std::ostream& os) const
   for (const_iterator it = long_content.begin (); it != long_content.end (); ++it)
     if (it->second->list) {
       if (! it->second->sname.empty() )
-	os << "  -" << it->second->sname << ",";
+	os << "  -" << it->second->sname << ",\t";
       else
-	os << "     ";
+	os << "    \t";
       
-      os << " --" << it->second->lname
+      os << "--" << it->second->lname
 	 << std::endl << "\t"
 	 << it->second->desc << std::endl;
     }
