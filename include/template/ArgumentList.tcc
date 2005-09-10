@@ -25,10 +25,12 @@
 
 #include "Compiler.hh"
 
-#if GCC_VERSION < 30400 || __INCLUDE_LEVEL__ == 1
+#if GCC_VERSION < 30300 || __INCLUDE_LEVEL__ == 1
 
 #ifndef UTILITY__ARGUMENTLIST_TCC__
 #define UTILITY__ARGUMENTLIST_TCC__
+
+#warning including this file
 
 namespace Utility {
   
