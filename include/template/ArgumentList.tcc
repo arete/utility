@@ -30,8 +30,6 @@
 #ifndef UTILITY__ARGUMENTLIST_TCC__
 #define UTILITY__ARGUMENTLIST_TCC__
 
-#warning including this file
-
 namespace Utility {
   
   template <> bool Argument<bool>::Read () {
