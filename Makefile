@@ -22,27 +22,18 @@
 # 
 # --- GSMP-COPYRIGHT-NOTE-END ---
 
-TOPDIR  = ../..
-
-NOT_INCS := ../include/BinomiHeap.hh
+NOT_INCS := BinomiHeap.hh
 NOT_SRCS := 
-include $(TOPDIR)/Rules.pre
 
-BUILD_LIBS := libgsmutil.so
+SRCS := ArgumentList.cc DirIterator.cc File.cc Logger.cc Logging.cc Storage.cc Threads.cc Timer.cc TypeInformation.cc
 
-all: $(BUILD_LIBS)
+include build/top.make
 
-include $(TOPDIR)/Rules
+BINARY = libgsmutil
+BINARY_EXT = $(X_DYNEXT)
+DEPS =
 
-INCDIRS := . ../include
+CXXFLAGS += $(SIGC2LIBS) -ldl -lpthread -I utility/
 
-INCLUDES := $(SIGC2INCS) \
-	$(filter-out $(NOT_INCS), \
-	$(foreach dir, $(INCDIRS), -I$(dir)))
-
-LIBS := $(SIGC2LIBS) -ldl -lpthread
-
-####
-
-include $(TOPDIR)/Rules.post
+include build/bottom.make
 
