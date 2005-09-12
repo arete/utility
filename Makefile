@@ -23,9 +23,6 @@
 # --- GSMP-COPYRIGHT-NOTE-END ---
 
 NOT_INCS := BinomiHeap.hh
-NOT_SRCS := 
-
-SRCS := ArgumentList.cc DirIterator.cc File.cc Logger.cc Logging.cc Storage.cc Threads.cc Timer.cc TypeInformation.cc
 
 include build/top.make
 
