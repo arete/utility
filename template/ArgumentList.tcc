@@ -44,6 +44,14 @@ namespace Utility {
     return false;
   }
   
+  template <> std::string Argument<std::string>::ReadImpl (const std::string& arg) {
+    std::stringstream stream (arg);
+    // TODO: error handling
+    std::string value;
+    std::getline (stream, value);
+    return value;
+  }
+  
 } // namespace Utility
 
 #endif // UTILITY__ARGUMENTLIST_TCC__

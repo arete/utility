@@ -34,6 +34,7 @@
 
 #include <map>
 #include <vector>
+#include <string>
 
 #include <sstream>
 
@@ -65,7 +66,7 @@ namespace Utility
     int count, pass_count;
   };
 
-  template <typename T> 
+  template <typename T>
   class Argument : public BasicArgument {
  
   public:
@@ -106,12 +107,9 @@ namespace Utility
 		  << ", only " << max_count << " allowed!" << std::endl;
 	return false;
       }
-    
-      std::stringstream stream (arg);
-      // TODO: error handling
-      T value;
-      stream >> value;
-    
+      
+      T value = ReadImpl (arg);
+      
       // special case if default was supplied -> overwrite the first ...
       if (count == 0 & values.size () > 0)
 	values[0] = value;
@@ -134,12 +132,24 @@ namespace Utility
     }
   
   private:
+    
+    T ReadImpl (const std::string& arg)
+    {
+      std::stringstream stream (arg);
+      // TODO: error handling
+      T value;
+      stream >> value;
+      return value;
+    }
+    
     std::vector<T> values;
   };
 
   // some bool specialisations ...
   template <> bool Argument<bool>::Read ();
   template <> bool Argument<bool>::Read (const std::string& arg);
+  
+  template <> std::string Argument<std::string>::ReadImpl (const std::string& arg);
 
   class ArgumentList {
 
