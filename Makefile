@@ -30,7 +30,8 @@ BINARY = libgsmutil
 BINARY_EXT = $(X_DYNEXT)
 DEPS =
 
-CXXFLAGS += $(SIGC2LIBS) -ldl -lpthread -I utility/
+CXXFLAGS += -I utility/
+LDFLAGS += $(SIGC2LIBS) -ldl -pthread 
 
 include build/bottom.make
 
