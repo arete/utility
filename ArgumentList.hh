@@ -121,7 +121,7 @@ namespace Utility
       return true;
     }
   
-    T Get (unsigned int i = 0) {
+    T Get (unsigned int i = 0) const {
       if (values.size () > i) {
 	return values [i];
       }
