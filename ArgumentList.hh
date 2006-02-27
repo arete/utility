@@ -64,6 +64,11 @@ namespace Utility
     int min_count, max_count;
     bool no_arg, fragmented, list;
     int count, pass_count;
+    
+  protected:
+    virtual bool InterruptImpl () {
+      return true;
+    }
   };
 
   template <typename T>
@@ -76,7 +81,8 @@ namespace Utility
 	      int i_min_count = 0, int i_max_count = 0,
 	      bool i_fragmented = false, bool i_list = true)
       : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count,
-		       i_fragmented, i_list)
+		       i_fragmented, i_list),
+	callback (0)
     {
       // if bool (or other special option) always use exaclty one value
       if (no_arg)
@@ -88,7 +94,8 @@ namespace Utility
 	      const T& i_value, int i_min_count = 0, int i_max_count = 0,
 	      bool i_fragmented = false, bool i_list = true)
       : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count,
-		       i_fragmented, i_list)
+		       i_fragmented, i_list),
+	callback (0)
     {
       values.push_back (i_value);
       // if bool (or other special option) always containing one value
@@ -130,7 +137,11 @@ namespace Utility
 		  << " present for argument " << this->lname << std::endl;
       return T ();
     }
-  
+    
+    void Bind (bool (*function)(const Argument<T>&)) {
+      callback = function;
+    }
+    
   private:
     
     T ReadImpl (const std::string& arg)
@@ -142,7 +153,14 @@ namespace Utility
       return value;
     }
     
+    virtual bool InterruptImpl () {
+      if (callback)
+	return callback(*this);
+      return true;
+    }
+    
     std::vector<T> values;
+    bool (*callback)(const Argument<T>&);
   };
 
   // some bool specialisations ...

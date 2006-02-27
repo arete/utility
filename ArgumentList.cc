@@ -73,7 +73,7 @@ bool BasicArgument::Interrupt () {
     return false;
   }
   pass_count = 0;
-  return true;
+  return InterruptImpl();
 }
   
 bool BasicArgument::Finalize () {
