@@ -138,9 +138,13 @@ namespace Utility
       return T ();
     }
     
+    int Size () const { return values.size(); }
+    
     void Bind (bool (*function)(const Argument<T>&)) {
       callback = function;
     }
+    
+    const std::vector<T>& Values () const { return values; }
     
   private:
     
