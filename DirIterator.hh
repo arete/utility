@@ -111,7 +111,7 @@ namespace Utility
       void Close ();
       
       // must be Opened!
-      void Utility::DirList::Iterator::Next () {
+      void Next () {
 	
 	// avoid recursion ;-)
 	while (true) {
