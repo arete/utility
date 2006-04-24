@@ -32,8 +32,8 @@ using namespace Utility;
 
 BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_lname,
 			      const std::string& i_desc,  int i_min_count, int i_max_count,
-			      bool i_fragmented, bool i_list)
-  : count (0), pass_count (0)
+			      bool i_fragmented, bool i_reset)
+  : list(true), count (0), pass_count (0)
 {
   sname = i_sname;
   lname = i_lname;
@@ -42,7 +42,7 @@ BasicArgument::BasicArgument (const std::string& i_sname, const std::string& i_l
   min_count  = i_min_count;
   max_count = i_max_count;
   fragmented = i_fragmented;
-  list = i_list;
+  reset = i_reset;
   
   // sanity check
   if (min_count > max_count)
@@ -56,7 +56,7 @@ BasicArgument::~BasicArgument ()
 }
 
 bool BasicArgument::Probe () {
-  return count < max_count;
+      return count < max_count;
 }
 
 bool BasicArgument::Interrupt () {
@@ -138,6 +138,7 @@ bool ArgumentList::Read (int argc, char** argv)
       if (argument && !argument->Interrupt () )
 	++ errors;
       argument = new_argument;
+      argument->Start ();
     }
     // try to parse via the last matched argument
     // start residual gathering if not parseable
@@ -151,6 +152,10 @@ bool ArgumentList::Read (int argc, char** argv)
 	  ++ errors;
       }
     }
+    else if (residual) {
+      argument = 0;
+      residual_gathering = true;
+    } 
     
     // immediately throw into argument if it does not need parameters
     // (most often bools)

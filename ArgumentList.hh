@@ -44,25 +44,34 @@ namespace Utility
   public:
   
     BasicArgument (const std::string& i_sname, const std::string& i_lname,
-		   const std::string& i_desc,  int i_min_count, int i_max_count,
-		   bool i_fragmented, bool i_list);
+		   const std::string& i_desc,
+		   int i_min_count, int i_max_count,
+		   bool i_fragmented, bool i_reset);
   
     virtual ~BasicArgument ();
+    
+    void SetReset (bool i_reset) { reset=i_reset; }
+    void SetList (bool i_list) { list=i_list; }
   
+    virtual bool Probe ();
+    virtual void Start () = 0;
+    
     virtual bool Read () = 0;
     virtual bool Read (const std::string& arg) = 0;
-  
-    virtual bool Probe();
-  
+    
     virtual bool Interrupt ();
     virtual bool Finalize ();
-  
+    
     std::string sname;
     std::string lname;
     std::string desc;
   
     int min_count, max_count;
-    bool no_arg, fragmented, list;
+    bool no_arg;
+    bool fragmented; // fragment across several arguments
+    bool reset; // reset (clear) for each new argument
+    bool list; // list in the Usage
+    
     int count, pass_count;
     
   protected:
@@ -79,9 +88,9 @@ namespace Utility
     Argument (const std::string& i_sname, const std::string& i_lname,
 	      const std::string& i_desc,
 	      int i_min_count = 0, int i_max_count = 0,
-	      bool i_fragmented = false, bool i_list = true)
+	      bool i_fragmented = false, bool i_reset = false)
       : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count,
-		       i_fragmented, i_list),
+		       i_fragmented, i_reset),
 	callback (0)
     {
       // if bool (or other special option) always use exaclty one value
@@ -92,9 +101,9 @@ namespace Utility
     Argument (const std::string& i_sname, const std::string& i_lname,
 	      const std::string& i_desc, 
 	      const T& i_value, int i_min_count = 0, int i_max_count = 0,
-	      bool i_fragmented = false, bool i_list = true)
+	      bool i_fragmented = false, bool i_reset = false)
       : BasicArgument (i_sname, i_lname, i_desc, i_min_count, i_max_count,
-		       i_fragmented, i_list),
+		       i_fragmented, i_reset),
 	callback (0)
     {
       values.push_back (i_value);
@@ -103,12 +112,22 @@ namespace Utility
 	values.push_back (T () );
     }
   
+    
+    void Start () {
+      // reset requested?
+      if (reset) {
+	values.clear ();
+	count = 0;
+      }
+    }
+    
     bool Read () {
       std::cout << "Error: Argument " << lname << " needs an parameter!" << std::endl;
       return false;
     }
   
     bool Read (const std::string& arg) {
+      
       if (count >= max_count) {
 	std::cout << "Error: Too many parameter for argument " << lname
 		  << ", only " << max_count << " allowed!" << std::endl;
