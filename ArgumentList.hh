@@ -115,7 +115,7 @@ namespace Utility
     
     void Start () {
       // reset requested?
-      if (reset) {
+      if (!no_arg && reset) {
 	values.clear ();
 	count = 0;
       }
