@@ -61,12 +61,12 @@ bool BasicArgument::Probe () {
 
 bool BasicArgument::Interrupt () {
   if (!no_arg && pass_count == 0) {
-    std::cout << "Error: No parameter for argument " << lname << " specified!"
+    std::cerr << "Error: No parameter for argument " << lname << " specified!"
 	      << std::endl;
     return false;
   }
   else if (!fragmented && count < min_count) {
-    std::cout << "Error: No fragmentation for argument " << lname << " allowed!"
+    std::cerr << "Error: No fragmentation for argument " << lname << " allowed!"
 	      << std::endl
 	      << "       At least " << min_count << " parameter required!" << std::endl;
     pass_count = 0;
@@ -78,7 +78,7 @@ bool BasicArgument::Interrupt () {
   
 bool BasicArgument::Finalize () {
   if (count < min_count) {
-    std::cout << "Error: Too few parameter for argument " << lname
+    std::cerr << "Error: Too few parameter for argument " << lname
 	      << ", at least " << min_count << " required!" << std::endl;
     return false;
   }
@@ -112,31 +112,33 @@ bool ArgumentList::Read (int argc, char** argv)
   bool residual_gathering = false;
   
   // parse all arguments
-  while (argv != argv_end) {
+  for (; argv != argv_end; ++argv) {
     std::string arg (*argv);
     std::string targ = arg; // temp. mangled argument
 
     BasicArgument* new_argument = 0;
     
-    // match long options
-    if (arg.size () >= 2 && arg[0] == '-' && arg[1] == '-') {
-      targ.erase (0, 2);
-      iterator it = long_content.find (targ);
-      if (it != long_content.end () ) {
-	new_argument = it->second;
+    // match options, does it start with a '-' ?
+    if (arg.size () >= 1 && arg[0] == '-') {
+      // long?
+      if (arg.size () >= 2 && arg[0] == '-' && arg[1] == '-') {
+	targ.erase (0, 2);
+	iterator it = long_content.find (targ);
+	if (it != long_content.end () ) {
+	  new_argument = it->second;
+	}
       }
-    }
-    // match short options
-    else if (arg.size () >= 1 && arg[0] == '-') {
-      targ.erase (0, 1);
-      iterator it = short_content.find (targ);
-      if (it != short_content.end () )
-	new_argument = it->second;
+      else { // match short
+	targ.erase (0, 1);
+	iterator it = short_content.find (targ);
+	if (it != short_content.end () )
+	  new_argument = it->second;
+      }
     }
     
     if (new_argument) {
       if (argument && !argument->Interrupt () )
-	++ errors;
+	++errors;
       argument = new_argument;
       argument->Start ();
     }
@@ -170,16 +172,14 @@ bool ArgumentList::Read (int argc, char** argv)
     if (residual_gathering) {
       residuals.push_back (arg);
       if (argument)
-	std::cout << "Warning: Residual parameter " << arg
+	std::cerr << "Warning: Residual parameter " << arg
 		  << " matches an argument" <<  std::endl;
     }
     else
       if (!argument) {
-	std::cout << "Error: Unrecognized argument: " << arg << std::endl;
-	++ errors;
-      }
-    
-    ++ argv;
+	std::cerr << "Error: Unrecognized argument: " << arg << std::endl;
+	++errors;
+      }    
   }
   // interrupt the last parsed argument
   if (argument && !argument->Interrupt () )
@@ -188,7 +188,7 @@ bool ArgumentList::Read (int argc, char** argv)
   // final checks
   for (iterator it = long_content.begin (); it != long_content.end (); ++it) {
     if (!it->second->Finalize())
-      ++ errors;
+      ++errors;
   }
   
   return errors == 0;

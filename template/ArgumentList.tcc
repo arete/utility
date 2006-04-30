@@ -8,7 +8,7 @@
  * 
  * GSMP: utility/include/template/ArgumentList.tcc
  * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and René Rebe
+ *   Valentin Ziegler and René ’Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ namespace Utility {
   }
   
   template <> bool Argument<bool>::Read (const std::string& arg) {
-    std::cout << "Error: No parameter allowed for boolean values!" << std::endl;
+    std::cerr << "Error: No parameter allowed for boolean values!" << std::endl;
     return false;
   }
   

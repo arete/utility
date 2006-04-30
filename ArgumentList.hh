@@ -122,14 +122,14 @@ namespace Utility
     }
     
     bool Read () {
-      std::cout << "Error: Argument " << lname << " needs an parameter!" << std::endl;
+      std::cerr << "Error: Argument " << lname << " needs an parameter!" << std::endl;
       return false;
     }
   
     bool Read (const std::string& arg) {
       
       if (count >= max_count) {
-	std::cout << "Error: Too many parameter for argument " << lname
+	std::cerr << "Error: Too many parameter for argument " << lname
 		  << ", only " << max_count << " allowed!" << std::endl;
 	return false;
       }
@@ -152,7 +152,7 @@ namespace Utility
 	return values [i];
       }
       else
-	std::cout << "Error: There is no parameter: " << i
+	std::cerr << "Error: There is no parameter: " << i
 		  << " present for argument " << this->lname << std::endl;
       return T ();
     }
