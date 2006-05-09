@@ -86,7 +86,7 @@ namespace Utility
   class BasicLogDevice
   {
   protected:
-    typedef u_int64_t timestamp_t;
+    typedef uint64_t timestamp_t;
     typedef enum {std,file,both} direction;
 
     static timestamp_t current;
