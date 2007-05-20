@@ -37,11 +37,15 @@
 #include <sys/types.h>
 
 #if defined(__FreeBSD__) || defined(__APPLE__)
-#include <machine/endian.h>
+  #include <sys/endian.h>
+
+  #define bswap_16 bswap16
+  #define bswap_32 bswap32
+  #define bswap_64 bswap64
 #else
-#include <endian.h>
+  #include <endian.h>
+  #include <byteswap.h>
 #endif
-#include <byteswap.h>
 
 namespace Exact {
   
