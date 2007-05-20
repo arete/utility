@@ -36,12 +36,17 @@
 
 #include <sys/types.h>
 
-#if defined(__FreeBSD__) || defined(__APPLE__)
+#if defined(__FreeBSD__)
   #include <sys/endian.h>
 
   #define bswap_16 bswap16
   #define bswap_32 bswap32
   #define bswap_64 bswap64
+#elif defined(__APPLE__)
+  #include <libkern/OSByteOrder.h>
+  #define bswap_16 OSSwapConstInt16
+  #define bswap_32 OSSwapConstInt32
+  #define bswap_64 OSSwapConstInt64
 #else
   #include <endian.h>
   #include <byteswap.h>
