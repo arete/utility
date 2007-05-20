@@ -7,8 +7,8 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: pcm/include/Types.hh
- * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and René Rebe
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2007
+ *   Valentin Ziegler and RenÃ© Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,32 +35,33 @@
 #define LOWLEVEL__ENDIANESS_HH__
 
 #include <sys/types.h>
+
+#if defined(__FreeBSD__) || defined(__APPLE__)
+#include <machine/endian.h>
+#else
 #include <endian.h>
+#endif
 #include <byteswap.h>
 
-#include <math.h>
-
-#include <limits>
-
-namespace Utility {
+namespace Exact {
   
-  class EndianessTraits {
+  class EndianTraits {
   public:
     
     static const bool IsSpecialized = false;
     static const bool HasEndianess = false;
     static const bool IsBigendian = false;
   };
-
-  class LittleEndianessTraits : public EndianessTraits {
-  public:
   
+  class LittleEndianTraits : public EndianTraits {
+  public:
+    
     static const bool IsSpecialized = true;
     static const bool HasEndianess = true;
     static const bool IsBigendian = false;
   };
 
-  class BigEndianessTraits : public EndianessTraits {
+  class BigEndianTraits : public EndianTraits {
   public:
   
     static const bool IsSpecialized = true;
@@ -69,11 +70,103 @@ namespace Utility {
   };
 
 #if defined __BIG_ENDIAN__ || defined _BIG_ENDIAN
-  typedef BigEndianessTraits HostEndianessTraits;
+  typedef BigEndianTraits NativeEndianTraits;
 #else
-  typedef LittleEndianessTraits HostEndianessTraits;
+  typedef LittleEndianTraits NativeEndianTraits;
 #endif
   
-  typedef BigEndianessTraits NetworkEndianessTraits;
+  typedef BigEndianTraits NetworkEndianTraits;
+
+  template <typename E_SRC, typename E_DEST, typename T>
+  class ByteSwap {
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, int8_t> {
+  public:
+    inline static const int8_t Swap (const int8_t& source)
+    { return source; };
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, int16_t> {
+  public:
+    inline static const int16_t Swap (const int16_t& source) {
+      if (E_SRC::IsBigendian == E_DEST::IsBigendian)
+	return source;
+      else
+	return bswap_16 (source);
+    };
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, uint16_t> {
+  public:
+    inline static const uint16_t Swap (const uint16_t& source) {
+      if (E_SRC::IsBigendian == E_DEST::IsBigendian)
+	return source;
+      else
+	return bswap_16 (source);
+    };
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, int32_t> {
+  public:
+    inline static const int32_t Swap (const int32_t& source) {
+      if (E_SRC::IsBigendian == E_DEST::IsBigendian)
+	return source;
+      else
+	return bswap_32 (source);
+    };
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, uint32_t> {
+  public:
+    inline static const uint32_t Swap (const uint32_t& source) {
+      if (E_SRC::IsBigendian == E_DEST::IsBigendian)
+	return source;
+      else
+	return bswap_32 (source);
+    };
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, int64_t> {
+  public:
+    inline static const int64_t Swap (const int64_t& source) {
+      if (E_SRC::IsBigendian == E_DEST::IsBigendian)
+	return source;
+      else
+	return bswap_64 (source);
+    };
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, uint64_t> {
+  public:
+    inline static const uint64_t Swap (const uint64_t& source) {
+      if (E_SRC::IsBigendian == E_DEST::IsBigendian)
+	return source;
+      else
+	return bswap_64 (source);
+    };
+  };
   
+  // ---
+  
+  // must be Plain Old Data (for 0-overhead and packing)
+  template <typename T, typename E>
+  struct EndianessConverter {
+    T value;
+    
+    // access wrappers
+    inline void operator= (T v) { value = ByteSwap<NativeEndianTraits, E, T>::Swap (v); }
+    inline T operator* () const { return ByteSwap<E,NativeEndianTraits, T>::Swap (value); }
+    inline operator T () const { return ByteSwap<E,NativeEndianTraits, T>::Swap (value); }
+  };
+  
+}
+
 #endif // LOWLEVEL__ENDIANESS_HH__
