@@ -7,8 +7,8 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/include/Timer.hh
- * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and Ren頒ebe
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2007
+ *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,8 @@ namespace Utility
     uint64_t PerSecond ();
     
     uint64_t Value ();
+
+    const char* Unit () { return "us"; }
     
   private:
     timeval m_start;
@@ -66,6 +68,8 @@ namespace Utility
     
     uint64_t Value ();
     
+    const char* Unit () { return "us"; }
+    
   private:
     struct tms m_times;
   };
@@ -80,9 +84,10 @@ namespace Utility
     uint64_t PerSecond ();
     
     uint64_t Value ();
+
+    const char* Unit () { return "cycles"; }
     
   private:
-    
     uint64_t start_tick;
   };
 
@@ -95,7 +100,7 @@ namespace Utility
     }
     ~AutoTimer () {
       std::cout << ">> AutoTimer: \"" << m_text
-		<< "\" took: " << m_timer.Delta () << " us" << std::endl;
+		<< "\" took: " << m_timer.Delta () << " " << m_timer.Unit () << std::endl;
     }
     
     uint64_t Delta () {
