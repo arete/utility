@@ -7,8 +7,8 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/src/Timer.cc
- * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and René Rebe
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2007
+ *   Valentin Ziegler and RenÃ© Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,9 +41,9 @@ void Utility::Timer::Reset ()
   gettimeofday (&m_start, NULL);
 }
 
-long long Utility::Timer::Delta ()
+uint64_t Utility::Timer::Delta ()
 {
-  long long ctime;
+  uint64_t ctime;
   
   timeval t_time;
   gettimeofday (&t_time, NULL);
@@ -54,7 +54,7 @@ long long Utility::Timer::Delta ()
   return ctime;
 }
 
-long long Utility::Timer::Value ()
+uint64_t Utility::Timer::Value ()
 {
   timeval t_time;
   gettimeofday (&t_time, NULL);
@@ -62,10 +62,12 @@ long long Utility::Timer::Value ()
   return (t_time.tv_sec * 1000000) + t_time.tv_usec;
 }
 
-long long Utility::Timer::PerSecond ()
+uint64_t Utility::Timer::PerSecond ()
 {
   return 1000000;
 }
+
+// ---
 
 Utility::TickTimer::TickTimer ()
 {
@@ -77,7 +79,7 @@ void Utility::TickTimer::Reset ()
   times (&m_times);
 }
 
-long long Utility::TickTimer::Delta ()
+uint64_t Utility::TickTimer::Delta ()
 {
   tms t_times;
   times (&t_times);
@@ -85,7 +87,7 @@ long long Utility::TickTimer::Delta ()
   return t_times.tms_utime - m_times.tms_utime;
 }
 
-long long Utility::TickTimer::Value ()
+uint64_t Utility::TickTimer::Value ()
 {
   tms t_times;
   times (&t_times);
@@ -93,7 +95,92 @@ long long Utility::TickTimer::Value ()
   return t_times.tms_utime;
 }
 
-long long Utility::TickTimer::PerSecond ()
+uint64_t Utility::TickTimer::PerSecond ()
 {
   return sysconf (_SC_CLK_TCK);
+}
+
+// ---
+
+Utility::TimebaseTimer::TimebaseTimer ()
+{
+  start_tick = Value ();
+}
+
+void Utility::TimebaseTimer::Reset ()
+{
+  start_tick = Value ();
+}
+
+uint64_t Utility::TimebaseTimer::Delta ()
+{
+  return Value () - start_tick;
+}
+
+uint64_t Utility::TimebaseTimer::Value ()
+{
+#if defined(__i386__)
+  uint64_t x;
+  __asm__ __volatile__ (".byte 0x0f, 0x31" : "=A" (x));
+  return x;
+#elif defined(__x86_64__)
+  uint32_t hi, lo;
+  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+  return ((uint64_t)hi << 32) | lo;
+#elif defined(__powerpc__)
+  uint32_t hi, lo, tmp;
+  __asm__ __volatile__ (
+			"0:                  \n"
+			"\tmftbu   %0           \n"
+			"\tmftb    %1           \n"
+			"\tmftbu   %2           \n"
+			"\tcmpw    %2,%0        \n"
+			"\tbne     0b         \n"
+			: "=r"(hi),"=r"(lo),"=r"(tmp)
+			);
+  return ((uint64_t)hi << 32) | lo;
+#elif defined(__sparc_v9__)
+#ifdef __LP64__
+  uint64_t ticks;
+  __asm__ volatile(
+		   "rd %%tick, %0\n"
+		   : "=r" (ticks) //  : "0" (ticks)
+		   );
+  return ticks;
+#else
+  uint32_t hi, lo;
+  __asm__ volatile(
+		   "rd	%%tick,%%g3\n"
+		   "\tor	%%g3,0,%0\n"	// lower bits
+		   "\tsrlx	%%g3,32,%%g3\n"
+		   "\tor	%%g3,0,%1"	// higher bits 
+		   : "=r" (lo), "=r" (hi)
+		   );
+  return ((uint64_t)hi << 32) | lo;
+#endif
+#elif define(__mips__)
+#error "MIPS timebase support not yet implemented."
+  // __asm__ __volatile__ ("dmfc0 %0,$9" : "=r" (ticks));
+#elif defined(__ia64__)
+#error "IA64 timebase support not yet implemented."
+  // __asm__ __volatile__ ("mov %0=ar.itc ;;" : "=rO" (ticks));
+#else
+  // TODO (at least): ARM, SuperH, then AVR32, Blackfin, Alpha, ...
+#error "No CPU timebase read implemented for this architecture, yet!"
+#endif
+}
+
+uint64_t Utility::TimebaseTimer::PerSecond ()
+{
+  static uint64_t per_second = 0;
+  
+  // meassure, not yet very accurate, depends on a exact 1s schedule of the OS
+  if (!per_second) {
+    uint64_t s1 = Value ();
+    sleep (1);
+    uint64_t s2 = Value ();
+    per_second = s2 - s1;
+  }
+  
+  return per_second;
 }

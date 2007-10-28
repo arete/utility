@@ -8,7 +8,7 @@
  * 
  * GSMP: utility/include/Timer.hh
  * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and René Rebe
+ *   Valentin Ziegler and René ’ebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,8 +30,10 @@
 #ifndef UTILITY__TIMER_HH__
 #define UTILITY__TIMER_HH__
 
-#include <sys/time.h>  // used by Timer
+#include <sys/time.h> // used by Timer
 #include <sys/times.h> // used by TickTimer
+
+#include <inttypes.h>
 
 #include <iostream>
 #include <string>
@@ -44,10 +46,10 @@ namespace Utility
     Timer ();
     
     void Reset ();
-    long long Delta ();
-    long long PerSecond ();
+    uint64_t Delta ();
+    uint64_t PerSecond ();
     
-    long long Value ();
+    uint64_t Value ();
     
   private:
     timeval m_start;
@@ -59,13 +61,29 @@ namespace Utility
     TickTimer ();
     
     void Reset ();
-    long long Delta ();
-    long long PerSecond ();
+    uint64_t Delta ();
+    uint64_t PerSecond ();
     
-    long long Value ();
+    uint64_t Value ();
     
   private:
     struct tms m_times;
+  };
+  
+  class TimebaseTimer
+  {
+  public:
+    TimebaseTimer ();
+    
+    void Reset ();
+    uint64_t Delta ();
+    uint64_t PerSecond ();
+    
+    uint64_t Value ();
+    
+  private:
+    
+    uint64_t start_tick;
   };
 
   template <typename T>
@@ -80,10 +98,10 @@ namespace Utility
 		<< "\" took: " << m_timer.Delta () << " us" << std::endl;
     }
     
-    long long Delta () {
+    uint64_t Delta () {
       return m_timer.Delta ();
     }
-    long long PerSecond () {
+    uint64_t PerSecond () {
       return m_timer.PerSecond ();
     }
     
