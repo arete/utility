@@ -127,6 +127,13 @@ uint64_t Utility::TimebaseTimer::Value ()
   uint32_t hi, lo;
   __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
   return ((uint64_t)hi << 32) | lo;
+#elif defined(__powerpc64__)
+  uint64_t x;
+  __asm__ __volatile__ (
+			"\tmftb    %0"
+			: "=r"(x)
+			);
+  return x;
 #elif defined(__powerpc__)
   uint32_t hi, lo, tmp;
   __asm__ __volatile__ (
