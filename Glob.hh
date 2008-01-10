@@ -1,4 +1,6 @@
 
+/* Copyright 2005 - 2007 René Rebe - ExactCODE GmbH */
+
 #ifndef UTILITY__GLOB_HH__
 #define UTILITY__GLOB_HH__
 
@@ -14,8 +16,8 @@ class Glob
 
   typedef char** iterator;
 
-  Glob (const std::string& pattern) {
-    glob (pattern.c_str(), 0, NULL, &g);
+  Glob (const std::string& pattern, int flags = 0) {
+    glob (pattern.c_str(), flags, NULL, &g);
   }
   ~Glob () {
     globfree (&g);
