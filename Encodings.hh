@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2008 Valentin Ziegler <valentin@exactcode.de>
+ * Copyright (c) 2008 René Rebe <rene@exactcode.de>
  *
  */
 
@@ -78,5 +79,28 @@ void EncodeASCII85(std::ostream& stream, const T& data, size_t length)
     stream.put('\n');
   stream << "~>";
 }
+
+template <typename T>
+void EncodeBase64(std::ostream& stream, const T& data, size_t length)
+{
+  const int limit = 57;
+  static const char base64lookup[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+  for (size_t i = 0; i < length; i += 3) {
+    if (i % limit == 0 && i != 0)
+      stream.put('\n');
+   
+    uint32_t v = (      (uint32_t)data[i + 0] << 16   ) |
+      (i + 1 < length ? (uint32_t)data[i + 1] << 8 : 0) |
+      (i + 2 < length ? (uint32_t)data[i + 2] << 0 : 0);
+    
+    stream.put(base64lookup[v >> 18 & 63]);
+    stream.put(base64lookup[v >> 12 & 63]);
+    stream.put(base64lookup[v >> 6 & 63]);
+    stream.put(base64lookup[v >> 0 & 63]);
+  }
+}
+
 
 #endif
