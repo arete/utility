@@ -102,5 +102,33 @@ void EncodeBase64(std::ostream& stream, const T& data, size_t length)
   }
 }
 
+template <typename T>
+void DecodeBase64(std::ostream& stream, const T& data, size_t length)
+{
+  static const char base64lookup[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+  for (size_t i = 0; i < length; ) {
+    uint32_t v = 0;
+    
+    for (int j = 4; i < length && j > 0;) {
+      char c = data[i++];
+      // valid base64 content? (skip \n\r et al.)
+      unsigned int k;
+      for (k = 0; k < sizeof(base64lookup) - 1; ++k)
+	if (c == base64lookup[k])
+	  break;
+      if (k != sizeof(base64lookup) - 1) {
+	--j;
+	//std::cerr << j << ": c: " << c << " to " << k << " for " << std::endl;
+	v |= k << (6 * j);
+      }
+    }
+    
+    stream.put((char)((v >> 16) & 0xFF));
+    stream.put((char)((v >>  8) & 0xFF));
+    stream.put((char)((v >>  0) & 0xFF));
+  }
+}
 
 #endif
