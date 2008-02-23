@@ -91,14 +91,21 @@ void EncodeBase64(std::ostream& stream, const T& data, size_t length)
     if (i % limit == 0 && i != 0)
       stream.put('\n');
    
-    uint32_t v = (      (uint32_t)data[i + 0] << 16   ) |
-      (i + 1 < length ? (uint32_t)data[i + 1] << 8 : 0) |
-      (i + 2 < length ? (uint32_t)data[i + 2] << 0 : 0);
+    int pad = 0;
+    uint32_t v = (uint32_t)data[i + 0] << 16;
+    if (i + 1 < length) {
+      v |= (uint32_t)data[i + 1] << 8;
+      if (i + 2 < length)
+	v |= (uint32_t)data[i + 2] << 0;
+      else
+	pad = 1;
+    } else
+      pad = 2;
     
     stream.put(base64lookup[v >> 18 & 63]);
     stream.put(base64lookup[v >> 12 & 63]);
-    stream.put(base64lookup[v >> 6 & 63]);
-    stream.put(base64lookup[v >> 0 & 63]);
+    stream.put(pad > 1 ? '=' : base64lookup[(v >> 6 & 63)]);
+    stream.put(pad > 0 ? '=' : base64lookup[(v >> 0 & 63)]);
   }
 }
 
@@ -110,14 +117,23 @@ void DecodeBase64(std::ostream& stream, const T& data, size_t length)
 
   for (size_t i = 0; i < length; ) {
     uint32_t v = 0;
+    int skip = 0;
     
     for (int j = 4; i < length && j > 0;) {
       char c = data[i++];
+      // this is a bit sloppy and also skips for '=' in the middle of the
+      // stream, but those are not well formed anyway
+      if (c == '=') {
+	++skip; ++j;
+	continue;
+      }
+      
       // valid base64 content? (skip \n\r et al.)
       unsigned int k;
       for (k = 0; k < sizeof(base64lookup) - 1; ++k)
 	if (c == base64lookup[k])
 	  break;
+      
       if (k != sizeof(base64lookup) - 1) {
 	--j;
 	//std::cerr << j << ": c: " << c << " to " << k << " for " << std::endl;
@@ -126,8 +142,10 @@ void DecodeBase64(std::ostream& stream, const T& data, size_t length)
     }
     
     stream.put((char)((v >> 16) & 0xFF));
-    stream.put((char)((v >>  8) & 0xFF));
-    stream.put((char)((v >>  0) & 0xFF));
+    if (skip < 2)
+      stream.put((char)((v >>  8) & 0xFF));
+    if (skip < 1)
+      stream.put((char)((v >>  0) & 0xFF));
   }
 }
 
