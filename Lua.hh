@@ -63,47 +63,33 @@ namespace LuaWrapper {
     }
   };
 
-  /*
-  template <typename RET,  typename P1,  RET (*F)(P1)>
-  class FunctionWrapper_1_1
-  {
+  template <>
+  class DataWrapper<const char*> {
   public:
-    typedef void myobjectT;
-    
-    static int Wrapper  (lua_State* L)
+    static const char* Unpack(lua_State* L, int index)
     {
-      DataWrapper<RET>::Pack (L,
-			      F(
-				DataWrapper<P1>::Unpack(L, 1)
-				));
-      return 1;
+      return luaL_checkstring(L,index);
     }
-
-    static const bool hasmeta=false;
+  
+    static void Pack(lua_State* L, const char* data)
+    {
+      lua_pushstring(L,data);
+    }
   };
-
-
-  template <typename OBJ, typename RET,  typename P1,  RET (OBJ::*F)(P1)>
-  class MethodWrapper_1_1
-  {
+  
+  template <>
+  class DataWrapper<std::string> {
   public:
-    typedef OBJ myobjectT;
-
-    static int Wrapper  (lua_State* L)
+    static std::string Unpack(lua_State* L, int index)
     {
-      RET (OBJ::*f)(P1)=F;
-      OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
-      DataWrapper<RET>::Pack (L,
-			      (obj->*f)(
-					DataWrapper<P1>::Unpack(L, 2)
-					));
-      return 1;
+      return std::string(luaL_checkstring(L,index));
     }
-
-    static const bool hasmeta=true;
+  
+    static void Pack(lua_State* L, std::string data)
+    {
+      lua_pushstring(L,data.c_str());
+    }
   };
-  */
-
 
 #include "LuaWrappers.hh"
 
