@@ -50,6 +50,23 @@ namespace LuaWrapper {
   };
 
   template <>
+  class DataWrapper<bool> {
+  public:
+    static bool Unpack(lua_State* L, int index)
+    {
+      // Why the heck this function is not there ????
+      //return (bool)luaL_checkboolean(L,index);
+      luaL_checktype(L, index, LUA_TBOOLEAN);
+      return (bool)lua_toboolean(L, index);
+    }
+  
+    static void Pack(lua_State* L, bool data)
+    {
+      lua_pushboolean(L,data);
+    }
+  };
+
+  template <>
   class DataWrapper<int> {
   public:
     static int Unpack(lua_State* L, int index)
