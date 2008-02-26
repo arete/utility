@@ -157,13 +157,13 @@ public:
     OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
     DataWrapper<RET>::Pack (L,
 			    (obj->*f)(
-				a1(DataWrapper<P1>::Unpack(L, 1))
-				a2c(DataWrapper<P2>::Unpack(L, 2))
-				a3c(DataWrapper<P3>::Unpack(L, 3))
-				a4c(DataWrapper<P4>::Unpack(L, 4))
-				a5c(DataWrapper<P5>::Unpack(L, 5))
-				a6c(DataWrapper<P6>::Unpack(L, 6))
-				a7c(DataWrapper<P7>::Unpack(L, 7))
+				a1(DataWrapper<P1>::Unpack(L, 2))
+				a2c(DataWrapper<P2>::Unpack(L, 3))
+				a3c(DataWrapper<P3>::Unpack(L, 4))
+				a4c(DataWrapper<P4>::Unpack(L, 5))
+				a5c(DataWrapper<P5>::Unpack(L, 6))
+				a6c(DataWrapper<P6>::Unpack(L, 7))
+				a7c(DataWrapper<P7>::Unpack(L, 8))
 				      ));
     return 1;
   }
