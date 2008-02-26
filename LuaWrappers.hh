@@ -1,5 +1,10 @@
+// Copyright by Valentin Ziegler, 2008
+
 // The aim of this file is to create code for
 // FunctionWrapper_*_* and MethodWrapper_*_* classes
+
+// Hint: if you want a more readable version of this file,
+// use g++ -E
 
 // Sorry for the grave hack,
 // c++ templates definitly suck at variadic signatures...
@@ -12,9 +17,11 @@
 // name(X) is X##N
 // ai(X) is "X" if i<=N, ignored otherwise
 // aic(X) is ",X" if i<=N, ignored otherwise
+// comma is "," if i>=0
 
 #ifndef N
 #define N 7
+#define comma ,
 #define name(X) X##7
 #define a1(X) X
 #define a1c(X) ,X
@@ -86,10 +93,12 @@
 #define name(X) X##1
 #elif N > 0
 #undef N
+#undef comma
 #undef name
 #undef a1
 #undef a1c
 #define N 0
+#define comma
 #define a1(X)
 #define a1c(X)
 #define name(X) X##0
@@ -137,6 +146,71 @@ public:
 
 
 template <
+  a1(typename P1)
+  a2c(typename P2)
+  a3c(typename P3)
+  a4c(typename P4)
+  a5c(typename P5)
+  a6c(typename P6)
+  a7c(typename P7)
+  comma
+  void (*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+class name(FunctionWrapper_0_)
+{
+public:
+  typedef void myobjectT;
+  
+  static int Wrapper  (lua_State* L)
+  {
+    F(
+      a1(DataWrapper<P1>::Unpack(L, 1))
+      a2c(DataWrapper<P2>::Unpack(L, 2))
+      a3c(DataWrapper<P3>::Unpack(L, 3))
+      a4c(DataWrapper<P4>::Unpack(L, 4))
+      a5c(DataWrapper<P5>::Unpack(L, 5))
+      a6c(DataWrapper<P6>::Unpack(L, 6))
+      a7c(DataWrapper<P7>::Unpack(L, 7))
+      );
+    return 0;
+  }
+
+  static const bool hasmeta=false;
+};
+
+
+template <
+  a1(typename P1)
+  a2c(typename P2)
+  a3c(typename P3)
+  a4c(typename P4)
+  a5c(typename P5)
+  a6c(typename P6)
+  a7c(typename P7)
+  comma
+  int (*F)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+class name(FunctionWrapper_N_)
+{
+public:
+  typedef void myobjectT;
+  
+  static int Wrapper  (lua_State* L)
+  {
+    return F(L
+      a1c(DataWrapper<P1>::Unpack(L, 1))
+      a2c(DataWrapper<P2>::Unpack(L, 2))
+      a3c(DataWrapper<P3>::Unpack(L, 3))
+      a4c(DataWrapper<P4>::Unpack(L, 4))
+      a5c(DataWrapper<P5>::Unpack(L, 5))
+      a6c(DataWrapper<P6>::Unpack(L, 6))
+      a7c(DataWrapper<P7>::Unpack(L, 7))
+      );
+  }
+
+  static const bool hasmeta=false;
+};
+
+
+template <
   typename OBJ, typename RET
   a1c(typename P1)
   a2c(typename P2)
@@ -171,6 +245,73 @@ public:
   static const bool hasmeta=true;
 };
 
+
+template <
+  typename OBJ
+  a1c(typename P1)
+  a2c(typename P2)
+  a3c(typename P3)
+  a4c(typename P4)
+  a5c(typename P5)
+  a6c(typename P6)
+  a7c(typename P7),
+  void (OBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+class name(MethodWrapper_0_)
+{
+public:
+  typedef OBJ myobjectT;
+
+  static int Wrapper  (lua_State* L)
+  {
+    void (OBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
+    OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
+    (obj->*f)(
+	      a1(DataWrapper<P1>::Unpack(L, 2))
+	      a2c(DataWrapper<P2>::Unpack(L, 3))
+	      a3c(DataWrapper<P3>::Unpack(L, 4))
+	      a4c(DataWrapper<P4>::Unpack(L, 5))
+	      a5c(DataWrapper<P5>::Unpack(L, 6))
+	      a6c(DataWrapper<P6>::Unpack(L, 7))
+	      a7c(DataWrapper<P7>::Unpack(L, 8))
+	      );
+    return 0;
+  }
+
+  static const bool hasmeta=true;
+};
+
+template <
+  typename OBJ
+  a1c(typename P1)
+  a2c(typename P2)
+  a3c(typename P3)
+  a4c(typename P4)
+  a5c(typename P5)
+  a6c(typename P6)
+  a7c(typename P7),
+  int (OBJ::*F)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+class name(MethodWrapper_N_)
+{
+public:
+  typedef OBJ myobjectT;
+
+  static int Wrapper  (lua_State* L)
+  {
+    int (OBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
+    OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
+    return (obj->*f)(L
+	      a1c(DataWrapper<P1>::Unpack(L, 2))
+	      a2c(DataWrapper<P2>::Unpack(L, 3))
+	      a3c(DataWrapper<P3>::Unpack(L, 4))
+	      a4c(DataWrapper<P4>::Unpack(L, 5))
+	      a5c(DataWrapper<P5>::Unpack(L, 6))
+	      a6c(DataWrapper<P6>::Unpack(L, 7))
+	      a7c(DataWrapper<P7>::Unpack(L, 8))
+	      );
+  }
+
+  static const bool hasmeta=true;
+};
 
 // content end
 
