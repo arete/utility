@@ -63,7 +63,7 @@ namespace LuaWrapper {
     }
   };
 
-
+  /*
   template <typename RET,  typename P1,  RET (*F)(P1)>
   class FunctionWrapper_1_1
   {
@@ -102,8 +102,10 @@ namespace LuaWrapper {
 
     static const bool hasmeta=true;
   };
+  */
 
 
+#include "LuaWrappers.hh"
 
   template <typename WRAPPER>
   class ExportToLua {
