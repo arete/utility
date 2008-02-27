@@ -143,5 +143,5 @@ namespace LuaWrapper {
 
 // some ugly convenience defines
 #define ToLuaClass(T) \
-namespace LuaWrapper {  template <>  class LuaObject<Udata*> { \
+namespace LuaWrapper {  template <>  class LuaObject<T*> { \
 public: static const char* luahandle() { return #T"*"; } }; }
