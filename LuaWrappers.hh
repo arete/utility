@@ -211,7 +211,7 @@ public:
 
 
 template <
-  typename OBJ, typename RET
+  typename OBJ, typename DEFOBJ, typename RET
   a1c(typename P1)
   a2c(typename P2)
   a3c(typename P3)
@@ -219,7 +219,7 @@ template <
   a5c(typename P5)
   a6c(typename P6)
   a7c(typename P7),
-  RET (OBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  RET (DEFOBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
 class name(MethodWrapper_1_)
 {
 public:
@@ -227,7 +227,7 @@ public:
 
   static int Wrapper  (lua_State* L)
   {
-    RET (OBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
+    RET (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
     OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
     DataWrapper<RET>::Pack (L,
 			    (obj->*f)(
@@ -247,7 +247,8 @@ public:
 
 
 template <
-  typename OBJ
+  typename OBJ,
+  typename DEFOBJ
   a1c(typename P1)
   a2c(typename P2)
   a3c(typename P3)
@@ -255,7 +256,7 @@ template <
   a5c(typename P5)
   a6c(typename P6)
   a7c(typename P7),
-  void (OBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  void (DEFOBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
 class name(MethodWrapper_0_)
 {
 public:
@@ -263,7 +264,7 @@ public:
 
   static int Wrapper  (lua_State* L)
   {
-    void (OBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
+    void (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
     OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
     (obj->*f)(
 	      a1(DataWrapper<P1>::Unpack(L, 2))
@@ -281,7 +282,8 @@ public:
 };
 
 template <
-  typename OBJ
+  typename OBJ,
+  typename DEFOBJ
   a1c(typename P1)
   a2c(typename P2)
   a3c(typename P3)
@@ -289,7 +291,7 @@ template <
   a5c(typename P5)
   a6c(typename P6)
   a7c(typename P7),
-  int (OBJ::*F)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  int (DEFOBJ::*F)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
 class name(MethodWrapper_N_)
 {
 public:
@@ -297,7 +299,7 @@ public:
 
   static int Wrapper  (lua_State* L)
   {
-    int (OBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
+    int (DEFOBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
     OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
     return (obj->*f)(L
 	      a1c(DataWrapper<P1>::Unpack(L, 2))
