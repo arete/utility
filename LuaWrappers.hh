@@ -2,6 +2,7 @@
 
 // The aim of this file is to create code for
 // FunctionWrapper_*_* and MethodWrapper_*_* classes
+// as well as the Call_*_* functions
 
 // Hint: if you want a more readable version of this file,
 // use g++ -E
@@ -314,6 +315,68 @@ public:
 
   static const bool hasmeta=true;
 };
+
+
+
+template <
+  typename RET
+  a1c(typename P1)
+  a2c(typename P2)
+  a3c(typename P3)
+  a4c(typename P4)
+  a5c(typename P5)
+  a6c(typename P6)
+  a7c(typename P7),
+  RET panic>
+RET name(Call_1_)(lua_State* L, const char* fname
+		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
+  {
+    lua_getfield(L, LUA_GLOBALSINDEX, fname);
+    if (lua_isfunction (L, -1)) {
+      a1(DataWrapper<P1>::Pack(L, p1);)
+      a2(DataWrapper<P2>::Pack(L, p2);)
+      a3(DataWrapper<P3>::Pack(L, p3);)
+      a4(DataWrapper<P4>::Pack(L, p4);)
+      a5(DataWrapper<P5>::Pack(L, p5);)
+      a6(DataWrapper<P6>::Pack(L, p6);)
+      a7(DataWrapper<P7>::Pack(L, p7);)
+
+      lua_call(L, N, 1);
+      RET val=DataWrapper<RET>::Unpack(L,-1);
+      lua_pop(L,1); // pop the returned value
+      return val;
+    } else {
+      lua_pop(L,1); // pop the result of lua_getfield
+      return panic;
+    }
+  }
+
+a1(template <
+  a1(typename P1)
+  a2c(typename P2)
+  a3c(typename P3)
+  a4c(typename P4)
+  a5c(typename P5)
+  a6c(typename P6)
+   a7c(typename P7)>)
+void name(Call_0_)(lua_State* L, const char* fname
+		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
+  {
+    lua_getfield(L, LUA_GLOBALSINDEX, fname);
+    if (lua_isfunction (L, -1)) {
+      a1(DataWrapper<P1>::Pack(L, p1);)
+      a2(DataWrapper<P2>::Pack(L, p2);)
+      a3(DataWrapper<P3>::Pack(L, p3);)
+      a4(DataWrapper<P4>::Pack(L, p4);)
+      a5(DataWrapper<P5>::Pack(L, p5);)
+      a6(DataWrapper<P6>::Pack(L, p6);)
+      a7(DataWrapper<P7>::Pack(L, p7);)
+
+      lua_call(L, N, 0);
+    } else {
+      lua_pop(L,1); // pop the result of lua_getfield
+    }
+  }
 
 // content end
 
