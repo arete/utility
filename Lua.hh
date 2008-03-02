@@ -19,10 +19,10 @@ namespace LuaWrapper {
     static T Unpack(lua_State* L, int index)
     {
       T* c=(T*)luaL_checkudata(L, index,  LuaObject<T>::luahandle());
-      if (!(*c)) {
+      /*if (!(*c)) {
 	 lua_pushstring(L, "call with nil object");
 	 lua_error(L);
-       }
+	 }*/
        return *c;
     }
 
