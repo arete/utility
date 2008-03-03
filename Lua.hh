@@ -117,6 +117,7 @@ namespace LuaWrapper {
 
     ExportToLua (lua_State* L, const char* module_name,  const char* function_name)
     {
+      //std::cout << "register " << function_name << std::endl;
       luaL_Reg entry[2]={ {function_name, WRAPPER::Wrapper}, {NULL,NULL}};
       if (WRAPPER::hasmeta) {
 	luaL_getmetatable(L, LuaObject<objectT*>::luahandle());
@@ -126,6 +127,7 @@ namespace LuaWrapper {
       } else {
 	luaL_register(L, module_name, entry);
       }
+      lua_pop(L,1);
     }
   };
 
