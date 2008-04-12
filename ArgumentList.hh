@@ -137,7 +137,7 @@ namespace Utility
       T value = ReadImpl (arg);
       
       // special case if default was supplied -> overwrite the first ...
-      if (count == 0 & values.size () > 0)
+      if (count == 0 && values.size () > 0)
 	values[0] = value;
       else
 	values.push_back (value);
