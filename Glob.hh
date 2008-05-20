@@ -5,6 +5,7 @@
 #define UTILITY__GLOB_HH__
 
 #include <glob.h>
+#include <string>
 
 namespace Utility
 {
