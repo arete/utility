@@ -7,7 +7,7 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/include/Timer.hh
- * General Sound Manipulation Program is Copyright (C) 2000 - 2007
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2008
  *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,12 @@
  * 
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
+
+/*
+ * Alternatively, commercial licensing options are available from the
+ * copyright holder ExactCODE GmbH Germany.
+ */
+
 
 /* Short Description:
  *   Some basic timer classes.
@@ -43,18 +49,23 @@ namespace Utility
   class Timer
   {
   public:
-    Timer ();
+    Timer () { Reset (); }
     
-    void Reset ();
-    uint64_t Delta ();
-    uint64_t PerSecond ();
+    void Reset () { m_start = Value(); }
+    uint64_t Delta () const { return Value() - m_start; }
+    inline uint64_t PerSecond () const { return 1000000; }
     
-    uint64_t Value ();
-
-    const char* Unit () { return "us"; }
+    uint64_t Value () const {
+      timeval t_time;
+      gettimeofday (&t_time, NULL);
+      
+      return (t_time.tv_sec * PerSecond()) + t_time.tv_usec;
+    }
     
+    const char* Unit () const { return "us"; }
+  
   private:
-    timeval m_start;
+    uint64_t m_start;
   };
   
   class TickTimer
@@ -63,12 +74,12 @@ namespace Utility
     TickTimer ();
     
     void Reset ();
-    uint64_t Delta ();
-    uint64_t PerSecond ();
+    uint64_t Delta () const;
+    uint64_t PerSecond () const;
     
-    uint64_t Value ();
+    uint64_t Value () const;
     
-    const char* Unit () { return "us"; }
+    const char* Unit () const { return "us"; }
     
   private:
     struct tms m_times;
@@ -80,12 +91,12 @@ namespace Utility
     TimebaseTimer ();
     
     void Reset ();
-    uint64_t Delta ();
-    uint64_t PerSecond ();
+    uint64_t Delta () const;
+    uint64_t PerSecond () const;
     
-    uint64_t Value ();
+    uint64_t Value () const;
 
-    const char* Unit () { return "cycles"; }
+    const char* Unit () const { return "cycles"; }
     
   private:
     uint64_t start_tick;
@@ -103,10 +114,10 @@ namespace Utility
 		<< "\" took: " << m_timer.Delta () << " " << m_timer.Unit () << std::endl;
     }
     
-    uint64_t Delta () {
+    uint64_t Delta () const {
       return m_timer.Delta ();
     }
-    uint64_t PerSecond () {
+    uint64_t PerSecond () const {
       return m_timer.PerSecond ();
     }
     

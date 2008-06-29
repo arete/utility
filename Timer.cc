@@ -7,7 +7,7 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/src/Timer.cc
- * General Sound Manipulation Program is Copyright (C) 2000 - 2007
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2008
  *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,11 @@
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
 
+/*
+ * Alternatively, commercial licensing options are available from the
+ * copyright holder ExactCODE GmbH Germany.
+ */
+
 #include "Timer.hh"
 
 #include <sys/types.h>
@@ -30,44 +35,6 @@
 #include <unistd.h>
 
 #include <iostream>
-
-Utility::Timer::Timer ()
-{
-  gettimeofday (&m_start, NULL);
-}
-
-void Utility::Timer::Reset ()
-{
-  gettimeofday (&m_start, NULL);
-}
-
-uint64_t Utility::Timer::Delta ()
-{
-  uint64_t ctime;
-  
-  timeval t_time;
-  gettimeofday (&t_time, NULL);
-  
-  ctime = (t_time.tv_sec * 1000000) + t_time.tv_usec;
-  ctime -= ( (m_start.tv_sec * 1000000) + m_start.tv_usec);
-  
-  return ctime;
-}
-
-uint64_t Utility::Timer::Value ()
-{
-  timeval t_time;
-  gettimeofday (&t_time, NULL);
-  
-  return (t_time.tv_sec * 1000000) + t_time.tv_usec;
-}
-
-uint64_t Utility::Timer::PerSecond ()
-{
-  return 1000000;
-}
-
-// ---
 
 Utility::TickTimer::TickTimer ()
 {
@@ -79,7 +46,7 @@ void Utility::TickTimer::Reset ()
   times (&m_times);
 }
 
-uint64_t Utility::TickTimer::Delta ()
+uint64_t Utility::TickTimer::Delta const ()
 {
   tms t_times;
   times (&t_times);
@@ -87,7 +54,7 @@ uint64_t Utility::TickTimer::Delta ()
   return t_times.tms_utime - m_times.tms_utime;
 }
 
-uint64_t Utility::TickTimer::Value ()
+uint64_t Utility::TickTimer::Value const ()
 {
   tms t_times;
   times (&t_times);
@@ -95,7 +62,7 @@ uint64_t Utility::TickTimer::Value ()
   return t_times.tms_utime;
 }
 
-uint64_t Utility::TickTimer::PerSecond ()
+uint64_t Utility::TickTimer::PerSecond const ()
 {
   return sysconf (_SC_CLK_TCK);
 }
@@ -112,12 +79,12 @@ void Utility::TimebaseTimer::Reset ()
   start_tick = Value ();
 }
 
-uint64_t Utility::TimebaseTimer::Delta ()
+uint64_t Utility::TimebaseTimer::Delta const ()
 {
   return Value () - start_tick;
 }
 
-uint64_t Utility::TimebaseTimer::Value ()
+uint64_t Utility::TimebaseTimer::Value const ()
 {
 #if defined(__i386__)
   uint64_t x;
@@ -177,7 +144,7 @@ uint64_t Utility::TimebaseTimer::Value ()
 #endif
 }
 
-uint64_t Utility::TimebaseTimer::PerSecond ()
+uint64_t Utility::TimebaseTimer::PerSecond () const
 {
   static uint64_t per_second = 0;
   
