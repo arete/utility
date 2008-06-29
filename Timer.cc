@@ -46,7 +46,7 @@ void Utility::TickTimer::Reset ()
   times (&m_times);
 }
 
-uint64_t Utility::TickTimer::Delta const ()
+uint64_t Utility::TickTimer::Delta () const
 {
   tms t_times;
   times (&t_times);
@@ -54,7 +54,7 @@ uint64_t Utility::TickTimer::Delta const ()
   return t_times.tms_utime - m_times.tms_utime;
 }
 
-uint64_t Utility::TickTimer::Value const ()
+uint64_t Utility::TickTimer::Value () const
 {
   tms t_times;
   times (&t_times);
@@ -62,7 +62,7 @@ uint64_t Utility::TickTimer::Value const ()
   return t_times.tms_utime;
 }
 
-uint64_t Utility::TickTimer::PerSecond const ()
+uint64_t Utility::TickTimer::PerSecond () const
 {
   return sysconf (_SC_CLK_TCK);
 }
@@ -79,12 +79,12 @@ void Utility::TimebaseTimer::Reset ()
   start_tick = Value ();
 }
 
-uint64_t Utility::TimebaseTimer::Delta const ()
+uint64_t Utility::TimebaseTimer::Delta () const
 {
   return Value () - start_tick;
 }
 
-uint64_t Utility::TimebaseTimer::Value const ()
+uint64_t Utility::TimebaseTimer::Value () const
 {
 #if defined(__i386__)
   uint64_t x;
