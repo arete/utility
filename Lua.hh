@@ -4,111 +4,301 @@ extern "C" {
 #include "lualib.h"
 }
 
+#include <vector>
+
 namespace LuaWrapper {
 
-  template <typename T>
-  class LuaObject
+  class LuaClassData
   {
   public:
-    static const char* luahandle() { return "undefined_object*"; }
+    LuaClassData(const std::string& name)
+    {
+      handle=name;
+    }
+
+    void insertMetaTablePtr(void* ptr)
+    {
+      metaTablePtrs.push_back(ptr);
+      std::sort(metaTablePtrs.begin(), metaTablePtrs.end());
+    }
+
+
+    bool isCompatible(void* ptr)
+    {
+      return std::binary_search(metaTablePtrs.begin(), metaTablePtrs.end(), ptr);
+    }
+
+    std::string handle;
+    std::vector <void*> metaTablePtrs;
   };
 
   template <typename T>
-  class DataWrapper {
+  class LuaClass
+  {
   public:
-    static T Unpack(lua_State* L, int index)
+    LuaClass(const std::string& name)
     {
-      T* c=(T*)luaL_checkudata(L, index,  LuaObject<T>::luahandle());
-      /*if (!(*c)) {
-	 lua_pushstring(L, "call with nil object");
-	 lua_error(L);
-	 }*/
-       return *c;
+      if (!data) {
+	data=new LuaClassData(name);
+      }
+    }
+  
+    static const char* luahandle()
+    {
+      return data->handle.c_str();
+    }
+  
+    static T* getPtr(lua_State* L, int index)
+    {
+      void** p = (void**) lua_touserdata(L, index);
+      if (p)
+	if (lua_getmetatable(L, index)) {
+	  void* meta=(void*)lua_topointer (L, -1);
+	  lua_pop(L, 1);
+	  if (data->isCompatible(meta))
+	    return (T*)*p;
+	}
+      luaL_typerror(L, index ,luahandle());
+      return 0;  /* avoid warnings */
     }
 
-    static void Pack(lua_State* L, T data)
+    static void packPtr(lua_State* L, T* obj)
     {
-      *((T*) lua_newuserdata(L, sizeof(T)))=data;
-      luaL_getmetatable(L,  LuaObject<T>::luahandle());
+      T** ptr=(T**) lua_newuserdata(L, sizeof(T*));
+      *ptr=obj;
+      luaL_getmetatable(L,  luahandle());
       lua_setmetatable(L, -2);
     }
+
+    static LuaClassData* data;
   };
 
+  template <typename T>
+  LuaClassData* LuaClass<T>::data=0;
+
+  template <typename T>
+  class Unpack {};
 
   template <>
-  class DataWrapper<double> {
+  class Unpack<int>
+  {
   public:
-    static double Unpack(lua_State* L, int index)
-    {
-      return (double)luaL_checknumber(L,index);
-    }
-  
-    static void Pack(lua_State* L, double data)
-    {
-      lua_pushnumber(L,(lua_Number)data);
-    }
-  };
-
-  template <>
-  class DataWrapper<bool> {
-  public:
-    static bool Unpack(lua_State* L, int index)
-    {
-      // Why the heck this function is not there ????
-      //return (bool)luaL_checkboolean(L,index);
-      luaL_checktype(L, index, LUA_TBOOLEAN);
-      return (bool)lua_toboolean(L, index);
-    }
-  
-    static void Pack(lua_State* L, bool data)
-    {
-      lua_pushboolean(L,data);
-    }
-  };
-
-  template <>
-  class DataWrapper<int> {
-  public:
-    static int Unpack(lua_State* L, int index)
+    static int convert(lua_State* L, int index)
     {
       return (int)luaL_checkinteger(L,index);
     }
-  
-    static void Pack(lua_State* L, int data)
+  };
+
+  template <>
+  class Unpack<double>
+  {
+  public:
+    static double convert(lua_State* L, int index)
     {
-      lua_pushinteger(L,data);
+      return (double)luaL_checknumber(L,index);
     }
   };
 
   template <>
-  class DataWrapper<const char*> {
+  class Unpack<bool>
+  {
   public:
-    static const char* Unpack(lua_State* L, int index)
+    static bool convert(lua_State* L, int index)
+    {
+      // Why the heck this function is not there ????
+      // return (bool)luaL_checkboolean(L,index);
+      luaL_checktype(L, index, LUA_TBOOLEAN);
+      return (bool)lua_toboolean(L, index);
+    }
+  };
+
+  template <>
+  class Unpack<const char*>
+  {
+  public:
+    static const char* convert(lua_State* L, int index)
     {
       return luaL_checkstring(L,index);
     }
-  
-    static void Pack(lua_State* L, const char* data)
-    {
-      lua_pushstring(L,data);
-    }
   };
-  
+
   template <>
-  class DataWrapper<std::string> {
+  class Unpack<std::string>
+  {
   public:
-    static std::string Unpack(lua_State* L, int index)
+    static const std::string convert(lua_State* L, int index)
     {
       return std::string(luaL_checkstring(L,index));
     }
-  
-    static void Pack(lua_State* L, std::string data)
+  };
+
+  template <typename T>
+  class Unpack<T&>
+  {
+  public:
+    static T& convert(lua_State* L, int index)
     {
-      lua_pushstring(L,data.c_str());
+      return *LuaClass<T>::getPtr(L, index);
+    } 
+  };
+
+  template <typename T>
+  class Unpack<const T&>
+  { 
+  public:
+    static const T& convert(lua_State* L, int index)
+    {
+      return *LuaClass<T>::getPtr(L, index);
+    } 
+  };
+
+  template <typename T>
+  class Unpack<T*>
+  { 
+  public:
+    static T* convert(lua_State* L, int index)
+    {
+      return LuaClass<T>::getPtr(L, index);
+    } 
+  };
+
+  template <typename T>
+  class Pack {};
+
+  template <>
+  class Pack<int>
+  {
+  public:
+    static void convert(lua_State* L, int value)
+    {
+      lua_pushinteger(L, value);
     }
   };
 
+  template <>
+  class Pack<double>
+  {
+  public:
+    static void convert(lua_State* L, double value)
+    {
+      lua_pushnumber(L, value);
+    }
+  };
+
+  template <>
+  class Pack<bool>
+  {
+  public:
+    static void convert(lua_State* L, bool value)
+    {
+      lua_pushboolean(L, value);
+    }
+  };
+
+  template <>
+  class Pack<const char*>
+  {
+  public:
+    static void convert(lua_State* L, const char* value)
+    {
+      lua_pushstring(L, value);
+    }
+  };
+
+  template <>
+  class Pack<std::string>
+  {
+  public:
+    static void convert(lua_State* L, std::string value)
+    {
+      lua_pushstring(L, value.c_str());
+    }
+  };
+
+  template <>
+  class Pack<std::string&>
+  {
+  public:
+    static void convert(lua_State* L, std::string value)
+    {
+      lua_pushstring(L, value.c_str());
+    }
+  };
+
+  template <>
+  class Pack<const std::string&>
+  {
+  public:
+    static void convert(lua_State* L, std::string value)
+    {
+      lua_pushstring(L, value.c_str());
+    }
+  };
+
+
+  template <typename T>
+  class Pack <T*>
+  {
+  public:
+    static void convert(lua_State* L, T* obj)
+    {
+      LuaClass<T>::packPtr(L, obj);
+    }
+  };
+
+  template <typename T>
+  class Pack <T&>
+  {
+  public:
+    static void convert(lua_State* L, T& obj)
+    {
+      LuaClass<T>::packPtr(L, *obj);
+    }
+  };
+
+  template <typename ORIG, typename ALIAS>
+  class UnpackTypedef
+  {
+  public:
+    static ALIAS convert(lua_State* L, int index)
+    {
+      return (ALIAS)Unpack<ORIG>::convert(L,index);
+    }
+  };
+
+  template <typename ORIG, typename ALIAS>
+  class PackTypedef
+  {
+  public:
+    static void convert(lua_State* L, ALIAS value)
+    {
+      Pack<ORIG>::convert(L, (ORIG)value);
+    }
+  };
+
+
 #include "LuaWrappers.hh"
+
+  // does not need to be expanded in LuaWrappers.hh hackery, since
+  // dtors never take arguments ;)
+  template <typename OBJ>
+  class DtorWrapper
+  {
+  public:
+    typedef OBJ myobjectT;
+
+    static int Wrapper  (lua_State* L)
+    {
+      OBJ* obj=Unpack<OBJ*>::convert(L,1);
+      delete obj;
+      return 0;
+    }
+
+    static const bool hasmeta=true;
+    static const bool noindex=false;
+  };
+
+
 
   template <typename WRAPPER>
   class ExportToLua {
@@ -120,30 +310,81 @@ namespace LuaWrapper {
       //std::cout << "register " << function_name << std::endl;
       luaL_Reg entry[2]={ {function_name, WRAPPER::Wrapper}, {NULL,NULL}};
       if (WRAPPER::hasmeta) {
-	luaL_getmetatable(L, LuaObject<objectT*>::luahandle());
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	luaL_register(L, NULL, entry);	
+	luaL_getmetatable(L, LuaClass<objectT>::luahandle());
+	if (strncmp(function_name, "__", 2)!=0 && !WRAPPER::noindex) {
+	  lua_getfield(L, -1, "__index");
+	  luaL_register(L, 0, entry);
+	  lua_pop(L,2);
+	} else { // allow direct registration of ctors and __* methods
+	  luaL_register(L, 0, entry);
+	  lua_pop(L,1);
+	}
       } else {
 	luaL_register(L, module_name, entry);
       }
-      lua_pop(L,1);
     }
   };
 
   template <typename T>
-  void DeclareToLua(lua_State* L)
+  void DeclareToLua(lua_State* L, const char* module_name=0)
   {
-    luaL_Reg entry[1]={ {NULL,NULL}};
-    luaL_newmetatable(L, LuaObject<T>::luahandle());
-    lua_pushvalue(L, -1);
+    luaL_newmetatable(L, LuaClass<T>::luahandle());
+
+    if (module_name) {
+      // drop a reference to the metatable into the module table
+      luaL_findtable (L, LUA_GLOBALSINDEX, module_name, 1);
+      lua_pushvalue(L, -2);
+      lua_setfield(L, -2, LuaClass<T>::luahandle());
+      lua_pop(L,1);
+    }
+
+    // create index table
+    lua_newtable(L);
     lua_setfield(L, -2, "__index");
-    luaL_register(L, NULL, entry);
+
+    // remember metatable raw pointer for later type checks
+    LuaClass<T>::data->insertMetaTablePtr((void*)lua_topointer (L, -1));
+    lua_pop(L,1);
   }
 
+  template <typename BASE, typename DERIVED>
+  void InheritMeta(lua_State* L)
+  {
+    luaL_getmetatable(L, LuaClass<DERIVED>::luahandle()); // -5
+    lua_getfield(L,-1,"__index"); // -4
+    luaL_getmetatable(L, LuaClass<BASE>::luahandle()); // -3
+    lua_getfield(L,-1,"__index"); // -2
+
+    lua_pushnil(L);  /* -1 first key */
+    while (lua_next(L, -2) != 0) {
+      lua_pushvalue(L, -2); // copy key and move down
+      lua_insert(L, -3);
+      lua_settable(L, -6); // DERIVED __index at -6
+    }
+    lua_pop(L, 5);
+  }
+
+  template <typename BASE, typename DERIVED>
+  void AllowDowncast(lua_State* L)
+  {
+    luaL_getmetatable(L, LuaClass<DERIVED>::luahandle());
+    LuaClass<BASE>::data->insertMetaTablePtr((void*)lua_topointer (L, -1));
+    lua_pop(L,1);
+  }
+
+  template <typename C>
+  void RegisterValue(lua_State* L, const char* module_name, const char* name, C value)
+  {
+    luaL_findtable (L, LUA_GLOBALSINDEX, module_name, 1);
+    Pack<C>::convert(L, value);
+    lua_setfield(L, -2, name);
+    lua_pop(L,1);
+  }
 }
 
-// some ugly convenience defines
-#define ToLuaClass(T) \
-namespace LuaWrapper {  template <>  class LuaObject<T*> { \
-public: static const char* luahandle() { return #T"*"; } }; }
+
+// some convenient defines:
+#define ToLuaTypedef(ORIG,ALIAS) \
+namespace LuaWrapper { \
+  template <> class Unpack<ALIAS>:public UnpackTypedef<ORIG, ALIAS>{}; \
+  template <> class Pack<ALIAS>:public PackTypedef<ORIG, ALIAS>{}; }

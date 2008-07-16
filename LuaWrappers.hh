@@ -110,9 +110,6 @@
 
 // content starts here
 
-
-
-
 template <
   typename RET
   a1c(typename P1)
@@ -130,21 +127,21 @@ public:
   
   static int Wrapper  (lua_State* L)
   {
-    DataWrapper<RET>::Pack (L,F(
-				a1(DataWrapper<P1>::Unpack(L, 1))
-				a2c(DataWrapper<P2>::Unpack(L, 2))
-				a3c(DataWrapper<P3>::Unpack(L, 3))
-				a4c(DataWrapper<P4>::Unpack(L, 4))
-				a5c(DataWrapper<P5>::Unpack(L, 5))
-				a6c(DataWrapper<P6>::Unpack(L, 6))
-				a7c(DataWrapper<P7>::Unpack(L, 7))
-			      ));
+    Pack<RET>::convert (L,F(
+			    a1(Unpack<P1>::convert(L, 1))
+			    a2c(Unpack<P2>::convert(L, 2))
+			    a3c(Unpack<P3>::convert(L, 3))
+			    a4c(Unpack<P4>::convert(L, 4))
+			    a5c(Unpack<P5>::convert(L, 5))
+			    a6c(Unpack<P6>::convert(L, 6))
+			    a7c(Unpack<P7>::convert(L, 7))
+			    ));
     return 1;
   }
 
   static const bool hasmeta=false;
+  static const bool noindex=true;
 };
-
 
 template <
   a1(typename P1)
@@ -164,18 +161,19 @@ public:
   static int Wrapper  (lua_State* L)
   {
     F(
-      a1(DataWrapper<P1>::Unpack(L, 1))
-      a2c(DataWrapper<P2>::Unpack(L, 2))
-      a3c(DataWrapper<P3>::Unpack(L, 3))
-      a4c(DataWrapper<P4>::Unpack(L, 4))
-      a5c(DataWrapper<P5>::Unpack(L, 5))
-      a6c(DataWrapper<P6>::Unpack(L, 6))
-      a7c(DataWrapper<P7>::Unpack(L, 7))
+      a1(Unpack<P1>::convert(L, 1))
+      a2c(Unpack<P2>::convert(L, 2))
+      a3c(Unpack<P3>::convert(L, 3))
+      a4c(Unpack<P4>::convert(L, 4))
+      a5c(Unpack<P5>::convert(L, 5))
+      a6c(Unpack<P6>::convert(L, 6))
+      a7c(Unpack<P7>::convert(L, 7))
       );
     return 0;
   }
 
   static const bool hasmeta=false;
+  static const bool noindex=true;
 };
 
 
@@ -197,17 +195,18 @@ public:
   static int Wrapper  (lua_State* L)
   {
     return F(L
-      a1c(DataWrapper<P1>::Unpack(L, 1))
-      a2c(DataWrapper<P2>::Unpack(L, 2))
-      a3c(DataWrapper<P3>::Unpack(L, 3))
-      a4c(DataWrapper<P4>::Unpack(L, 4))
-      a5c(DataWrapper<P5>::Unpack(L, 5))
-      a6c(DataWrapper<P6>::Unpack(L, 6))
-      a7c(DataWrapper<P7>::Unpack(L, 7))
+      a1c(Unpack<P1>::convert(L, 1))
+      a2c(Unpack<P2>::convert(L, 2))
+      a3c(Unpack<P3>::convert(L, 3))
+      a4c(Unpack<P4>::convert(L, 4))
+      a5c(Unpack<P5>::convert(L, 5))
+      a6c(Unpack<P6>::convert(L, 6))
+      a7c(Unpack<P7>::convert(L, 7))
       );
   }
 
   static const bool hasmeta=false;
+  static const bool noindex=true;
 };
 
 
@@ -229,21 +228,22 @@ public:
   static int Wrapper  (lua_State* L)
   {
     RET (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
-    OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
-    DataWrapper<RET>::Pack (L,
+    OBJ* obj=Unpack<OBJ*>::convert(L,1);
+    Pack<RET>::convert (L,
 			    (obj->*f)(
-				a1(DataWrapper<P1>::Unpack(L, 2))
-				a2c(DataWrapper<P2>::Unpack(L, 3))
-				a3c(DataWrapper<P3>::Unpack(L, 4))
-				a4c(DataWrapper<P4>::Unpack(L, 5))
-				a5c(DataWrapper<P5>::Unpack(L, 6))
-				a6c(DataWrapper<P6>::Unpack(L, 7))
-				a7c(DataWrapper<P7>::Unpack(L, 8))
+				a1(Unpack<P1>::convert(L, 2))
+				a2c(Unpack<P2>::convert(L, 3))
+				a3c(Unpack<P3>::convert(L, 4))
+				a4c(Unpack<P4>::convert(L, 5))
+				a5c(Unpack<P5>::convert(L, 6))
+				a6c(Unpack<P6>::convert(L, 7))
+				a7c(Unpack<P7>::convert(L, 8))
 				      ));
     return 1;
   }
 
   static const bool hasmeta=true;
+  static const bool noindex=false;
 };
 
 
@@ -266,20 +266,21 @@ public:
   static int Wrapper  (lua_State* L)
   {
     void (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
-    OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
+    OBJ* obj=Unpack<OBJ*>::convert(L,1);
     (obj->*f)(
-	      a1(DataWrapper<P1>::Unpack(L, 2))
-	      a2c(DataWrapper<P2>::Unpack(L, 3))
-	      a3c(DataWrapper<P3>::Unpack(L, 4))
-	      a4c(DataWrapper<P4>::Unpack(L, 5))
-	      a5c(DataWrapper<P5>::Unpack(L, 6))
-	      a6c(DataWrapper<P6>::Unpack(L, 7))
-	      a7c(DataWrapper<P7>::Unpack(L, 8))
+	      a1(Unpack<P1>::convert(L, 2))
+	      a2c(Unpack<P2>::convert(L, 3))
+	      a3c(Unpack<P3>::convert(L, 4))
+	      a4c(Unpack<P4>::convert(L, 5))
+	      a5c(Unpack<P5>::convert(L, 6))
+	      a6c(Unpack<P6>::convert(L, 7))
+	      a7c(Unpack<P7>::convert(L, 8))
 	      );
     return 0;
   }
 
   static const bool hasmeta=true;
+  static const bool noindex=false;
 };
 
 template <
@@ -301,21 +302,54 @@ public:
   static int Wrapper  (lua_State* L)
   {
     int (DEFOBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
-    OBJ* obj=DataWrapper<OBJ*>::Unpack(L,1);
+    OBJ* obj=Unpack<OBJ*>::convert(L,1);
     return (obj->*f)(L
-	      a1c(DataWrapper<P1>::Unpack(L, 2))
-	      a2c(DataWrapper<P2>::Unpack(L, 3))
-	      a3c(DataWrapper<P3>::Unpack(L, 4))
-	      a4c(DataWrapper<P4>::Unpack(L, 5))
-	      a5c(DataWrapper<P5>::Unpack(L, 6))
-	      a6c(DataWrapper<P6>::Unpack(L, 7))
-	      a7c(DataWrapper<P7>::Unpack(L, 8))
+	      a1c(Unpack<P1>::convert(L, 2))
+	      a2c(Unpack<P2>::convert(L, 3))
+	      a3c(Unpack<P3>::convert(L, 4))
+	      a4c(Unpack<P4>::convert(L, 5))
+	      a5c(Unpack<P5>::convert(L, 6))
+	      a6c(Unpack<P6>::convert(L, 7))
+	      a7c(Unpack<P7>::convert(L, 8))
 	      );
   }
 
   static const bool hasmeta=true;
+  static const bool noindex=false;
 };
 
+
+template <
+  typename OBJ
+  a1c(typename P1)
+  a2c(typename P2)
+  a3c(typename P3)
+  a4c(typename P4)
+  a5c(typename P5)
+  a6c(typename P6)
+  a7c(typename P7)>
+class name(CtorWrapper_)
+{
+public:
+  typedef OBJ myobjectT;
+
+  static int Wrapper  (lua_State* L)
+  {
+    Pack<OBJ*>::convert(L, new OBJ(
+	      a1(Unpack<P1>::convert(L, 1))
+	      a2c(Unpack<P2>::convert(L, 2))
+	      a3c(Unpack<P3>::convert(L, 3))
+	      a4c(Unpack<P4>::convert(L, 4))
+	      a5c(Unpack<P5>::convert(L, 5))
+	      a6c(Unpack<P6>::convert(L, 6))
+	      a7c(Unpack<P7>::convert(L, 7))
+	      ));
+    return 1;
+  }
+
+  static const bool hasmeta=true;
+  static const bool noindex=true;
+};
 
 
 template <
@@ -333,16 +367,16 @@ RET name(Call_1_)(lua_State* L, const char* fname
   {
     lua_getfield(L, LUA_GLOBALSINDEX, fname);
     if (lua_isfunction (L, -1)) {
-      a1(DataWrapper<P1>::Pack(L, p1);)
-      a2(DataWrapper<P2>::Pack(L, p2);)
-      a3(DataWrapper<P3>::Pack(L, p3);)
-      a4(DataWrapper<P4>::Pack(L, p4);)
-      a5(DataWrapper<P5>::Pack(L, p5);)
-      a6(DataWrapper<P6>::Pack(L, p6);)
-      a7(DataWrapper<P7>::Pack(L, p7);)
+      a1(Pack<P1>::convert(L, p1);)
+      a2(Pack<P2>::convert(L, p2);)
+      a3(Pack<P3>::convert(L, p3);)
+      a4(Pack<P4>::convert(L, p4);)
+      a5(Pack<P5>::convert(L, p5);)
+      a6(Pack<P6>::convert(L, p6);)
+      a7(Pack<P7>::convert(L, p7);)
 
       lua_call(L, N, 1);
-      RET val=DataWrapper<RET>::Unpack(L,-1);
+      RET val=Unpack<RET>::convert(L,-1);
       lua_pop(L,1); // pop the returned value
       return val;
     } else {
@@ -352,31 +386,33 @@ RET name(Call_1_)(lua_State* L, const char* fname
   }
 
 a1(template <
-  a1(typename P1)
-  a2c(typename P2)
-  a3c(typename P3)
-  a4c(typename P4)
-  a5c(typename P5)
-  a6c(typename P6)
+   a1(typename P1)
+   a2c(typename P2)
+   a3c(typename P3)
+   a4c(typename P4)
+   a5c(typename P5)
+   a6c(typename P6)
    a7c(typename P7)>)
 void name(Call_0_)(lua_State* L, const char* fname
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
     lua_getfield(L, LUA_GLOBALSINDEX, fname);
     if (lua_isfunction (L, -1)) {
-      a1(DataWrapper<P1>::Pack(L, p1);)
-      a2(DataWrapper<P2>::Pack(L, p2);)
-      a3(DataWrapper<P3>::Pack(L, p3);)
-      a4(DataWrapper<P4>::Pack(L, p4);)
-      a5(DataWrapper<P5>::Pack(L, p5);)
-      a6(DataWrapper<P6>::Pack(L, p6);)
-      a7(DataWrapper<P7>::Pack(L, p7);)
+      a1(Pack<P1>::convert(L, p1);)
+      a2(Pack<P2>::convert(L, p2);)
+      a3(Pack<P3>::convert(L, p3);)
+      a4(Pack<P4>::convert(L, p4);)
+      a5(Pack<P5>::convert(L, p5);)
+      a6(Pack<P6>::convert(L, p6);)
+      a7(Pack<P7>::convert(L, p7);)
 
       lua_call(L, N, 0);
     } else {
       lua_pop(L,1); // pop the result of lua_getfield
     }
   }
+
+
 
 // content end
 
