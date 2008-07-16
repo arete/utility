@@ -4,7 +4,9 @@ extern "C" {
 #include "lualib.h"
 }
 
+#include <string.h>
 #include <vector>
+#include <algorithm>
 
 namespace LuaWrapper {
 
