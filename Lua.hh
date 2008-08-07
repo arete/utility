@@ -78,6 +78,52 @@ namespace LuaWrapper {
   template <typename T>
   LuaClassData* LuaClass<T>::data=0;
 
+
+  class LuaTable
+  {
+  public:
+    int handle;
+    lua_State* my_L;
+
+    LuaTable(lua_State* L) // create a new table and reference
+    {
+      lua_newtable(L);
+      handle=luaL_ref(L, LUA_REGISTRYINDEX);
+      my_L=L;
+    }
+
+    LuaTable(lua_State* L, int stackIndex) // reference a table on stack
+    {
+      luaL_checktype(L, stackIndex, LUA_TTABLE);
+      lua_pushvalue(L, stackIndex);
+      handle=luaL_ref(L, LUA_REGISTRYINDEX);
+      my_L=L;
+    }
+
+    LuaTable(const LuaTable& src)
+    {
+      handle=src.handle;
+      my_L=src.my_L;
+    }
+
+    void push()
+    {
+      lua_rawgeti (my_L, LUA_REGISTRYINDEX, handle);
+    }
+
+    void releaseReference()
+    {
+      luaL_unref(my_L, LUA_REGISTRYINDEX, handle);
+    }
+
+    template <typename T> T get(const char* key);
+    template <typename T> T get(int ikey);
+
+    template <typename T> void set(const char* key, T obj);
+    template <typename T> void set(int ikey, T obj);
+  };
+
+
   template <typename T>
   class Unpack {};
 
@@ -134,6 +180,16 @@ namespace LuaWrapper {
     }
   };
 
+  template <>
+  class Unpack<LuaTable>
+  {
+  public:
+    static LuaTable convert(lua_State* L, int index)
+    {
+      return LuaTable(L, index);
+    }
+  };
+
   template <typename T>
   class Unpack<T&>
   {
@@ -141,7 +197,7 @@ namespace LuaWrapper {
     static T& convert(lua_State* L, int index)
     {
       return *LuaClass<T>::getPtr(L, index);
-    } 
+    }
   };
 
   template <typename T>
@@ -237,6 +293,15 @@ namespace LuaWrapper {
     }
   };
 
+  template <>
+  class Pack<LuaTable>
+  {
+  public:
+    static void convert(lua_State* L, LuaTable value)
+    {
+      value.push();
+    }
+  };
 
   template <typename T>
   class Pack <T*>
@@ -257,6 +322,43 @@ namespace LuaWrapper {
       LuaClass<T>::packPtr(L, *obj);
     }
   };
+
+
+  template <typename T> T LuaTable::get(const char* key)
+  {
+    push();
+    lua_getfield(my_L, -1, key);
+    T ret=Unpack<T>::convert(my_L, -1);
+    lua_pop(my_L,2);
+    return ret;
+  }
+
+  template <typename T> T LuaTable::get(int ikey)
+  {
+    push();
+    lua_pushinteger(my_L, ikey);
+    lua_gettable(my_L, -2);
+    T ret=Unpack<T>::convert(my_L, -1);
+    lua_pop(my_L,2);
+    return ret;
+  }
+
+  template <typename T> void LuaTable::set(const char* key, T obj)
+  {
+    push();
+    Pack<T>::convert(my_L, obj);
+    lua_setfield(my_L, -2, key);
+    lua_pop(my_L,1);
+  }
+
+  template <typename T> void LuaTable::set(int ikey, T obj)
+  {
+    push();
+    lua_pushinteger(my_L, ikey);
+    Pack<T>::convert(my_L, obj);
+    lua_settable(my_L, -3);
+    lua_pop(my_L,1);
+  }
 
   template <typename ORIG, typename ALIAS>
   class UnpackTypedef
