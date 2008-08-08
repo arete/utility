@@ -4,6 +4,7 @@ extern "C" {
 #include "lualib.h"
 }
 
+#include <string.h>
 #include <string>
 #include <vector>
 #include <algorithm>
