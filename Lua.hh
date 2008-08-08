@@ -86,6 +86,12 @@ namespace LuaWrapper {
     int handle;
     lua_State* my_L;
 
+    LuaTable() // stub ctor, just to avoid some objC technical difficulties
+    {
+      my_L=0; // make sure missuse of this constructor in code
+      // be noticed quick ;)
+    }
+
     LuaTable(lua_State* L) // create a new table and reference
     {
       lua_newtable(L);
@@ -178,6 +184,7 @@ namespace LuaWrapper {
 	return false;
       }
       lua_pushvalue(L, -2); // first arg is self
+      return true;
     }
 
     virtual void cleanStack(lua_State* L)
