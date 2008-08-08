@@ -124,6 +124,71 @@ namespace LuaWrapper {
     template <typename T> void set(int ikey, T obj);
   };
 
+  class LuaFunction
+  {
+  public:
+    virtual bool prepareStack(lua_State* L)=0;
+    virtual void cleanStack(lua_State* L)=0;
+    int addValues;
+  };
+
+  class Global : public LuaFunction
+  {
+  public:
+    Global(const char* function_name)
+    {
+      addValues=0;
+      name=function_name;
+    }
+
+    virtual bool prepareStack(lua_State* L)
+    {
+      lua_getfield(L, LUA_GLOBALSINDEX, name);
+      if (!lua_isfunction (L, -1)) {
+	lua_pop(L,1);
+	return false;
+      }
+      return true;
+    }
+
+    virtual void cleanStack(lua_State* L) {}
+    const char* name;
+  }; 
+
+
+  class Method : public LuaFunction
+  {
+  public:
+    Method(LuaTable obj, const char* function_name)
+      : table(obj)
+    {
+      addValues=1;
+      name=function_name;
+    }
+
+    virtual bool prepareStack(lua_State* L)
+    {
+      if (table.my_L != L)
+	return false;
+
+      table.push();
+      lua_getfield(L, -1, name);
+      if (!lua_isfunction (L, -1)) {
+	lua_pop(L,2);
+	return false;
+      }
+      lua_pushvalue(L, -2); // first arg is self
+    }
+
+    virtual void cleanStack(lua_State* L)
+    {
+      lua_pop(L,1); // remove table reference from stack
+    }
+
+    const char* name;
+    LuaTable table;
+  }; 
+
 
   template <typename T>
   class Unpack {};

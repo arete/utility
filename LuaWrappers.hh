@@ -362,11 +362,10 @@ template <
   a6c(typename P6)
   a7c(typename P7),
   RET panic>
-RET name(Call_1_)(lua_State* L, const char* fname
+RET name(Call_1_)(lua_State* L, LuaFunction& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
-    lua_getfield(L, LUA_GLOBALSINDEX, fname);
-    if (lua_isfunction (L, -1)) {
+    if (f.prepareStack (L)) {
       a1(Pack<P1>::convert(L, p1);)
       a2(Pack<P2>::convert(L, p2);)
       a3(Pack<P3>::convert(L, p3);)
@@ -375,14 +374,13 @@ RET name(Call_1_)(lua_State* L, const char* fname
       a6(Pack<P6>::convert(L, p6);)
       a7(Pack<P7>::convert(L, p7);)
 
-      lua_call(L, N, 1);
+      lua_call(L, N+f.addValues, 1);
       RET val=Unpack<RET>::convert(L,-1);
       lua_pop(L,1); // pop the returned value
+      f.cleanStack(L);
       return val;
-    } else {
-      lua_pop(L,1); // pop the result of lua_getfield
-      return panic;
     }
+    return panic;
   }
 
 a1(template <
@@ -393,11 +391,10 @@ a1(template <
    a5c(typename P5)
    a6c(typename P6)
    a7c(typename P7)>)
-void name(Call_0_)(lua_State* L, const char* fname
+  void name(Call_0_)(lua_State* L, LuaFunction& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
-    lua_getfield(L, LUA_GLOBALSINDEX, fname);
-    if (lua_isfunction (L, -1)) {
+    if (f.prepareStack(L)) {
       a1(Pack<P1>::convert(L, p1);)
       a2(Pack<P2>::convert(L, p2);)
       a3(Pack<P3>::convert(L, p3);)
@@ -406,9 +403,8 @@ void name(Call_0_)(lua_State* L, const char* fname
       a6(Pack<P6>::convert(L, p6);)
       a7(Pack<P7>::convert(L, p7);)
 
-      lua_call(L, N, 0);
-    } else {
-      lua_pop(L,1); // pop the result of lua_getfield
+      lua_call(L, N+f.addValues, 0);
+      f.cleanStack(L);
     }
   }
 
