@@ -1,3 +1,6 @@
+#ifndef __LUA_HH
+#define __LUA_HH
+
 extern "C" {
 #include "lua.h"
 #include "lauxlib.h"
@@ -565,3 +568,6 @@ namespace LuaWrapper {
 namespace LuaWrapper { \
   template <> class Unpack<ALIAS>:public UnpackTypedef<ORIG, ALIAS>{}; \
   template <> class Pack<ALIAS>:public PackTypedef<ORIG, ALIAS>{}; }
+
+
+#endif
