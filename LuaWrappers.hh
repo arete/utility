@@ -420,6 +420,7 @@ a1(template <
 #include "LuaWrappers.hh"
 #else
 #undef N
+#undef a0
 #undef a1
 #undef a1c
 #undef a2
