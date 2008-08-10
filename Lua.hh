@@ -89,7 +89,7 @@ namespace LuaWrapper {
     int handle;
     lua_State* my_L;
 
-    LuaTable() // stub ctor, just to avoid some objC technical difficulties
+    LuaTable() // stub ctor, just to avoid some technical difficulties
     {
       my_L=0; // make sure missuse of this constructor in code
       // be noticed quick ;)
@@ -125,12 +125,48 @@ namespace LuaWrapper {
     {
       luaL_unref(my_L, LUA_REGISTRYINDEX, handle);
     }
+    
+    bool exists(const char* key)
+    {
+      push();
+      lua_getfield(my_L, -1, key);
+      bool result=(lua_isnil(my_L, -1) == 0);
+      lua_pop(my_L,2);
+      return result;
+    }
+    
+    bool exists(int ikey)
+    {  
+      push();
+      lua_pushinteger(my_L, ikey);
+      lua_gettable(my_L, -2);
+      bool result=(lua_isnil(my_L, -1) == 0);
+      lua_pop(my_L,2);
+      return result;
+    }
 
     template <typename T> T get(const char* key);
     template <typename T> T get(int ikey);
 
     template <typename T> void set(const char* key, T obj);
     template <typename T> void set(int ikey, T obj);
+    
+    template <typename T> T defaultGet(const char* key, T def)
+    {
+      if (exists(key))
+        return get<T>(key);
+      set<T>(key, def);
+      return def;
+    }
+
+   template <typename T> T defaultGet(int ikey, T def)
+    {
+      if (exists(ikey))
+        return get<T>(ikey);
+      set<T>(ikey, def);
+      return def;
+    }    
+    
   };
 
   class LuaFunction
