@@ -19,6 +19,7 @@
 // ai(X) is "X" if i<=N, ignored otherwise
 // aic(X) is ",X" if i<=N, ignored otherwise
 // comma is "," if i>=0
+// a0(X) is "X" if i==0
 
 #ifndef N
 #define N 7
@@ -38,6 +39,7 @@
 #define a6c(X) ,X
 #define a7(X) X
 #define a7c(X) ,X
+#define a0(X)
 #elif N > 6
 #undef N
 #undef name
@@ -103,6 +105,8 @@
 #define a1(X)
 #define a1c(X)
 #define name(X) X##0
+#undef a0
+#define a0(X) X
 #endif
 
 
@@ -391,7 +395,7 @@ a1(template <
    a5c(typename P5)
    a6c(typename P6)
    a7c(typename P7)>)
-  void name(Call_0_)(lua_State* L, LuaFunction& f
+  static void name(Call_0_)(lua_State* L, LuaFunction& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
     if (f.prepareStack(L)) {
