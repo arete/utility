@@ -1,4 +1,21 @@
-// Copyright by Valentin Ziegler, 2008
+/*
+ * Copyright (C) 2008 Valentin Ziegler, ExactCODE GmbH
+ * Copyright (C) 2008 Rene Rebe, ExactCODE GmbH
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2. A copy of the GNU General
+ * Public License can be found in the file LICENSE.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT-
+ * ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ * 
+ * Alternatively, commercial licensing options are available from the
+ * copyright holder ExactCODE GmbH Germany.
+ */
+
 
 // The aim of this file is to create code for
 // FunctionWrapper_*_* and MethodWrapper_*_* classes
@@ -364,8 +381,8 @@ template <
   a4c(typename P4)
   a5c(typename P5)
   a6c(typename P6)
-  a7c(typename P7),
-  RET panic>
+  a7c(typename P7)
+  >
 RET name(Call_1_)(lua_State* L, LuaFunction& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
@@ -383,8 +400,15 @@ RET name(Call_1_)(lua_State* L, LuaFunction& f
       lua_pop(L,1); // pop the returned value
       f.cleanStack(L);
       return val;
+    } else {
+      // wrapper for initialization fo POD-types, as C++ does not allow
+      // explicit specification of default constructurs for variable decl.
+      struct initializer {
+	initializer() : ret() {};
+	RET ret;
+      } i;
+      return i.ret;
     }
-    return panic;
   }
 
 a1(template <
