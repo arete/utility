@@ -110,6 +110,7 @@ namespace LuaWrapper {
     {
       my_L=0; // make sure missuse of this constructor in code
       // be noticed quick ;)
+      handle=0;
     }
 
     LuaTable(lua_State* L) // create a new table and reference
