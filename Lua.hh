@@ -106,7 +106,7 @@ namespace LuaWrapper {
     int handle;
     lua_State* my_L;
 
-    LuaTable() // stub ctor, just to avoid some technical difficulties
+    LuaTable() // stub ctor, for default initializers etc
     {
       my_L=0; // make sure missuse of this constructor in code
       // be noticed quick ;)
@@ -141,6 +141,17 @@ namespace LuaWrapper {
     void releaseReference()
     {
       luaL_unref(my_L, LUA_REGISTRYINDEX, handle);
+      my_L=0;
+    }
+    
+    bool valid() const
+    {
+      return my_L != 0;
+    }
+    
+    operator bool () const
+    {
+      return valid();
     }
     
     bool exists(const char* key)
