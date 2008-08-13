@@ -217,7 +217,6 @@ namespace LuaWrapper {
     const char* name;
   }; 
 
-
   class Method : public LuaFunction
   {
   public:
@@ -227,7 +226,7 @@ namespace LuaWrapper {
       addValues=1;
       name=function_name;
     }
-
+    
     virtual bool prepareStack(lua_State* L)
     {
       if (table.my_L != L)
@@ -252,6 +251,22 @@ namespace LuaWrapper {
     LuaTable table;
   }; 
 
+
+  template <typename T, T RET>
+  class DefaultConst
+  {
+  public:
+    static const T ret=RET;
+  };
+  
+  template <typename T>
+  class DefaultInitializer
+  {
+  public:
+  	DefaultInitializer() : ret() {};
+    T ret;
+  };
+  
 
   template <typename T>
   class Unpack {};

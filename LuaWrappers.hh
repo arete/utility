@@ -373,6 +373,7 @@ public:
 };
 
 
+
 template <
   typename RET
   a1c(typename P1)
@@ -381,7 +382,8 @@ template <
   a4c(typename P4)
   a5c(typename P5)
   a6c(typename P6)
-  a7c(typename P7)
+  a7c(typename P7),
+  typename DEF
   >
 RET name(Call_1_)(lua_State* L, LuaFunction& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
@@ -401,15 +403,32 @@ RET name(Call_1_)(lua_State* L, LuaFunction& f
       f.cleanStack(L);
       return val;
     } else {
-      // wrapper for initialization fo POD-types, as C++ does not allow
-      // explicit specification of default constructurs for variable decl.
-      struct initializer {
-	initializer() : ret() {};
-	RET ret;
-      } i;
-      return i.ret;
+      DEF def;
+      return def.ret;
     }
   }
+
+
+template <
+  typename RET
+  a1c(typename P1)
+  a2c(typename P2)
+  a3c(typename P3)
+  a4c(typename P4)
+  a5c(typename P5)
+  a6c(typename P6)
+  a7c(typename P7)
+  >
+RET name(Call_1_)(lua_State* L, LuaFunction& f
+		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
+  {
+    return name(Call_1_)<RET a1c(P1) a2c(P2) a3c(P3) a4c(P4) a5c(P5) a6c(P6) a7c(P7), DefaultInitializer<RET> >(
+      L, f a1c(p1) a2c(p2) a3c(p3) a4c(p4) a5c(p5) a6c(p6) a7c(p7)
+    );
+  }
+
+
+
 
 a1(template <
    a1(typename P1)
