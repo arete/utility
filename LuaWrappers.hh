@@ -385,7 +385,7 @@ template <
   a7c(typename P7),
   typename DEF
   >
-RET name(Call_1_)(lua_State* L, LuaFunction& f
+RET name(Call_1_)(lua_State* L, LuaFunctionBase& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
     if (f.prepareStack (L)) {
@@ -419,7 +419,7 @@ template <
   a6c(typename P6)
   a7c(typename P7)
   >
-RET name(Call_1_)(lua_State* L, LuaFunction& f
+RET name(Call_1_)(lua_State* L, LuaFunctionBase& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
     return name(Call_1_)<RET a1c(P1) a2c(P2) a3c(P3) a4c(P4) a5c(P5) a6c(P6) a7c(P7), DefaultInitializer<RET> >(
@@ -438,7 +438,7 @@ a1(template <
    a5c(typename P5)
    a6c(typename P6)
    a7c(typename P7)>)
-  static void __attribute__((unused))  name(Call_0_)(lua_State* L, LuaFunction& f
+  static void __attribute__((unused))  name(Call_0_)(lua_State* L, LuaFunctionBase& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
     if (f.prepareStack(L)) {

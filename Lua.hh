@@ -198,7 +198,7 @@ namespace LuaWrapper {
     
   };
 
-  class LuaFunction
+  class LuaFunctionBase
   {
   public:
     virtual bool prepareStack(lua_State* L)=0;
@@ -206,7 +206,7 @@ namespace LuaWrapper {
     int addValues;
   };
 
-  class Global : public LuaFunction
+  class Global : public LuaFunctionBase
   {
   public:
     Global(const char* function_name)
@@ -229,7 +229,7 @@ namespace LuaWrapper {
     const char* name;
   }; 
 
-  class Method : public LuaFunction
+  class Method : public LuaFunctionBase
   {
   public:
     Method(LuaTable obj, const char* function_name)
@@ -261,7 +261,56 @@ namespace LuaWrapper {
 
     const char* name;
     LuaTable table;
-  }; 
+  };
+  
+  class LuaFunction : public LuaFunctionBase
+  {
+  public:
+    int handle;
+    lua_State* my_L;
+
+    LuaFunction() // stub ctor, for default initializers etc
+    {
+      my_L=0; // make sure missuse of this constructor in code
+      // be noticed quick ;)
+      handle=0;
+      addValues=1;
+    }
+
+    LuaFunction(lua_State* L, int stackIndex) // reference a function on stack
+    {
+      luaL_checktype(L, stackIndex, LUA_TFUNCTION);
+      lua_pushvalue(L, stackIndex);
+      handle=luaL_ref(L, LUA_REGISTRYINDEX);
+      my_L=L;
+      addValues=1;
+    }
+
+    LuaFunction(const LuaFunction& src)
+    {
+      handle=src.handle;
+      my_L=src.my_L;
+      addValues=1;
+    }
+
+    virtual bool prepareStack(lua_State* L)
+    {
+      if (my_L != L)
+	return false;
+      lua_rawgeti (my_L, LUA_REGISTRYINDEX, handle);
+      return true;
+    }
+
+    virtual void cleanStack(lua_State* L)
+    {
+    }
+
+    void releaseReference()
+    {
+      luaL_unref(my_L, LUA_REGISTRYINDEX, handle);
+      my_L=0;
+    }
+  };
 
 
   template <typename T, T RET>
@@ -345,6 +394,17 @@ namespace LuaWrapper {
       return LuaTable(L, index);
     }
   };
+  
+  template <>
+  class Unpack<LuaFunction>
+  {
+  public:
+    static LuaFunction convert(lua_State* L, int index)
+    {
+      return LuaFunction(L, index);
+    }
+  };
+
 
   template <typename T>
   class Unpack<T&>
@@ -458,6 +518,17 @@ namespace LuaWrapper {
       value.push();
     }
   };
+  
+  template <>
+  class Pack<LuaFunction>
+  {
+  public:
+    static void convert(lua_State* L, LuaFunction value)
+    {
+      value.prepareStack(L);
+    }
+  };
+ 
 
   template <typename T>
   class Pack <T*>
