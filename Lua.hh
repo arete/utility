@@ -274,7 +274,7 @@ namespace LuaWrapper {
       my_L=0; // make sure missuse of this constructor in code
       // be noticed quick ;)
       handle=0;
-      addValues=1;
+      addValues=0;
     }
 
     LuaFunction(lua_State* L, int stackIndex) // reference a function on stack
@@ -283,14 +283,14 @@ namespace LuaWrapper {
       lua_pushvalue(L, stackIndex);
       handle=luaL_ref(L, LUA_REGISTRYINDEX);
       my_L=L;
-      addValues=1;
+      addValues=0;
     }
 
     LuaFunction(const LuaFunction& src)
     {
       handle=src.handle;
       my_L=src.my_L;
-      addValues=1;
+      addValues=0;
     }
 
     virtual bool prepareStack(lua_State* L)
