@@ -128,7 +128,6 @@
 
 
 
-
 // content starts here
 
 template <
@@ -157,6 +156,7 @@ public:
 			    a6c(Unpack<P6>::convert(L, 6))
 			    a7c(Unpack<P7>::convert(L, 7))
 			    ));
+    runAutoRelease();
     return 1;
   }
 
@@ -190,6 +190,7 @@ public:
       a6c(Unpack<P6>::convert(L, 6))
       a7c(Unpack<P7>::convert(L, 7))
       );
+    runAutoRelease();
     return 0;
   }
 
@@ -215,7 +216,7 @@ public:
   
   static int Wrapper  (lua_State* L)
   {
-    return F(L
+    int n=F(L
       a1c(Unpack<P1>::convert(L, 1))
       a2c(Unpack<P2>::convert(L, 2))
       a3c(Unpack<P3>::convert(L, 3))
@@ -224,6 +225,8 @@ public:
       a6c(Unpack<P6>::convert(L, 6))
       a7c(Unpack<P7>::convert(L, 7))
       );
+    runAutoRelease();
+    return n;
   }
 
   static const bool hasmeta=false;
@@ -260,6 +263,7 @@ public:
 				a6c(Unpack<P6>::convert(L, 7))
 				a7c(Unpack<P7>::convert(L, 8))
 				      ));
+    runAutoRelease();
     return 1;
   }
 
@@ -297,6 +301,7 @@ public:
 	      a6c(Unpack<P6>::convert(L, 7))
 	      a7c(Unpack<P7>::convert(L, 8))
 	      );
+    runAutoRelease();
     return 0;
   }
 
@@ -324,7 +329,7 @@ public:
   {
     int (DEFOBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
     OBJ* obj=Unpack<OBJ*>::convert(L,1);
-    return (obj->*f)(L
+    int n=(obj->*f)(L
 	      a1c(Unpack<P1>::convert(L, 2))
 	      a2c(Unpack<P2>::convert(L, 3))
 	      a3c(Unpack<P3>::convert(L, 4))
@@ -333,6 +338,8 @@ public:
 	      a6c(Unpack<P6>::convert(L, 7))
 	      a7c(Unpack<P7>::convert(L, 8))
 	      );
+    runAutoRelease();
+    return n;
   }
 
   static const bool hasmeta=true;
@@ -365,6 +372,7 @@ public:
 	      a6c(Unpack<P6>::convert(L, 6))
 	      a7c(Unpack<P7>::convert(L, 7))
 	      ));
+    runAutoRelease();
     return 1;
   }
 

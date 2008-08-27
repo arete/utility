@@ -31,6 +31,9 @@ extern "C" {
 
 namespace LuaWrapper {
 
+  class AutoReleaseItem;
+  extern AutoReleaseItem* autoReleaseList;
+
   class LuaClassData
   {
   public:
@@ -100,6 +103,50 @@ namespace LuaWrapper {
   LuaClassData* LuaClass<T>::data=0;
 
 
+  class AutoReleaseItem
+  {
+  public:
+    AutoReleaseItem() {
+      this->next=autoReleaseList;
+      autoReleaseList=this;
+    }
+
+    virtual ~AutoReleaseItem() {}
+    AutoReleaseItem* next;
+  };
+
+  template <typename T>
+  class EncapsulatedReleaseItem : public AutoReleaseItem
+  {
+  public:
+    T t;
+    EncapsulatedReleaseItem(const T& init)
+      : t(init){}
+  };
+
+  template <typename T>
+  class ReleaseReferenceReleaseItem : public AutoReleaseItem
+  {
+  public:
+    T t;
+    ReleaseReferenceReleaseItem(const T& init)
+      : t(init){}
+    ~ReleaseReferenceReleaseItem()
+    {
+      t.releaseReference();
+    }
+  };
+
+  static inline void runAutoRelease()
+  {
+    while (autoReleaseList) {
+      AutoReleaseItem* next=autoReleaseList->next;
+      delete autoReleaseList;
+      autoReleaseList=next;
+    }
+  }
+
+
   class LuaTable
   {
   public:
@@ -137,6 +184,11 @@ namespace LuaWrapper {
     void push()
     {
       lua_rawgeti (my_L, LUA_REGISTRYINDEX, handle);
+    }
+
+    void autoRelease()
+    {
+      new ReleaseReferenceReleaseItem<LuaTable>(*this);
     }
 
     void releaseReference()
@@ -313,6 +365,9 @@ namespace LuaWrapper {
   };
 
 
+
+
+
   template <typename T, T RET>
   class DefaultConst
   {
@@ -324,7 +379,7 @@ namespace LuaWrapper {
   class DefaultInitializer
   {
   public:
-  	DefaultInitializer() : ret() {};
+    DefaultInitializer() : ret() {};
     T ret;
   };
   
@@ -379,9 +434,31 @@ namespace LuaWrapper {
   class Unpack<std::string>
   {
   public:
-    static const std::string convert(lua_State* L, int index)
+    static std::string convert(lua_State* L, int index)
     {
       return std::string(luaL_checkstring(L,index));
+    }
+  };
+
+  template <>
+  class Unpack<std::string&>
+  {
+  public:
+    static std::string& convert(lua_State* L, int index)
+    {
+      typedef EncapsulatedReleaseItem<std::string> AutoRelease;
+      AutoRelease* rel=new AutoRelease(std::string(luaL_checkstring(L,index)));
+      return rel->t;
+    }
+  };
+
+  template <>
+  class Unpack<const std::string&>
+  {
+  public:
+    static const std::string& convert(lua_State* L, int index)
+    {
+      return Unpack<std::string&>::convert(L, index);
     }
   };
 
