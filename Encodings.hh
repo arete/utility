@@ -149,4 +149,54 @@ void DecodeBase64(std::ostream& stream, const T& data, size_t length)
   }
 }
 
+#ifdef WITHZLIB
+
+#include <zlib.h>
+
+// TODO: make template, likewise
+inline bool EncodeZlib (std::ostream& stream, const char* data, size_t length, int level = 9)
+{
+  static const unsigned CHUNK = 16384;
+  
+  int ret;
+  bool flush;
+  z_stream strm;
+  char out[CHUNK];
+  
+  /* allocate deflate state */
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+  strm.opaque = Z_NULL;
+  ret = deflateInit(&strm, level);
+  if (ret != Z_OK)
+    return false;
+  
+  /* compress until end of file */
+  for (size_t i = 0; i < length; i += CHUNK) {
+    strm.avail_in = (length - i > CHUNK) ? CHUNK : (length - i);
+    flush = (length - i - strm.avail_in) == 0? Z_FINISH : Z_NO_FLUSH;
+    strm.next_in = (Bytef*) &data[i];
+    
+    /* run deflate() on input until output buffer not full, finish
+       compression if all of source has been read in */
+    do {
+      strm.avail_out = CHUNK;
+      strm.next_out = (Bytef*) out;
+      ret = deflate(&strm, flush);    /* no bad return value */
+      unsigned have = CHUNK - strm.avail_out;
+      stream.write(out, have);
+      if (!stream) {
+	(void)deflateEnd(&strm);
+	return false;
+      }
+    } while (strm.avail_out == 0);
+  }
+  
+  /* clean up and return */
+  (void)deflateEnd(&strm);
+  return true;
+}
+
+#endif
+
 #endif
