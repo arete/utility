@@ -101,7 +101,7 @@ uint64_t Utility::TimebaseTimer::Value () const
 			: "=r"(x)
 			);
   return x;
-#elif defined(__powerpc__)
+#elif defined(__powerpc__) || defined(__ppc__)
   uint32_t hi, lo, tmp;
   __asm__ __volatile__ (
 			"0:                  \n"
