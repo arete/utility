@@ -217,7 +217,7 @@ namespace LuaWrapper {
     }
     
     bool exists(int ikey)
-    {  
+    {
       push();
       lua_pushinteger(my_L, ikey);
       lua_gettable(my_L, -2);
@@ -246,7 +246,7 @@ namespace LuaWrapper {
         return get<T>(ikey);
       set<T>(ikey, def);
       return def;
-    }    
+    }
     
   };
 
@@ -279,7 +279,7 @@ namespace LuaWrapper {
 
     virtual void cleanStack(lua_State* L) {}
     const char* name;
-  }; 
+  };
 
   class Method : public LuaFunctionBase
   {
@@ -495,22 +495,22 @@ namespace LuaWrapper {
 
   template <typename T>
   class Unpack<const T&>
-  { 
+  {
   public:
     static const T& convert(lua_State* L, int index)
     {
       return *LuaClass<T>::getPtr(L, index);
-    } 
+    }
   };
 
   template <typename T>
   class Unpack<T*>
-  { 
+  {
   public:
     static T* convert(lua_State* L, int index)
     {
       return LuaClass<T>::getPtr(L, index);
-    } 
+    }
   };
 
   template <typename T>
