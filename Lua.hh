@@ -39,7 +39,7 @@ namespace LuaWrapper {
   public:
     LuaClassData(const std::string& name)
     {
-      handle=name;
+      handle = name;
     }
 
     void insertMetaTablePtr(void* ptr)
@@ -65,7 +65,7 @@ namespace LuaWrapper {
     LuaClass(const std::string& name)
     {
       if (!data) {
-	data=new LuaClassData(name);
+	data = new LuaClassData(name);
       }
     }
   
@@ -76,10 +76,10 @@ namespace LuaWrapper {
   
     static T* getPtr(lua_State* L, int index)
     {
-      void** p = (void**) lua_touserdata(L, index);
+      void** p = (void**)lua_touserdata(L, index);
       if (p)
 	if (lua_getmetatable(L, index)) {
-	  void* meta=(void*)lua_topointer (L, -1);
+	  void* meta = (void*)lua_topointer(L, -1);
 	  lua_pop(L, 1);
 	  if (data->isCompatible(meta))
 	    return (T*)*p;
@@ -90,9 +90,9 @@ namespace LuaWrapper {
 
     static void packPtr(lua_State* L, T* obj)
     {
-      T** ptr=(T**) lua_newuserdata(L, sizeof(T*));
-      *ptr=obj;
-      luaL_getmetatable(L,  luahandle());
+      T** ptr = (T**)lua_newuserdata(L, sizeof(T*));
+      *ptr = obj;
+      luaL_getmetatable(L, luahandle());
       lua_setmetatable(L, -2);
     }
 
@@ -100,15 +100,15 @@ namespace LuaWrapper {
   };
 
   template <typename T>
-  LuaClassData* LuaClass<T>::data=0;
+  LuaClassData* LuaClass<T>::data = 0;
 
 
   class AutoReleaseItem
   {
   public:
     AutoReleaseItem() {
-      this->next=autoReleaseList;
-      autoReleaseList=this;
+      this->next = autoReleaseList;
+      autoReleaseList = this;
     }
 
     virtual ~AutoReleaseItem() {}
@@ -140,9 +140,9 @@ namespace LuaWrapper {
   static inline void runAutoRelease()
   {
     while (autoReleaseList) {
-      AutoReleaseItem* next=autoReleaseList->next;
+      AutoReleaseItem* next = autoReleaseList->next;
       delete autoReleaseList;
-      autoReleaseList=next;
+      autoReleaseList = next;
     }
   }
 
@@ -155,35 +155,35 @@ namespace LuaWrapper {
 
     LuaTable() // stub ctor, for default initializers etc
     {
-      my_L=0; // make sure missuse of this constructor in code
+      my_L = 0; // make sure missuse of this constructor in code
       // be noticed quick ;)
-      handle=0;
+      handle = 0;
     }
 
     LuaTable(lua_State* L) // create a new table and reference
     {
       lua_newtable(L);
-      handle=luaL_ref(L, LUA_REGISTRYINDEX);
-      my_L=L;
+      handle = luaL_ref(L, LUA_REGISTRYINDEX);
+      my_L = L;
     }
 
     LuaTable(lua_State* L, int stackIndex) // reference a table on stack
     {
       luaL_checktype(L, stackIndex, LUA_TTABLE);
       lua_pushvalue(L, stackIndex);
-      handle=luaL_ref(L, LUA_REGISTRYINDEX);
-      my_L=L;
+      handle = luaL_ref(L, LUA_REGISTRYINDEX);
+      my_L = L;
     }
 
     LuaTable(const LuaTable& src)
     {
-      handle=src.handle;
-      my_L=src.my_L;
+      handle = src.handle;
+      my_L = src.my_L;
     }
 
     void push()
     {
-      lua_rawgeti (my_L, LUA_REGISTRYINDEX, handle);
+      lua_rawgeti(my_L, LUA_REGISTRYINDEX, handle);
     }
 
     void autoRelease()
@@ -194,7 +194,7 @@ namespace LuaWrapper {
     void releaseReference()
     {
       luaL_unref(my_L, LUA_REGISTRYINDEX, handle);
-      my_L=0;
+      my_L = 0;
     }
     
     bool valid() const
@@ -202,7 +202,7 @@ namespace LuaWrapper {
       return my_L != 0;
     }
     
-    operator bool () const
+    operator bool() const
     {
       return valid();
     }
@@ -211,7 +211,7 @@ namespace LuaWrapper {
     {
       push();
       lua_getfield(my_L, -1, key);
-      bool result=(lua_isnil(my_L, -1) == 0);
+      bool result = (lua_isnil(my_L, -1) == 0);
       lua_pop(my_L,2);
       return result;
     }
@@ -221,7 +221,7 @@ namespace LuaWrapper {
       push();
       lua_pushinteger(my_L, ikey);
       lua_gettable(my_L, -2);
-      bool result=(lua_isnil(my_L, -1) == 0);
+      bool result = (lua_isnil(my_L, -1) == 0);
       lua_pop(my_L,2);
       return result;
     }
@@ -253,8 +253,8 @@ namespace LuaWrapper {
   class LuaFunctionBase
   {
   public:
-    virtual bool prepareStack(lua_State* L)=0;
-    virtual void cleanStack(lua_State* L)=0;
+    virtual bool prepareStack(lua_State* L) = 0;
+    virtual void cleanStack(lua_State* L) = 0;
     int addValues;
   };
 
@@ -263,14 +263,14 @@ namespace LuaWrapper {
   public:
     Global(const char* function_name)
     {
-      addValues=0;
-      name=function_name;
+      addValues = 0;
+      name = function_name;
     }
 
     virtual bool prepareStack(lua_State* L)
     {
       lua_getfield(L, LUA_GLOBALSINDEX, name);
-      if (!lua_isfunction (L, -1)) {
+      if (!lua_isfunction(L, -1)) {
 	lua_pop(L,1);
 	return false;
       }
@@ -287,8 +287,8 @@ namespace LuaWrapper {
     Method(LuaTable obj, const char* function_name)
       : table(obj)
     {
-      addValues=1;
-      name=function_name;
+      addValues = 1;
+      name = function_name;
     }
     
     virtual bool prepareStack(lua_State* L)
@@ -298,7 +298,7 @@ namespace LuaWrapper {
 
       table.push();
       lua_getfield(L, -1, name);
-      if (!lua_isfunction (L, -1)) {
+      if (!lua_isfunction(L, -1)) {
 	lua_pop(L,2);
 	return false;
       }
@@ -323,33 +323,33 @@ namespace LuaWrapper {
 
     LuaFunction() // stub ctor, for default initializers etc
     {
-      my_L=0; // make sure missuse of this constructor in code
+      my_L = 0; // make sure missuse of this constructor in code
       // be noticed quick ;)
-      handle=0;
-      addValues=0;
+      handle = 0;
+      addValues = 0;
     }
 
     LuaFunction(lua_State* L, int stackIndex) // reference a function on stack
     {
       luaL_checktype(L, stackIndex, LUA_TFUNCTION);
       lua_pushvalue(L, stackIndex);
-      handle=luaL_ref(L, LUA_REGISTRYINDEX);
-      my_L=L;
-      addValues=0;
+      handle = luaL_ref(L, LUA_REGISTRYINDEX);
+      my_L = L;
+      addValues = 0;
     }
 
     LuaFunction(const LuaFunction& src)
     {
-      handle=src.handle;
-      my_L=src.my_L;
-      addValues=0;
+      handle = src.handle;
+      my_L = src.my_L;
+      addValues = 0;
     }
 
     virtual bool prepareStack(lua_State* L)
     {
       if (my_L != L)
 	return false;
-      lua_rawgeti (my_L, LUA_REGISTRYINDEX, handle);
+      lua_rawgeti(my_L, LUA_REGISTRYINDEX, handle);
       return true;
     }
 
@@ -360,7 +360,7 @@ namespace LuaWrapper {
     void releaseReference()
     {
       luaL_unref(my_L, LUA_REGISTRYINDEX, handle);
-      my_L=0;
+      my_L = 0;
     }
   };
 
@@ -372,7 +372,7 @@ namespace LuaWrapper {
   class DefaultConst
   {
   public:
-    static const T ret=RET;
+    static const T ret = RET;
   };
   
   template <typename T>
@@ -447,7 +447,7 @@ namespace LuaWrapper {
     static std::string& convert(lua_State* L, int index)
     {
       typedef EncapsulatedReleaseItem<std::string> AutoRelease;
-      AutoRelease* rel=new AutoRelease(std::string(luaL_checkstring(L,index)));
+      AutoRelease* rel = new AutoRelease(std::string(luaL_checkstring(L,index)));
       return rel->t;
     }
   };
@@ -632,7 +632,7 @@ namespace LuaWrapper {
   {
     push();
     lua_getfield(my_L, -1, key);
-    T ret=Unpack<T>::convert(my_L, -1);
+    T ret = Unpack<T>::convert(my_L, -1);
     lua_pop(my_L,2);
     return ret;
   }
@@ -642,7 +642,7 @@ namespace LuaWrapper {
     push();
     lua_pushinteger(my_L, ikey);
     lua_gettable(my_L, -2);
-    T ret=Unpack<T>::convert(my_L, -1);
+    T ret = Unpack<T>::convert(my_L, -1);
     lua_pop(my_L,2);
     return ret;
   }
@@ -695,15 +695,15 @@ namespace LuaWrapper {
   public:
     typedef OBJ myobjectT;
 
-    static int Wrapper  (lua_State* L)
+    static int Wrapper(lua_State* L)
     {
-      OBJ* obj=Unpack<OBJ*>::convert(L,1);
+      OBJ* obj = Unpack<OBJ*>::convert(L,1);
       delete obj;
       return 0;
     }
 
-    static const bool hasmeta=true;
-    static const bool noindex=false;
+    static const bool hasmeta = true;
+    static const bool noindex = false;
   };
 
 
@@ -713,13 +713,13 @@ namespace LuaWrapper {
   public:
     typedef typename WRAPPER::myobjectT objectT;
 
-    ExportToLua (lua_State* L, const char* module_name,  const char* function_name)
+    ExportToLua(lua_State* L, const char* module_name,  const char* function_name)
     {
       //std::cout << "register " << function_name << std::endl;
-      luaL_Reg entry[2]={ {function_name, WRAPPER::Wrapper}, {NULL,NULL}};
+      luaL_Reg entry[2] = {{function_name, WRAPPER::Wrapper}, {NULL, NULL}};
       if (WRAPPER::hasmeta) {
 	luaL_getmetatable(L, LuaClass<objectT>::luahandle());
-	if (strncmp(function_name, "__", 2)!=0 && !WRAPPER::noindex) {
+	if (strncmp(function_name, "__", 2) != 0 && !WRAPPER::noindex) {
 	  lua_getfield(L, -1, "__index");
 	  luaL_register(L, 0, entry);
 	  lua_pop(L,2);
@@ -734,13 +734,13 @@ namespace LuaWrapper {
   };
 
   template <typename T>
-  void DeclareToLua(lua_State* L, const char* module_name=0)
+  void DeclareToLua(lua_State* L, const char* module_name = 0)
   {
     luaL_newmetatable(L, LuaClass<T>::luahandle());
 
     if (module_name) {
       // drop a reference to the metatable into the module table
-      luaL_findtable (L, LUA_GLOBALSINDEX, module_name, 1);
+      luaL_findtable(L, LUA_GLOBALSINDEX, module_name, 1);
       lua_pushvalue(L, -2);
       lua_setfield(L, -2, LuaClass<T>::luahandle());
       lua_pop(L,1);
@@ -751,7 +751,7 @@ namespace LuaWrapper {
     lua_setfield(L, -2, "__index");
 
     // remember metatable raw pointer for later type checks
-    LuaClass<T>::data->insertMetaTablePtr((void*)lua_topointer (L, -1));
+    LuaClass<T>::data->insertMetaTablePtr((void*)lua_topointer(L, -1));
     lua_pop(L,1);
   }
 
@@ -776,14 +776,14 @@ namespace LuaWrapper {
   void AllowDowncast(lua_State* L)
   {
     luaL_getmetatable(L, LuaClass<DERIVED>::luahandle());
-    LuaClass<BASE>::data->insertMetaTablePtr((void*)lua_topointer (L, -1));
+    LuaClass<BASE>::data->insertMetaTablePtr((void*)lua_topointer(L, -1));
     lua_pop(L,1);
   }
 
   template <typename C>
   void RegisterValue(lua_State* L, const char* module_name, const char* name, C value)
   {
-    luaL_findtable (L, LUA_GLOBALSINDEX, module_name, 1);
+    luaL_findtable(L, LUA_GLOBALSINDEX, module_name, 1);
     Pack<C>::convert(L, value);
     lua_setfield(L, -2, name);
     lua_pop(L,1);
