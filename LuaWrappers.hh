@@ -147,13 +147,14 @@ public:
   
   static int Wrapper(lua_State* L)
   {
-    Pack<RET>::convert(L,F(a1(Unpack<P1>::convert(L, 1))
-			   a2c(Unpack<P2>::convert(L, 2))
-			   a3c(Unpack<P3>::convert(L, 3))
-			   a4c(Unpack<P4>::convert(L, 4))
-			   a5c(Unpack<P5>::convert(L, 5))
-			   a6c(Unpack<P6>::convert(L, 6))
-			   a7c(Unpack<P7>::convert(L, 7))));
+    Pack<RET>::convert(L,
+		       F(a1(Unpack<P1>::convert(L, 1))
+			 a2c(Unpack<P2>::convert(L, 2))
+			 a3c(Unpack<P3>::convert(L, 3))
+			 a4c(Unpack<P4>::convert(L, 4))
+			 a5c(Unpack<P5>::convert(L, 5))
+			 a6c(Unpack<P6>::convert(L, 6))
+			 a7c(Unpack<P7>::convert(L, 7))));
     runAutoRelease();
     return 1;
   }
@@ -179,15 +180,13 @@ public:
   
   static int Wrapper(lua_State* L)
   {
-    F(
-      a1(Unpack<P1>::convert(L, 1))
+    F(a1(Unpack<P1>::convert(L, 1))
       a2c(Unpack<P2>::convert(L, 2))
       a3c(Unpack<P3>::convert(L, 3))
       a4c(Unpack<P4>::convert(L, 4))
       a5c(Unpack<P5>::convert(L, 5))
       a6c(Unpack<P6>::convert(L, 6))
-      a7c(Unpack<P7>::convert(L, 7))
-      );
+      a7c(Unpack<P7>::convert(L, 7)));
     runAutoRelease();
     return 0;
   }
@@ -355,15 +354,14 @@ public:
 
   static int Wrapper(lua_State* L)
   {
-    Pack<OBJ*>::convert(L, new OBJ(
-				   a1(Unpack<P1>::convert(L, 1))
-				   a2c(Unpack<P2>::convert(L, 2))
-				   a3c(Unpack<P3>::convert(L, 3))
-				   a4c(Unpack<P4>::convert(L, 4))
-				   a5c(Unpack<P5>::convert(L, 5))
-				   a6c(Unpack<P6>::convert(L, 6))
-				   a7c(Unpack<P7>::convert(L, 7))
-				   ));
+    Pack<OBJ*>::convert(L,
+			new OBJ(a1(Unpack<P1>::convert(L, 1))
+				a2c(Unpack<P2>::convert(L, 2))
+				a3c(Unpack<P3>::convert(L, 3))
+				a4c(Unpack<P4>::convert(L, 4))
+				a5c(Unpack<P5>::convert(L, 5))
+				a6c(Unpack<P6>::convert(L, 6))
+				a7c(Unpack<P7>::convert(L, 7))));
     runAutoRelease();
     return 1;
   }
