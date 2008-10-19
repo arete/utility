@@ -68,7 +68,15 @@ namespace LuaWrapper {
 	data = new LuaClassData(name);
       }
     }
-  
+    
+    ~LuaClass()
+    {
+      if (data) {
+	delete data;
+	data = 0;
+      }
+    }
+    
     static const char* luahandle()
     {
       return data->handle.c_str();
