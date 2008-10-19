@@ -29,14 +29,14 @@
 
 // please port me to the next c++ standard !!
 
-// the macro hackery in this file iterates from N=7 to N=0
+// the macro hackery in this file iterates from N = 7 to N = 0
 // and includes this file once for each iteration.
 
 // name(X) is X##N
-// ai(X) is "X" if i<=N, ignored otherwise
-// aic(X) is ",X" if i<=N, ignored otherwise
-// comma is "," if i>=0
-// a0(X) is "X" if i==0
+// ai(X) is "X" if i <= N, ignored otherwise
+// aic(X) is ",X" if i <= N, ignored otherwise
+// comma is "," if i >= 0
+// a0(X) is "X" if i == 0
 
 #ifndef N
 #define N 7
@@ -145,23 +145,21 @@ class name(FunctionWrapper_1_)
 public:
   typedef void myobjectT;
   
-  static int Wrapper  (lua_State* L)
+  static int Wrapper(lua_State* L)
   {
-    Pack<RET>::convert (L,F(
-			    a1(Unpack<P1>::convert(L, 1))
-			    a2c(Unpack<P2>::convert(L, 2))
-			    a3c(Unpack<P3>::convert(L, 3))
-			    a4c(Unpack<P4>::convert(L, 4))
-			    a5c(Unpack<P5>::convert(L, 5))
-			    a6c(Unpack<P6>::convert(L, 6))
-			    a7c(Unpack<P7>::convert(L, 7))
-			    ));
+    Pack<RET>::convert(L,F(a1(Unpack<P1>::convert(L, 1))
+			   a2c(Unpack<P2>::convert(L, 2))
+			   a3c(Unpack<P3>::convert(L, 3))
+			   a4c(Unpack<P4>::convert(L, 4))
+			   a5c(Unpack<P5>::convert(L, 5))
+			   a6c(Unpack<P6>::convert(L, 6))
+			   a7c(Unpack<P7>::convert(L, 7))));
     runAutoRelease();
     return 1;
   }
 
-  static const bool hasmeta=false;
-  static const bool noindex=true;
+  static const bool hasmeta = false;
+  static const bool noindex = true;
 };
 
 template <
@@ -179,7 +177,7 @@ class name(FunctionWrapper_0_)
 public:
   typedef void myobjectT;
   
-  static int Wrapper  (lua_State* L)
+  static int Wrapper(lua_State* L)
   {
     F(
       a1(Unpack<P1>::convert(L, 1))
@@ -194,8 +192,8 @@ public:
     return 0;
   }
 
-  static const bool hasmeta=false;
-  static const bool noindex=true;
+  static const bool hasmeta = false;
+  static const bool noindex = true;
 };
 
 
@@ -214,23 +212,22 @@ class name(FunctionWrapper_N_)
 public:
   typedef void myobjectT;
   
-  static int Wrapper  (lua_State* L)
+  static int Wrapper(lua_State* L)
   {
-    int n=F(L
-      a1c(Unpack<P1>::convert(L, 1))
-      a2c(Unpack<P2>::convert(L, 2))
-      a3c(Unpack<P3>::convert(L, 3))
-      a4c(Unpack<P4>::convert(L, 4))
-      a5c(Unpack<P5>::convert(L, 5))
-      a6c(Unpack<P6>::convert(L, 6))
-      a7c(Unpack<P7>::convert(L, 7))
-      );
+    int n = F(L
+	      a1c(Unpack<P1>::convert(L, 1))
+	      a2c(Unpack<P2>::convert(L, 2))
+	      a3c(Unpack<P3>::convert(L, 3))
+	      a4c(Unpack<P4>::convert(L, 4))
+	      a5c(Unpack<P5>::convert(L, 5))
+	      a6c(Unpack<P6>::convert(L, 6))
+	      a7c(Unpack<P7>::convert(L, 7)));
     runAutoRelease();
     return n;
   }
 
-  static const bool hasmeta=false;
-  static const bool noindex=true;
+  static const bool hasmeta = false;
+  static const bool noindex = true;
 };
 
 
@@ -249,26 +246,24 @@ class name(MethodWrapper_1_)
 public:
   typedef OBJ myobjectT;
 
-  static int Wrapper  (lua_State* L)
+  static int Wrapper(lua_State* L)
   {
-    RET (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
-    OBJ* obj=Unpack<OBJ*>::convert(L,1);
-    Pack<RET>::convert (L,
-			    (obj->*f)(
-				a1(Unpack<P1>::convert(L, 2))
-				a2c(Unpack<P2>::convert(L, 3))
-				a3c(Unpack<P3>::convert(L, 4))
-				a4c(Unpack<P4>::convert(L, 5))
-				a5c(Unpack<P5>::convert(L, 6))
-				a6c(Unpack<P6>::convert(L, 7))
-				a7c(Unpack<P7>::convert(L, 8))
-				      ));
+    RET (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
+    OBJ* obj = Unpack<OBJ*>::convert(L,1);
+    Pack<RET>::convert(L,
+		       (obj->*f)(a1(Unpack<P1>::convert(L, 2))
+				 a2c(Unpack<P2>::convert(L, 3))
+				 a3c(Unpack<P3>::convert(L, 4))
+				 a4c(Unpack<P4>::convert(L, 5))
+				 a5c(Unpack<P5>::convert(L, 6))
+				 a6c(Unpack<P6>::convert(L, 7))
+				 a7c(Unpack<P7>::convert(L, 8))));
     runAutoRelease();
     return 1;
   }
 
-  static const bool hasmeta=true;
-  static const bool noindex=false;
+  static const bool hasmeta = true;
+  static const bool noindex = false;
 };
 
 
@@ -288,25 +283,23 @@ class name(MethodWrapper_0_)
 public:
   typedef OBJ myobjectT;
 
-  static int Wrapper  (lua_State* L)
+  static int Wrapper(lua_State* L)
   {
-    void (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
-    OBJ* obj=Unpack<OBJ*>::convert(L,1);
-    (obj->*f)(
-	      a1(Unpack<P1>::convert(L, 2))
+    void (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
+    OBJ* obj = Unpack<OBJ*>::convert(L,1);
+    (obj->*f)(a1(Unpack<P1>::convert(L, 2))
 	      a2c(Unpack<P2>::convert(L, 3))
 	      a3c(Unpack<P3>::convert(L, 4))
 	      a4c(Unpack<P4>::convert(L, 5))
 	      a5c(Unpack<P5>::convert(L, 6))
 	      a6c(Unpack<P6>::convert(L, 7))
-	      a7c(Unpack<P7>::convert(L, 8))
-	      );
+	      a7c(Unpack<P7>::convert(L, 8)));
     runAutoRelease();
     return 0;
   }
 
-  static const bool hasmeta=true;
-  static const bool noindex=false;
+  static const bool hasmeta = true;
+  static const bool noindex = false;
 };
 
 template <
@@ -325,25 +318,24 @@ class name(MethodWrapper_N_)
 public:
   typedef OBJ myobjectT;
 
-  static int Wrapper  (lua_State* L)
+  static int Wrapper(lua_State* L)
   {
-    int (DEFOBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))=F;
-    OBJ* obj=Unpack<OBJ*>::convert(L,1);
-    int n=(obj->*f)(L
-	      a1c(Unpack<P1>::convert(L, 2))
-	      a2c(Unpack<P2>::convert(L, 3))
-	      a3c(Unpack<P3>::convert(L, 4))
-	      a4c(Unpack<P4>::convert(L, 5))
-	      a5c(Unpack<P5>::convert(L, 6))
-	      a6c(Unpack<P6>::convert(L, 7))
-	      a7c(Unpack<P7>::convert(L, 8))
-	      );
+    int (DEFOBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
+    OBJ* obj = Unpack<OBJ*>::convert(L,1);
+    int n = (obj->*f)(L
+		      a1c(Unpack<P1>::convert(L, 2))
+		      a2c(Unpack<P2>::convert(L, 3))
+		      a3c(Unpack<P3>::convert(L, 4))
+		      a4c(Unpack<P4>::convert(L, 5))
+		      a5c(Unpack<P5>::convert(L, 6))
+		      a6c(Unpack<P6>::convert(L, 7))
+		      a7c(Unpack<P7>::convert(L, 8)));
     runAutoRelease();
     return n;
   }
 
-  static const bool hasmeta=true;
-  static const bool noindex=false;
+  static const bool hasmeta = true;
+  static const bool noindex = false;
 };
 
 
@@ -361,23 +353,23 @@ class name(CtorWrapper_)
 public:
   typedef OBJ myobjectT;
 
-  static int Wrapper  (lua_State* L)
+  static int Wrapper(lua_State* L)
   {
     Pack<OBJ*>::convert(L, new OBJ(
-	      a1(Unpack<P1>::convert(L, 1))
-	      a2c(Unpack<P2>::convert(L, 2))
-	      a3c(Unpack<P3>::convert(L, 3))
-	      a4c(Unpack<P4>::convert(L, 4))
-	      a5c(Unpack<P5>::convert(L, 5))
-	      a6c(Unpack<P6>::convert(L, 6))
-	      a7c(Unpack<P7>::convert(L, 7))
-	      ));
+				   a1(Unpack<P1>::convert(L, 1))
+				   a2c(Unpack<P2>::convert(L, 2))
+				   a3c(Unpack<P3>::convert(L, 3))
+				   a4c(Unpack<P4>::convert(L, 4))
+				   a5c(Unpack<P5>::convert(L, 5))
+				   a6c(Unpack<P6>::convert(L, 6))
+				   a7c(Unpack<P7>::convert(L, 7))
+				   ));
     runAutoRelease();
     return 1;
   }
 
-  static const bool hasmeta=true;
-  static const bool noindex=true;
+  static const bool hasmeta = true;
+  static const bool noindex = true;
 };
 
 
@@ -406,7 +398,7 @@ RET name(Call_1_)(lua_State* L, LuaFunctionBase& f
       a7(Pack<P7>::convert(L, p7);)
 
       lua_call(L, N+f.addValues, 1);
-      RET val=Unpack<RET>::convert(L,-1);
+      RET val = Unpack<RET>::convert(L,-1);
       lua_pop(L,1); // pop the returned value
       f.cleanStack(L);
       return val;
@@ -446,7 +438,7 @@ a1(template <
    a5c(typename P5)
    a6c(typename P6)
    a7c(typename P7)>)
-  static void __attribute__((unused))  name(Call_0_)(lua_State* L, LuaFunctionBase& f
+  static void __attribute__((unused)) name(Call_0_)(lua_State* L, LuaFunctionBase& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
     if (f.prepareStack(L)) {
