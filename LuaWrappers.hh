@@ -248,7 +248,7 @@ public:
   static int Wrapper(lua_State* L)
   {
     RET (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
-    OBJ* obj = Unpack<OBJ*>::convert(L,1);
+    OBJ* obj = Unpack<OBJ*>::convert(L, 1);
     Pack<RET>::convert(L,
 		       (obj->*f)(a1(Unpack<P1>::convert(L, 2))
 				 a2c(Unpack<P2>::convert(L, 3))
@@ -285,7 +285,7 @@ public:
   static int Wrapper(lua_State* L)
   {
     void (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
-    OBJ* obj = Unpack<OBJ*>::convert(L,1);
+    OBJ* obj = Unpack<OBJ*>::convert(L, 1);
     (obj->*f)(a1(Unpack<P1>::convert(L, 2))
 	      a2c(Unpack<P2>::convert(L, 3))
 	      a3c(Unpack<P3>::convert(L, 4))
@@ -320,7 +320,7 @@ public:
   static int Wrapper(lua_State* L)
   {
     int (DEFOBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
-    OBJ* obj = Unpack<OBJ*>::convert(L,1);
+    OBJ* obj = Unpack<OBJ*>::convert(L, 1);
     int n = (obj->*f)(L
 		      a1c(Unpack<P1>::convert(L, 2))
 		      a2c(Unpack<P2>::convert(L, 3))
@@ -395,9 +395,9 @@ RET name(Call_1_)(lua_State* L, LuaFunctionBase& f
       a6(Pack<P6>::convert(L, p6);)
       a7(Pack<P7>::convert(L, p7);)
 
-      lua_call(L, N+f.addValues, 1);
-      RET val = Unpack<RET>::convert(L,-1);
-      lua_pop(L,1); // pop the returned value
+      lua_call(L, N + f.addValues, 1);
+      RET val = Unpack<RET>::convert(L, -1);
+      lua_pop(L, 1); // pop the returned value
       f.cleanStack(L);
       return val;
     } else {
@@ -448,7 +448,7 @@ a1(template <
       a6(Pack<P6>::convert(L, p6);)
       a7(Pack<P7>::convert(L, p7);)
 
-      lua_call(L, N+f.addValues, 0);
+      lua_call(L, N + f.addValues, 0);
       f.cleanStack(L);
     }
   }

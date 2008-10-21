@@ -91,7 +91,7 @@ namespace LuaWrapper {
 	  if (data->isCompatible(meta))
 	    return (T*)*p;
 	}
-      luaL_typerror(L, index ,luahandle());
+      luaL_typerror(L, index, luahandle());
       return 0;  /* avoid warnings */
     }
 
@@ -219,7 +219,7 @@ namespace LuaWrapper {
       push();
       lua_getfield(my_L, -1, key);
       bool result = (lua_isnil(my_L, -1) == 0);
-      lua_pop(my_L,2);
+      lua_pop(my_L, 2);
       return result;
     }
     
@@ -229,7 +229,7 @@ namespace LuaWrapper {
       lua_pushinteger(my_L, ikey);
       lua_gettable(my_L, -2);
       bool result = (lua_isnil(my_L, -1) == 0);
-      lua_pop(my_L,2);
+      lua_pop(my_L, 2);
       return result;
     }
 
@@ -278,7 +278,7 @@ namespace LuaWrapper {
     {
       lua_getfield(L, LUA_GLOBALSINDEX, name);
       if (!lua_isfunction(L, -1)) {
-	lua_pop(L,1);
+	lua_pop(L, 1);
 	return false;
       }
       return true;
@@ -306,7 +306,7 @@ namespace LuaWrapper {
       table.push();
       lua_getfield(L, -1, name);
       if (!lua_isfunction(L, -1)) {
-	lua_pop(L,2);
+	lua_pop(L, 2);
 	return false;
       }
       lua_pushvalue(L, -2); // first arg is self
@@ -315,7 +315,7 @@ namespace LuaWrapper {
 
     virtual void cleanStack(lua_State* L)
     {
-      lua_pop(L,1); // remove table reference from stack
+      lua_pop(L, 1); // remove table reference from stack
     }
 
     const char* name;
@@ -400,7 +400,7 @@ namespace LuaWrapper {
   public:
     static int convert(lua_State* L, int index)
     {
-      return (int)luaL_checkinteger(L,index);
+      return (int)luaL_checkinteger(L, index);
     }
   };
 
@@ -410,7 +410,7 @@ namespace LuaWrapper {
   public:
     static double convert(lua_State* L, int index)
     {
-      return (double)luaL_checknumber(L,index);
+      return (double)luaL_checknumber(L, index);
     }
   };
 
@@ -421,7 +421,7 @@ namespace LuaWrapper {
     static bool convert(lua_State* L, int index)
     {
       // Why the heck this function is not there ????
-      // return (bool)luaL_checkboolean(L,index);
+      // return (bool)luaL_checkboolean(L, index);
       luaL_checktype(L, index, LUA_TBOOLEAN);
       return (bool)lua_toboolean(L, index);
     }
@@ -433,7 +433,7 @@ namespace LuaWrapper {
   public:
     static const char* convert(lua_State* L, int index)
     {
-      return luaL_checkstring(L,index);
+      return luaL_checkstring(L, index);
     }
   };
 
@@ -443,7 +443,7 @@ namespace LuaWrapper {
   public:
     static std::string convert(lua_State* L, int index)
     {
-      return std::string(luaL_checkstring(L,index));
+      return std::string(luaL_checkstring(L, index));
     }
   };
 
@@ -454,7 +454,7 @@ namespace LuaWrapper {
     static std::string& convert(lua_State* L, int index)
     {
       typedef EncapsulatedReleaseItem<std::string> AutoRelease;
-      AutoRelease* rel = new AutoRelease(std::string(luaL_checkstring(L,index)));
+      AutoRelease* rel = new AutoRelease(std::string(luaL_checkstring(L, index)));
       return rel->t;
     }
   };
@@ -640,7 +640,7 @@ namespace LuaWrapper {
     push();
     lua_getfield(my_L, -1, key);
     T ret = Unpack<T>::convert(my_L, -1);
-    lua_pop(my_L,2);
+    lua_pop(my_L, 2);
     return ret;
   }
 
@@ -650,7 +650,7 @@ namespace LuaWrapper {
     lua_pushinteger(my_L, ikey);
     lua_gettable(my_L, -2);
     T ret = Unpack<T>::convert(my_L, -1);
-    lua_pop(my_L,2);
+    lua_pop(my_L, 2);
     return ret;
   }
 
@@ -659,7 +659,7 @@ namespace LuaWrapper {
     push();
     Pack<T>::convert(my_L, obj);
     lua_setfield(my_L, -2, key);
-    lua_pop(my_L,1);
+    lua_pop(my_L, 1);
   }
 
   template <typename T> void LuaTable::set(int ikey, T obj)
@@ -668,7 +668,7 @@ namespace LuaWrapper {
     lua_pushinteger(my_L, ikey);
     Pack<T>::convert(my_L, obj);
     lua_settable(my_L, -3);
-    lua_pop(my_L,1);
+    lua_pop(my_L, 1);
   }
 
   template <typename ORIG, typename ALIAS>
@@ -677,7 +677,7 @@ namespace LuaWrapper {
   public:
     static ALIAS convert(lua_State* L, int index)
     {
-      return (ALIAS)Unpack<ORIG>::convert(L,index);
+      return (ALIAS)Unpack<ORIG>::convert(L, index);
     }
   };
 
@@ -704,7 +704,7 @@ namespace LuaWrapper {
 
     static int Wrapper(lua_State* L)
     {
-      OBJ* obj = Unpack<OBJ*>::convert(L,1);
+      OBJ* obj = Unpack<OBJ*>::convert(L, 1);
       delete obj; obj = 0;
       return 0;
     }
@@ -729,10 +729,10 @@ namespace LuaWrapper {
 	if (strncmp(function_name, "__", 2) != 0 && !WRAPPER::noindex) {
 	  lua_getfield(L, -1, "__index");
 	  luaL_register(L, 0, entry);
-	  lua_pop(L,2);
+	  lua_pop(L, 2);
 	} else { // allow direct registration of ctors and __* methods
 	  luaL_register(L, 0, entry);
-	  lua_pop(L,1);
+	  lua_pop(L, 1);
 	}
       } else {
 	luaL_register(L, module_name, entry);
@@ -750,7 +750,7 @@ namespace LuaWrapper {
       luaL_findtable(L, LUA_GLOBALSINDEX, module_name, 1);
       lua_pushvalue(L, -2);
       lua_setfield(L, -2, LuaClass<T>::luahandle());
-      lua_pop(L,1);
+      lua_pop(L, 1);
     }
 
     // create index table
@@ -759,16 +759,16 @@ namespace LuaWrapper {
 
     // remember metatable raw pointer for later type checks
     LuaClass<T>::data->insertMetaTablePtr((void*)lua_topointer(L, -1));
-    lua_pop(L,1);
+    lua_pop(L, 1);
   }
 
   template <typename BASE, typename DERIVED>
   void InheritMeta(lua_State* L)
   {
     luaL_getmetatable(L, LuaClass<DERIVED>::luahandle()); // -5
-    lua_getfield(L,-1,"__index"); // -4
+    lua_getfield(L, -1, "__index"); // -4
     luaL_getmetatable(L, LuaClass<BASE>::luahandle()); // -3
-    lua_getfield(L,-1,"__index"); // -2
+    lua_getfield(L, -1, "__index"); // -2
 
     lua_pushnil(L);  /* -1 first key */
     while (lua_next(L, -2) != 0) {
@@ -784,7 +784,7 @@ namespace LuaWrapper {
   {
     luaL_getmetatable(L, LuaClass<DERIVED>::luahandle());
     LuaClass<BASE>::data->insertMetaTablePtr((void*)lua_topointer(L, -1));
-    lua_pop(L,1);
+    lua_pop(L, 1);
   }
 
   template <typename C>
@@ -793,13 +793,13 @@ namespace LuaWrapper {
     luaL_findtable(L, LUA_GLOBALSINDEX, module_name, 1);
     Pack<C>::convert(L, value);
     lua_setfield(L, -2, name);
-    lua_pop(L,1);
+    lua_pop(L, 1);
   }
 }
 
 
 // some convenient defines:
-#define ToLuaTypedef(ORIG,ALIAS) \
+#define ToLuaTypedef(ORIG, ALIAS) \
 namespace LuaWrapper { \
   template <> class Unpack<ALIAS>:public UnpackTypedef<ORIG, ALIAS>{}; \
   template <> class Pack<ALIAS>:public PackTypedef<ORIG, ALIAS>{}; }
