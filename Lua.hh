@@ -72,8 +72,7 @@ namespace LuaWrapper {
     ~LuaClass()
     {
       if (data) {
-	delete data;
-	data = 0;
+	delete data; data = 0;
       }
     }
     
@@ -706,7 +705,7 @@ namespace LuaWrapper {
     static int Wrapper(lua_State* L)
     {
       OBJ* obj = Unpack<OBJ*>::convert(L,1);
-      delete obj;
+      delete obj; obj = 0;
       return 0;
     }
 
