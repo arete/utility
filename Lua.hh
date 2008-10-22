@@ -95,6 +95,20 @@ namespace LuaWrapper {
       return 0;  /* avoid warnings */
     }
 
+    static T** getRawPtr(lua_State* L, int index)
+    {
+      void** p = (void**)lua_touserdata(L, index);
+      if (p)
+	if (lua_getmetatable(L, index)) {
+	  void* meta = (void*)lua_topointer(L, -1);
+	  lua_pop(L, 1);
+	  if (data->isCompatible(meta))
+	    return (T**)p;
+	}
+      luaL_typerror(L, index, luahandle());
+      return 0;  /* avoid warnings */
+    }
+
     static void packPtr(lua_State* L, T* obj)
     {
       T** ptr = (T**)lua_newuserdata(L, sizeof(T*));
@@ -704,8 +718,10 @@ namespace LuaWrapper {
 
     static int Wrapper(lua_State* L)
     {
-      OBJ* obj = Unpack<OBJ*>::convert(L, 1);
-      delete obj; obj = 0;
+      OBJ** obj = LuaClass<OBJ>::getRawPtr(L, 1);
+      if (*obj) {
+	delete *obj; *obj = 0;
+      }
       return 0;
     }
 
