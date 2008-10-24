@@ -33,8 +33,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#ifdef __WIN32__
+#include <windows.h> / Sleep()
+#endif
 
 #include <iostream>
+
+#ifndef __WIN32__
 
 Utility::TickTimer::TickTimer ()
 {
@@ -66,6 +71,8 @@ uint64_t Utility::TickTimer::PerSecond () const
 {
   return sysconf (_SC_CLK_TCK);
 }
+
+#endif
 
 // ---
 
@@ -151,7 +158,11 @@ uint64_t Utility::TimebaseTimer::PerSecond () const
   // meassure, not yet very accurate, depends on a exact 1s schedule of the OS
   if (!per_second) {
     uint64_t s1 = Value ();
+#ifndef __WIN32_
     sleep (1);
+#else
+    Sleep (1000);
+#endif
     uint64_t s2 = Value ();
     per_second = s2 - s1;
   }

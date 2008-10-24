@@ -37,7 +37,9 @@
 #define UTILITY__TIMER_HH__
 
 #include <sys/time.h> // used by Timer
+#ifndef __WIN32__
 #include <sys/times.h> // used by TickTimer
+#endif
 
 #include <inttypes.h>
 
@@ -67,7 +69,8 @@ namespace Utility
   private:
     uint64_t m_start;
   };
-  
+
+#ifndef __WIN32__
   class TickTimer
   {
   public:
@@ -84,6 +87,7 @@ namespace Utility
   private:
     struct tms m_times;
   };
+#endif
   
   class TimebaseTimer
   {
