@@ -158,7 +158,7 @@ uint64_t Utility::TimebaseTimer::PerSecond () const
   // meassure, not yet very accurate, depends on a exact 1s schedule of the OS
   if (!per_second) {
     uint64_t s1 = Value ();
-#ifndef __WIN32_
+#ifndef __WIN32__
     sleep (1);
 #else
     Sleep (1000);
