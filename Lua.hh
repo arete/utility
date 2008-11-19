@@ -419,6 +419,16 @@ namespace LuaWrapper {
   };
 
   template <>
+  class Unpack<unsigned int>
+  {
+  public:
+    static int convert(lua_State* L, int index)
+    {
+      return (unsigned int)luaL_checkinteger(L, index);
+    }
+  };
+
+  template <>
   class Unpack<double>
   {
   public:
@@ -542,6 +552,16 @@ namespace LuaWrapper {
   {
   public:
     static void convert(lua_State* L, int value)
+    {
+      lua_pushinteger(L, value);
+    }
+  };
+
+  template <>
+  class Pack<unsigned int>
+  {
+  public:
+    static void convert(lua_State* L, unsigned int value)
     {
       lua_pushinteger(L, value);
     }
