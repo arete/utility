@@ -35,7 +35,7 @@ namespace Utility {
   template <> bool Argument<bool>::Read () {
     // the ctor garuantees we have one value!
     values[0] = true;
-  ++ count;
+  ++count;
   return true;
   }
   
@@ -45,11 +45,7 @@ namespace Utility {
   }
   
   template <> std::string Argument<std::string>::ReadImpl (const std::string& arg) {
-    std::stringstream stream (arg);
-    // TODO: error handling
-    std::string value;
-    std::getline (stream, value);
-    return value;
+    return arg;
   }
   
 } // namespace Utility
