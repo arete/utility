@@ -151,7 +151,7 @@ bool ArgumentList::Read (int argc, char** argv)
       }
       else {
 	if (!argument->Read (arg) )
-	  ++ errors;
+	  ++errors;
       }
     }
     else if (residual) {
@@ -164,7 +164,7 @@ bool ArgumentList::Read (int argc, char** argv)
     if (argument && argument->no_arg) {
       if (!argument->Read () ) {
 	argument = 0;
-	++ errors;
+	++errors;
       }
     }
     
@@ -183,7 +183,7 @@ bool ArgumentList::Read (int argc, char** argv)
   }
   // interrupt the last parsed argument
   if (argument && !argument->Interrupt () )
-    ++ errors;
+    ++errors;
   
   // final checks
   for (iterator it = long_content.begin (); it != long_content.end (); ++it) {
