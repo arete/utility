@@ -1,13 +1,27 @@
 /*
+ * General purpose encoding and decoding.
+ * Copyright (C) 2007 - 2008 Rene Rebe, ExactCODE GmbH
+ * Copyright (C) 2007 Susanne Klaus, ExactCODE GmbH
+ *
  * Copyright (c) 2008 Valentin Ziegler <valentin@exactcode.de>
  * Copyright (c) 2008 René Rebe <rene@exactcode.de>
- *
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2. A copy of the GNU General
+ * Public License can be found in the file LICENSE.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT-
+ * ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ * 
+ * Alternatively, commercial licensing options are available from the
+ * copyright holder ExactCODE GmbH Germany.
  */
 
-#ifndef ASCII85_HH
-#define ASCII85_HH
-
-#include <ostream>
+#ifndef ENCODINGS_HH
+#define ENCODINGS_HH
 
 /* 
    All encoding functions have signature 
@@ -18,7 +32,6 @@
    where CH can be casted into uint8_t. Most likely T will be one out of
    uint8_t*, std::vector<uint8_t>, std::string.
 */
-
 
 template <typename T>
 void EncodeHex(std::ostream& stream, const T& data, size_t length)
@@ -197,5 +210,45 @@ inline bool EncodeZlib (std::ostream& stream, const char* data, size_t length, i
 }
 
 #endif
+
+
+/* Some miscellaneous de- and encoders */
+
+inline std::vector<uint32_t>
+DecodeUtf8(const char* data, size_t length)
+{
+  std::vector<uint32_t> store;
+  
+  for (unsigned int i = 0; i < length;)
+    {
+      uint32_t g = data[i];
+      {
+	if (g & (1<<7)) // utf-8 multi-byte-sequence?
+	  {
+	    // determine byte count
+	    int n; // we could pre-shift one bit, or switch on the bits
+	    for (n = 0; g & (1<<7); ++n)
+	      g <<= 1;
+	    if (n < 2 || n > 4) {
+	      std::cerr << "invalid utf-8 count: " << n << std::endl;
+	    }
+	    
+	    // first is variable
+	    g = ((data[i++]) & (0xff >> n));
+	    for (--n; n > 0; --n) {
+	      // check the 10 MSB marks for sanity and security
+	      if ((data[i] & 0xC0) != 0x80) {
+		std::cerr << "incorrect utf-8 multi-byte mark" << std::endl;
+	      }
+	      g = (g << 6) | ((data[i++]) & (0xff >> 2));
+	    }
+	  }
+	else
+	  i++;
+	store.push_back(g);
+      }
+    }
+  return store;
+}
 
 #endif
