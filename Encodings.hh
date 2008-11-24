@@ -23,6 +23,10 @@
 #ifndef ENCODINGS_HH
 #define ENCODINGS_HH
 
+#include <inttypes.h>
+#include <vector>
+#include <iostream>
+
 /* 
    All encoding functions have signature 
    
