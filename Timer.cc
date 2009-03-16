@@ -7,7 +7,7 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/src/Timer.cc
- * General Sound Manipulation Program is Copyright (C) 2000 - 2008
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2009
  *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -140,13 +140,19 @@ uint64_t Utility::TimebaseTimer::Value () const
   return ((uint64_t)hi << 32) | lo;
 #endif
 #elif define(__mips__)
-#error "MIPS timebase support not yet implemented."
-  // __asm__ __volatile__ ("dmfc0 %0,$9" : "=r" (ticks));
+  unsigned int ticks;
+  __asm__ __volatile__ ("dmfc0 %0,$9" : "=r" (ticks));
+  return ticks;
 #elif defined(__ia64__)
-#error "IA64 timebase support not yet implemented."
-  // __asm__ __volatile__ ("mov %0=ar.itc ;;" : "=rO" (ticks));
+  unsigned int ticks;
+  __asm__ __volatile__ ("mov %0=ar.itc ;;" : "=rO" (ticks));
+  return ticks;
+#elif defined(__bfin__)
+  unsigned int ticks;
+   __asm__ __volatile__ ("%0 = CYCLES;\n\t" : "=&d" (ticks) : : "R1");
+  return ticks
 #else
-  // TODO (at least): ARM, SuperH, then AVR32, Blackfin, Alpha, ...
+  // TODO (at least): ARM, SuperH, then AVR32, Alpha, ...
 #error "No CPU timebase read implemented for this architecture, yet!"
 #endif
 }
