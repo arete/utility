@@ -603,7 +603,7 @@ namespace LuaWrapper {
   public:
     static void convert(lua_State* L, std::string value)
     {
-      lua_pushstring(L, value.c_str());
+      lua_pushlstring(L, value.c_str(), value.size());
     }
   };
 
@@ -613,7 +613,7 @@ namespace LuaWrapper {
   public:
     static void convert(lua_State* L, std::string value)
     {
-      lua_pushstring(L, value.c_str());
+      lua_pushlstring(L, value.c_str(), value.size());
     }
   };
 
@@ -623,7 +623,7 @@ namespace LuaWrapper {
   public:
     static void convert(lua_State* L, std::string value)
     {
-      lua_pushstring(L, value.c_str());
+      lua_pushlstring(L, value.c_str(), value.size());
     }
   };
 
