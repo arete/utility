@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008 Valentin Ziegler, ExactCODE GmbH
+ * Copyright (C) 2009 Rene Rebe, ExactCODE GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -467,7 +468,9 @@ namespace LuaWrapper {
   public:
     static std::string convert(lua_State* L, int index)
     {
-      return std::string(luaL_checkstring(L, index));
+      size_t strlen = 0;
+      const char* str = luaL_checklstring(L, index, &strlen);
+      return std::string(str, strlen);
     }
   };
 
@@ -478,7 +481,9 @@ namespace LuaWrapper {
     static std::string& convert(lua_State* L, int index)
     {
       typedef EncapsulatedReleaseItem<std::string> AutoRelease;
-      AutoRelease* rel = new AutoRelease(std::string(luaL_checkstring(L, index)));
+      size_t strlen = 0;
+      const char* str = luaL_checklstring(L, index, &strlen);
+      AutoRelease* rel = new AutoRelease(std::string(str, strlen));
       return rel->t;
     }
   };
