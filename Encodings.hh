@@ -1,10 +1,8 @@
 /*
  * General purpose encoding and decoding.
- * Copyright (C) 2007 - 2008 Rene Rebe, ExactCODE GmbH
+ * Copyright (C) 2007 - 2009 Rene Rebe, ExactCODE GmbH
+ * Copyright (c) 2008 Valentin Ziegle, ExactCODE GmbH
  * Copyright (C) 2007 Susanne Klaus, ExactCODE GmbH
- *
- * Copyright (c) 2008 Valentin Ziegler <valentin@exactcode.de>
- * Copyright (c) 2008 René Rebe <rene@exactcode.de>
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -171,7 +169,67 @@ void DecodeBase64(std::ostream& stream, const T& data, size_t length)
 #include <zlib.h>
 
 // TODO: make template, likewise
-inline bool EncodeZlib (std::ostream& stream, const char* data, size_t length, int level = 9)
+
+// windowBits should be in the rage [8,15]
+//            negative values indicate no header and CRC
+template <typename T>
+bool DecodeZlib(std::ostream& stream,
+		const T& data, size_t length,
+		const int windowBits = 15)
+{
+  static const unsigned CHUNK = 16384;
+  
+  z_stream strm;
+  char out[CHUNK];
+  
+  /* allocate deflate state */
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+  strm.opaque = Z_NULL;
+  int ret = inflateInit2(&strm, windowBits);
+  if (ret != Z_OK)
+    return false;
+  
+  strm.next_in = (Bytef*)&data[0];
+  strm.avail_in = length;
+  
+  /* decompress until end of file */
+  while (strm.avail_in) {
+    if (false)
+    std::cerr << " @ " << strm.next_in - (Bytef*)&data[0]
+	      << " avail in: " << strm.avail_in << std::endl;
+      
+    /* run inflate() on input until output buffer is full, finish
+       decompression if all of source has been read in */
+    strm.next_out = (Bytef*) out;
+    strm.avail_out = CHUNK;
+    ret = inflate(&strm, Z_SYNC_FLUSH);
+    if (false)
+    std::cerr << "  ret: " << ret
+	      << ", avail_out: " << strm.avail_out
+	      << ", next_in: " << (void*)strm.next_in
+	      << ", next_out: " << (void*)strm.next_out
+	      << std::endl;
+    
+    unsigned have = CHUNK - strm.avail_out;
+    stream.write(out, have);
+    if (!stream) {
+      (void)inflateEnd(&strm);
+      return false;
+    }
+    if (ret != Z_OK && ret != Z_STREAM_END) {
+      (void)inflateEnd(&strm);
+      return false;
+    }
+  }
+
+  /* clean up and return */
+  (void)deflateEnd(&strm);
+  return true;  
+}
+
+inline bool EncodeZlib (std::ostream& stream, const char* data,
+			size_t length, int level = 9)
 {
   static const unsigned CHUNK = 16384;
   
