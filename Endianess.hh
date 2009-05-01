@@ -7,7 +7,7 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: pcm/include/Types.hh
- * General Sound Manipulation Program is Copyright (C) 2000 - 2007
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2009
  *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANT-
  * ABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- * 
+ *
+ * Alternatively, commercial licensing options are available from the
+ * copyright holder ExactCODE GmbH Germany.
+ *
  * --- GSMP-COPYRIGHT-NOTE-END ---
  */
 
@@ -161,6 +164,30 @@ namespace Exact {
 	return source;
       else
 	return bswap_64 (source);
+    };
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, float> {
+  public:
+    inline static const float Swap (const float& source) {
+      uint32_t* t = (uint32_t*)&source;
+      if (E_SRC::IsBigendian != E_DEST::IsBigendian)
+	*t = bswap_32(*t);
+      
+      return *(float*)t;
+    };
+  };
+
+  template <typename E_SRC, typename E_DEST>
+  class ByteSwap<E_SRC, E_DEST, double> {
+  public:
+    inline static const double Swap (const double& source) {
+      uint64_t* t = (uint64_t*)&source;
+      if (E_SRC::IsBigendian != E_DEST::IsBigendian)
+	*t = bswap_64(*t);
+      
+      return *(double*)t;
     };
   };
   
