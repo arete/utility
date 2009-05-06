@@ -35,6 +35,84 @@ namespace LuaWrapper {
   class AutoReleaseItem;
   extern AutoReleaseItem* autoReleaseList;
 
+
+  static void argError(lua_State* L, int index, const char* type_name)
+  {
+    // slightly adapted from luaL_argerror and luaL_typerror
+
+      lua_Debug ar;
+      if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
+	ar.name = "?";
+      else
+	lua_getinfo(L, "n", &ar);
+      if (ar.name == NULL)
+	ar.name = "?";
+      luaL_error(L, "cannot convert argument #%d from %s to %s (current stackframe: " LUA_QS " )",
+		 index, luaL_typename(L, index), type_name, ar.name);
+  }
+
+
+
+  template <typename T, T RET>
+  class DefaultConst
+  {
+  public:
+    DefaultConst(lua_State* L, int index) {};
+    static const T ret = RET;
+  };
+  
+  template <typename T>
+  class DefaultInitializer
+  {
+  public:
+    DefaultInitializer(lua_State* L, int index) : ret() {};
+    T ret;
+  };
+  
+
+  template <typename T>
+  class TypeError
+  {
+  public:
+    TypeError(lua_State* L, int index) : ret()
+    {
+      argError(L, index, "TODO");
+    }
+    
+    T ret;
+  };
+
+  template <typename T>
+  class TypeError<T&>
+  {
+  public:
+    TypeError(lua_State* L, int index) : ret()
+    {
+      argError(L, index, "TODO");
+    }
+    
+    T* ret;
+  };
+
+  template <typename T>
+  class TypeError<const T&>
+  {
+  public:
+    TypeError(lua_State* L, int index) : ret()
+    {
+      argError(L, index, "TODO");
+    }
+    
+    T* ret;
+  };
+
+  template <typename T, typename DEF>
+  T getDefault(lua_State* L, int index) {
+    DEF def(L, index);
+    return def.ret;
+  }
+
+
   class LuaClassData
   {
   public:
@@ -92,7 +170,7 @@ namespace LuaWrapper {
 	  if (data->isCompatible(meta))
 	    return (T*)*p;
 	}
-      luaL_typerror(L, index, luahandle());
+      //luaL_typerror(L, index, luahandle());
       return 0;  /* avoid warnings */
     }
 
@@ -106,7 +184,7 @@ namespace LuaWrapper {
 	  if (data->isCompatible(meta))
 	    return (T**)p;
 	}
-      luaL_typerror(L, index, luahandle());
+      //luaL_typerror(L, index, luahandle());
       return 0;  /* avoid warnings */
     }
 
@@ -191,10 +269,14 @@ namespace LuaWrapper {
 
     LuaTable(lua_State* L, int stackIndex) // reference a table on stack
     {
-      luaL_checktype(L, stackIndex, LUA_TTABLE);
-      lua_pushvalue(L, stackIndex);
-      handle = luaL_ref(L, LUA_REGISTRYINDEX);
-      my_L = L;
+      if (lua_type(L, stackIndex) == LUA_TTABLE) {
+	lua_pushvalue(L, stackIndex);
+	handle = luaL_ref(L, LUA_REGISTRYINDEX);
+	my_L = L;
+      } else {
+	my_L = 0;
+	handle = 0;
+      }
     }
 
     LuaTable(const LuaTable& src)
@@ -248,28 +330,23 @@ namespace LuaWrapper {
       return result;
     }
 
-    template <typename T> T get(const char* key);
-    template <typename T> T get(int ikey);
+    template <typename T, typename DEF > T getD(const char* key);
+    template <typename T, typename DEF > T getD(int ikey);
+
+    template <typename T> T get(const char* key)
+    {
+      return getD <T, DefaultInitializer<T> > (key);
+    }
+
+    template <typename T> T get(int ikey)
+    {
+      return getD <T, DefaultInitializer<T> > (ikey);
+    }
+
 
     template <typename T> void set(const char* key, T obj);
     template <typename T> void set(int ikey, T obj);
-    
-    template <typename T> T defaultGet(const char* key, T def)
-    {
-      if (exists(key))
-        return get<T>(key);
-      set<T>(key, def);
-      return def;
-    }
-
-   template <typename T> T defaultGet(int ikey, T def)
-    {
-      if (exists(ikey))
-        return get<T>(ikey);
-      set<T>(ikey, def);
-      return def;
-    }
-    
+      
   };
 
   class LuaFunctionBase
@@ -353,10 +430,14 @@ namespace LuaWrapper {
 
     LuaFunction(lua_State* L, int stackIndex) // reference a function on stack
     {
-      luaL_checktype(L, stackIndex, LUA_TFUNCTION);
-      lua_pushvalue(L, stackIndex);
-      handle = luaL_ref(L, LUA_REGISTRYINDEX);
-      my_L = L;
+      if (lua_type(L, stackIndex) == LUA_TFUNCTION) {
+	lua_pushvalue(L, stackIndex);
+	handle = luaL_ref(L, LUA_REGISTRYINDEX);
+	my_L = L;
+      } else {
+	my_L = 0;
+	handle =0;
+      }
       addValues = 0;
     }
 
@@ -388,166 +469,174 @@ namespace LuaWrapper {
 
 
 
-
-
-  template <typename T, T RET>
-  class DefaultConst
-  {
-  public:
-    static const T ret = RET;
-  };
-  
-  template <typename T>
-  class DefaultInitializer
-  {
-  public:
-    DefaultInitializer() : ret() {};
-    T ret;
-  };
-  
-
-  template <typename T>
+  template <typename T, typename DEF=TypeError<T> >
   class Unpack {};
 
-  template <>
-  class Unpack<int>
+  template <typename DEF>
+  class Unpack<int, DEF>
   {
   public:
     static int convert(lua_State* L, int index)
     {
-      return (int)luaL_checkinteger(L, index);
+      lua_Integer d = lua_tointeger(L, index);
+      if (d == 0 && !lua_isnumber(L, index))
+	return getDefault<int, DEF>(L, index);
+      return (int) d;
     }
   };
 
-  template <>
-  class Unpack<unsigned int>
+  template <typename DEF>
+  class Unpack<unsigned int, DEF>
   {
   public:
-    static int convert(lua_State* L, int index)
+    static unsigned int convert(lua_State* L, int index)
     {
-      return (unsigned int)luaL_checkinteger(L, index);
+      lua_Integer d = lua_tointeger(L, index);
+      if (d == 0 && !lua_isnumber(L, index))
+	return getDefault<unsigned int, DEF>(L, index);
+      return (unsigned int) d;
     }
   };
 
-  template <>
-  class Unpack<double>
+  template <typename DEF>
+  class Unpack<double, DEF>
   {
   public:
     static double convert(lua_State* L, int index)
     {
-      return (double)luaL_checknumber(L, index);
+      lua_Number d = lua_tonumber(L, index);
+      if (d == 0 && !lua_isnumber(L, index))
+	return getDefault<double, DEF>(L, index);
+      return (double) d;
     }
   };
 
-  template <>
-  class Unpack<bool>
+  template <typename DEF>
+  class Unpack<bool, DEF>
   {
   public:
     static bool convert(lua_State* L, int index)
     {
-      // Why the heck this function is not there ????
-      // return (bool)luaL_checkboolean(L, index);
-      luaL_checktype(L, index, LUA_TBOOLEAN);
+      if (lua_type(L, index) != LUA_TBOOLEAN)
+	return getDefault<bool, DEF>(L, index);
       return (bool)lua_toboolean(L, index);
     }
   };
 
-  template <>
-  class Unpack<const char*>
+  template <typename DEF>
+  class Unpack<const char*, DEF>
   {
   public:
     static const char* convert(lua_State* L, int index)
     {
-      return luaL_checkstring(L, index);
+      const char* str = lua_tostring(L, index);
+      if (str == 0)
+	return getDefault<const char*, DEF>(L, index);
+      return str;
     }
   };
 
-  template <>
-  class Unpack<std::string>
+  template <typename DEF>
+  class Unpack<std::string, DEF>
   {
   public:
     static std::string convert(lua_State* L, int index)
     {
       size_t strlen = 0;
-      const char* str = luaL_checklstring(L, index, &strlen);
+      const char* str = lua_tolstring(L, index, &strlen);
+      if (str == 0)
+	return getDefault<std::string, DEF>(L, index);
       return std::string(str, strlen);
     }
   };
 
-  template <>
-  class Unpack<std::string&>
+  template <typename DEF>
+  class Unpack<std::string&, DEF>
   {
   public:
     static std::string& convert(lua_State* L, int index)
     {
       typedef EncapsulatedReleaseItem<std::string> AutoRelease;
-      size_t strlen = 0;
-      const char* str = luaL_checklstring(L, index, &strlen);
-      AutoRelease* rel = new AutoRelease(std::string(str, strlen));
+      AutoRelease* rel;
+      rel = new AutoRelease(Unpack<std::string, DEF>::convert(L, index));
       return rel->t;
     }
   };
 
-  template <>
-  class Unpack<const std::string&>
+  template <typename DEF>
+  class Unpack<const std::string&, DEF>
   {
   public:
     static const std::string& convert(lua_State* L, int index)
     {
-      return Unpack<std::string&>::convert(L, index);
+      typedef EncapsulatedReleaseItem<std::string> AutoRelease;
+      AutoRelease* rel;
+      rel = new AutoRelease(Unpack<std::string, DEF>::convert(L, index));
+      return rel->t;
     }
   };
 
-  template <>
-  class Unpack<LuaTable>
+  template <typename DEF>
+  class Unpack<LuaTable, DEF>
   {
   public:
     static LuaTable convert(lua_State* L, int index)
     {
-      return LuaTable(L, index);
+      LuaTable t(L, index);
+      if (t.my_L == 0)
+	return getDefault<LuaTable, DEF>(L, index);
+      return t;
     }
   };
   
-  template <>
-  class Unpack<LuaFunction>
+  template <typename DEF>
+  class Unpack<LuaFunction, DEF>
   {
   public:
     static LuaFunction convert(lua_State* L, int index)
     {
-      return LuaFunction(L, index);
+      LuaFunction f(L, index);
+      if (f.my_L == 0)
+	return getDefault<LuaFunction, DEF>(L, index);
+      return f;
     }
   };
 
 
-  template <typename T>
-  class Unpack<T&>
-  {
-  public:
-    static T& convert(lua_State* L, int index)
-    {
-      return *LuaClass<T>::getPtr(L, index);
-    }
-  };
-
-  template <typename T>
-  class Unpack<const T&>
-  {
-  public:
-    static const T& convert(lua_State* L, int index)
-    {
-      return *LuaClass<T>::getPtr(L, index);
-    }
-  };
-
-  template <typename T>
-  class Unpack<T*>
+  template <typename T, typename DEF>
+  class Unpack<T*, DEF>
   {
   public:
     static T* convert(lua_State* L, int index)
     {
-      return LuaClass<T>::getPtr(L, index);
+      T* t=LuaClass<T>::getPtr(L, index);
+      if (t == 0)
+	return getDefault<T*, DEF>(L, index);
+      return t;
     }
   };
+
+
+  template <typename T, typename DEF >
+  class Unpack<T&, DEF>
+  {
+  public:
+    static T& convert(lua_State* L, int index)
+    {
+      return *( Unpack<T*, DEF>::convert(L, index) );
+    }
+  };
+
+  template <typename T, typename DEF>
+  class Unpack<const T&, DEF>
+  {
+  public:
+    static const T& convert(lua_State* L, int index)
+    {
+      return *( Unpack<T*, DEF>::convert(L, index) );
+    }
+  };
+
 
   template <typename T>
   class Pack {};
@@ -674,21 +763,21 @@ namespace LuaWrapper {
   };
 
 
-  template <typename T> T LuaTable::get(const char* key)
+  template <typename T, typename DEF> T LuaTable::getD(const char* key)
   {
     push();
     lua_getfield(my_L, -1, key);
-    T ret = Unpack<T>::convert(my_L, -1);
+    T ret = Unpack<T, DEF>::convert(my_L, -1);
     lua_pop(my_L, 2);
     return ret;
   }
 
-  template <typename T> T LuaTable::get(int ikey)
+  template <typename T, typename DEF> T LuaTable::getD(int ikey)
   {
     push();
     lua_pushinteger(my_L, ikey);
     lua_gettable(my_L, -2);
-    T ret = Unpack<T>::convert(my_L, -1);
+    T ret = Unpack<T, DEF>::convert(my_L, -1);
     lua_pop(my_L, 2);
     return ret;
   }

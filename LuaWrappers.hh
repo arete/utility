@@ -396,14 +396,12 @@ RET name(Call_1_)(lua_State* L, LuaFunctionBase& f
       a7(Pack<P7>::convert(L, p7);)
 
       lua_call(L, N + f.addValues, 1);
-      RET val = Unpack<RET>::convert(L, -1);
+      RET val = Unpack<RET, DEF>::convert(L, -1);
       lua_pop(L, 1); // pop the returned value
       f.cleanStack(L);
       return val;
-    } else {
-      DEF def;
-      return def.ret;
-    }
+    } else
+      return getDefault<RET, DEF>(L, -1);
   }
 
 
