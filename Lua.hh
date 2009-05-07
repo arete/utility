@@ -35,6 +35,7 @@ namespace LuaWrapper {
   class AutoReleaseItem;
   extern AutoReleaseItem* autoReleaseList;
 
+  template <typename T> class typeName;
 
   static void argError(lua_State* L, int index, const char* type_name)
   {
@@ -76,7 +77,7 @@ namespace LuaWrapper {
   public:
     TypeError(lua_State* L, int index) : ret()
     {
-      argError(L, index, "TODO");
+      argError(L, index, typeName<T>::name() );
     }
     
     T ret;
@@ -88,7 +89,7 @@ namespace LuaWrapper {
   public:
     TypeError(lua_State* L, int index) : ret()
     {
-      argError(L, index, "TODO");
+      argError(L, index, typeName<T>::name());
     }
     
     T* ret;
@@ -100,7 +101,7 @@ namespace LuaWrapper {
   public:
     TypeError(lua_State* L, int index) : ret()
     {
-      argError(L, index, "TODO");
+      argError(L, index, typeName<T>::name());
     }
     
     T* ret;
@@ -466,6 +467,80 @@ namespace LuaWrapper {
       my_L = 0;
     }
   };
+
+
+  template <>
+  class typeName<int>
+  {
+  public:
+    static const char* name() {return "int"; }
+  };
+
+  template <>
+  class typeName<unsigned int>
+  {
+  public:
+    static const char* name() {return "unsigned int"; }
+  };
+
+  template <>
+  class typeName<double>
+  {
+  public:
+    static const char* name() {return "double"; }
+  };
+
+  template <>
+  class typeName<const char*>
+  {
+  public:
+    static const char* name() {return "const char*"; }
+  };
+
+  template <>
+  class typeName<bool>
+  {
+  public:
+    static const char* name() {return "bool"; }
+  };
+
+  template <>
+  class typeName<std::string>
+  {
+  public:
+    static const char* name() {return "std::string"; }
+  };
+
+  template <>
+  class typeName<LuaTable>
+  {
+  public:
+    static const char* name() {return "LuaWrapper::LuaTable"; }
+  };
+
+  template <>
+  class typeName<LuaFunction>
+  {
+  public:
+    static const char* name() {return "LuaWrapper::LuaFunction"; }
+  };
+
+  
+  template <typename T>
+  class typeName
+  {
+  public:
+    static const char* name() { return LuaClass<T>::luahandle(); }
+  };
+
+  template <typename T>
+  class typeName<T&> : public typeName<T> {};
+
+  template <typename T>
+  class typeName<const T&> : public typeName<T> {};
+
+  template <typename T>
+  class typeName<T*> : public typeName<T> {};
 
 
 
