@@ -54,19 +54,19 @@ namespace LuaWrapper {
 
 
 
-  template <typename T, T RET>
+  template <typename T, T RET, bool MARK=false>
   class DefaultConst
   {
   public:
-    DefaultConst(lua_State* L, int index) {};
+		DefaultConst(lua_State* L, int index) { if (MARK) lua_pushnil(L); };
     static const T ret = RET;
   };
   
-  template <typename T>
+  template <typename T, bool MARK=false>
   class DefaultInitializer
   {
   public:
-    DefaultInitializer(lua_State* L, int index) : ret() {};
+		DefaultInitializer(lua_State* L, int index) : ret() { if (MARK) lua_pushnil(L); };
     T ret;
   };
   
@@ -106,6 +106,7 @@ namespace LuaWrapper {
     
     T* ret;
   };
+	
 
   template <typename T, typename DEF>
   T getDefault(lua_State* L, int index) {
@@ -344,6 +345,9 @@ namespace LuaWrapper {
       return getD <T, DefaultInitializer<T> > (ikey);
     }
 
+		template <typename T> T defaultGet(const char* key, T def);
+		template <typename T> T defaultGet(int ikey, T def);
+		
 
     template <typename T> void set(const char* key, T obj);
     template <typename T> void set(int ikey, T obj);
@@ -856,6 +860,35 @@ namespace LuaWrapper {
     lua_pop(my_L, 2);
     return ret;
   }
+
+  template <typename T> T LuaTable::defaultGet(const char* key, T def)
+	{
+		push();
+		lua_getfield(my_L, -1, key);
+		T ret = Unpack<T, DefaultInitializer<T, true> >::convert(my_L, -1);
+		if (lua_isnil(my_L, -1)) {
+			set(key, def);
+			lua_pop(my_L, 3);
+			return def;
+		}
+		lua_pop(my_L, 2);
+		return ret;
+	}
+
+	template <typename T> T LuaTable::defaultGet(int ikey, T def)
+	{
+			push();
+			lua_pushinteger(my_L, ikey);
+			lua_gettable(my_L, -2);
+			T ret = Unpack<T, DefaultInitializer<T, true> >::convert(my_L, -1);
+			if (lua_isnil(my_L, -1)) {
+				set(ikey, def);
+				lua_pop(my_L, 3);
+				return def;
+			}
+			lua_pop(my_L, 2);
+			return ret;
+	}
 
   template <typename T> void LuaTable::set(const char* key, T obj)
   {
