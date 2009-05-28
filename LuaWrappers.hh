@@ -434,11 +434,7 @@ a1(template <
    a5c(typename P5)
    a6c(typename P6)
    a7c(typename P7)>)
-  static void
-#ifdef __GNUC__
-  __attribute__((unused))
-#endif
-  name(Call_0_)(lua_State* L, LuaFunctionBase& f
+  static void __attribute__((unused)) name(Call_0_)(lua_State* L, LuaFunctionBase& f
 		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
   {
     if (f.prepareStack(L)) {
