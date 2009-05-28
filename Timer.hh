@@ -36,12 +36,17 @@
 #ifndef UTILITY__TIMER_HH__
 #define UTILITY__TIMER_HH__
 
-#include <sys/time.h> // used by Timer
-#ifndef __WIN32__
-#include <sys/times.h> // used by TickTimer
-#endif
-
 #include <inttypes.h>
+
+#if !defined(__WIN32__) && !defined(_MSC_VER)
+#include <sys/time.h> // used by Timer
+#include <sys/times.h> // used by TickTimer
+
+#else
+#include <sys/types.h>
+#include <sys/timeb.h>
+typedef unsigned long int uint64_t;
+#endif
 
 #include <iostream>
 #include <string>
@@ -58,19 +63,25 @@ namespace Utility
     inline uint64_t PerSecond () const { return 1000000; }
     
     uint64_t Value () const {
+#if !defined(_MSC_VER)
       timeval t_time;
       gettimeofday (&t_time, NULL);
       
       return (t_time.tv_sec * PerSecond()) + t_time.tv_usec;
+#else
+      struct timeb tb;
+      ftime(&tb);
+      return (uint64_t)tb.time * PerSecond() + tb.millitm * 1000;
+#endif
     }
     
-    const char* Unit () const { return "us"; }
+    const char* Unit () const { return "us"; };
   
   private:
     uint64_t m_start;
   };
 
-#ifndef __WIN32__
+#if !defined(__WIN32__) && !defined(_MSC_VER)
   class TickTimer
   {
   public:
