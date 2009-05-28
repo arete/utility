@@ -32,14 +32,15 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef _WIN32
+#include <windows.h> // Sleep()
+#else
 #include <unistd.h>
-#ifdef __WIN32__
-#include <windows.h> / Sleep()
 #endif
 
 #include <iostream>
 
-#ifndef __WIN32__
+#ifndef _WIN32
 
 Utility::TickTimer::TickTimer ()
 {
@@ -93,9 +94,14 @@ uint64_t Utility::TimebaseTimer::Delta () const
 
 uint64_t Utility::TimebaseTimer::Value () const
 {
-#if defined(__i386__)
+#if defined(__i386__) || defined(_MSC_VER)
   uint64_t x;
+#ifdef _MSC_VER
+  __asm rdtsc
+  __asm mov x, eax
+#else
   __asm__ __volatile__ (".byte 0x0f, 0x31" : "=A" (x));
+#endif
   return x;
 #elif defined(__x86_64__)
   uint32_t hi, lo;
@@ -164,7 +170,7 @@ uint64_t Utility::TimebaseTimer::PerSecond () const
   // meassure, not yet very accurate, depends on a exact 1s schedule of the OS
   if (!per_second) {
     uint64_t s1 = Value ();
-#ifndef __WIN32__
+#ifndef _WIN32
     sleep (1);
 #else
     Sleep (1000);
