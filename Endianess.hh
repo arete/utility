@@ -51,6 +51,7 @@
   #define bswap_16 OSSwapConstInt16
   #define bswap_32 OSSwapConstInt32
   #define bswap_64 OSSwapConstInt64
+#elif defined (_MSC_VER)
 #else
   #include <endian.h>
   #include <byteswap.h>
