@@ -37,6 +37,50 @@ namespace LuaWrapper {
 
   template <typename T> class typeName;
 
+  template <>
+  class typeName<int>
+  {
+  public:
+    static const char* name() {return "int"; }
+  };
+
+  template <>
+  class typeName<unsigned int>
+  {
+  public:
+    static const char* name() {return "unsigned int"; }
+  };
+
+  template <>
+  class typeName<double>
+  {
+  public:
+    static const char* name() {return "double"; }
+  };
+
+  template <>
+  class typeName<const char*>
+  {
+  public:
+    static const char* name() {return "const char*"; }
+  };
+
+  template <>
+  class typeName<bool>
+  {
+  public:
+    static const char* name() {return "bool"; }
+  };
+
+  template <>
+  class typeName<std::string>
+  {
+  public:
+    static const char* name() {return "std::string"; }
+  };
+
+
+
   static void argError(lua_State* L, int index, const char* type_name)
   {
     // slightly adapted from luaL_argerror and luaL_typerror
@@ -106,7 +150,20 @@ namespace LuaWrapper {
     
     T* ret;
   };
-	
+
+
+
+  template <>
+  class TypeError<const std::string&>
+  {
+  public:
+   TypeError(lua_State* L, int index)
+    {
+      argError(L, index, typeName<std::string>::name());
+    }
+    
+    std::string ret;
+  };
 
   template <typename T, typename DEF>
   T getDefault(lua_State* L, int index) {
@@ -472,49 +529,6 @@ namespace LuaWrapper {
     }
   };
 
-
-  template <>
-  class typeName<int>
-  {
-  public:
-    static const char* name() {return "int"; }
-  };
-
-  template <>
-  class typeName<unsigned int>
-  {
-  public:
-    static const char* name() {return "unsigned int"; }
-  };
-
-  template <>
-  class typeName<double>
-  {
-  public:
-    static const char* name() {return "double"; }
-  };
-
-  template <>
-  class typeName<const char*>
-  {
-  public:
-    static const char* name() {return "const char*"; }
-  };
-
-  template <>
-  class typeName<bool>
-  {
-  public:
-    static const char* name() {return "bool"; }
-  };
-
-  template <>
-  class typeName<std::string>
-  {
-  public:
-    static const char* name() {return "std::string"; }
-  };
-
   template <>
   class typeName<LuaTable>
   {
@@ -528,6 +542,7 @@ namespace LuaWrapper {
   public:
     static const char* name() {return "LuaWrapper::LuaFunction"; }
   };
+
 
   
   template <typename T>
