@@ -3,6 +3,7 @@
 #define UTILITY__PSTREAM_HH__
 
 #include <unistd.h>
+#include <signal.h> // kill
 
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -44,7 +45,6 @@ protected:
 	if (gptr() < egptr())
 		return *gptr();
 
-
 	int numPutback = gptr() - eback();
 	if (numPutback > 1)
 		numPutback = 1;
@@ -56,7 +56,6 @@ protected:
 		return EOF;
 
 	setg (buffer + 1 - numPutback, buffer + 1, buffer + 1 + num);
-
 	return *gptr();
   }
 
@@ -96,7 +95,7 @@ public:
   void exec (const char* file, char* const argv[]) {
     pipe (sink);
     pipe (source);
-    if ( (pid = fork()) == 0) {
+    if ((pid = fork()) == 0) {
       dup2(sink[0],0); close(sink[0]); close(sink[1]);
       dup2(source[1],1); close(source[0]); close(source[1]);
       execvp(file, argv);
