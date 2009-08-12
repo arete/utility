@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008 Valentin Ziegler, ExactCODE GmbH
- * Copyright (C) 2008 Rene Rebe, ExactCODE GmbH
+ * Copyright (C) 2008 - 2009 Rene Rebe, ExactCODE GmbH
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +39,9 @@
 // a0(X) is "X" if i == 0
 
 #ifndef N
-#define N 7
+#define N 8
 #define comma ,
-#define name(X) X##7
+#define a0(X)
 #define a1(X) X
 #define a1c(X) ,X
 #define a2(X) X
@@ -56,7 +56,18 @@
 #define a6c(X) ,X
 #define a7(X) X
 #define a7c(X) ,X
-#define a0(X)
+#define a8(X) X
+#define a8c(X) ,X
+#define name(X) X##8
+#elif N > 7
+#undef N
+#undef name
+#undef a8
+#undef a8c
+#define N 7
+#define a8(X)
+#define a8c(X)
+#define name(X) X##7
 #elif N > 6
 #undef N
 #undef name
@@ -138,8 +149,9 @@ template <
   a4c(typename P4)
   a5c(typename P5)
   a6c(typename P6)
-  a7c(typename P7),
-  RET (*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  a7c(typename P7)
+  a8c(typename P8),
+  RET (*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8))>
 class name(FunctionWrapper_1_)
 {
 public:
@@ -154,7 +166,9 @@ public:
 			 a4c(Unpack<P4>::convert(L, 4))
 			 a5c(Unpack<P5>::convert(L, 5))
 			 a6c(Unpack<P6>::convert(L, 6))
-			 a7c(Unpack<P7>::convert(L, 7))));
+			 a7c(Unpack<P7>::convert(L, 7))
+			 a8c(Unpack<P8>::convert(L, 8))
+		        ));
     runAutoRelease();
     return 1;
   }
@@ -171,8 +185,9 @@ template <
   a5c(typename P5)
   a6c(typename P6)
   a7c(typename P7)
+  a8c(typename P8)
   comma
-  void (*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  void (*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8))>
 class name(FunctionWrapper_0_)
 {
 public:
@@ -186,7 +201,9 @@ public:
       a4c(Unpack<P4>::convert(L, 4))
       a5c(Unpack<P5>::convert(L, 5))
       a6c(Unpack<P6>::convert(L, 6))
-      a7c(Unpack<P7>::convert(L, 7)));
+      a7c(Unpack<P7>::convert(L, 7))
+      a8c(Unpack<P7>::convert(L, 8))
+     );
     runAutoRelease();
     return 0;
   }
@@ -204,8 +221,9 @@ template <
   a5c(typename P5)
   a6c(typename P6)
   a7c(typename P7)
+  a8c(typename P8)
   comma
-  int (*F)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  int (*F)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8))>
 class name(FunctionWrapper_N_)
 {
 public:
@@ -220,7 +238,9 @@ public:
 	      a4c(Unpack<P4>::convert(L, 4))
 	      a5c(Unpack<P5>::convert(L, 5))
 	      a6c(Unpack<P6>::convert(L, 6))
-	      a7c(Unpack<P7>::convert(L, 7)));
+	      a7c(Unpack<P7>::convert(L, 7))
+	      a8c(Unpack<P7>::convert(L, 8))
+	     );
     runAutoRelease();
     return n;
   }
@@ -238,8 +258,10 @@ template <
   a4c(typename P4)
   a5c(typename P5)
   a6c(typename P6)
-  a7c(typename P7),
-  RET (DEFOBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  a7c(typename P7)
+  a8c(typename P8)
+  ,
+  RET (DEFOBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8))>
 class name(MethodWrapper_1_)
 {
 public:
@@ -247,7 +269,7 @@ public:
 
   static int Wrapper(lua_State* L)
   {
-    RET (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
+    RET (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8)) = F;
     OBJ* obj = Unpack<OBJ*>::convert(L, 1);
     Pack<RET>::convert(L,
 		       (obj->*f)(a1(Unpack<P1>::convert(L, 2))
@@ -256,7 +278,9 @@ public:
 				 a4c(Unpack<P4>::convert(L, 5))
 				 a5c(Unpack<P5>::convert(L, 6))
 				 a6c(Unpack<P6>::convert(L, 7))
-				 a7c(Unpack<P7>::convert(L, 8))));
+				 a7c(Unpack<P7>::convert(L, 8))
+				 a8c(Unpack<P8>::convert(L, 9))
+				));
     runAutoRelease();
     return 1;
   }
@@ -275,8 +299,10 @@ template <
   a4c(typename P4)
   a5c(typename P5)
   a6c(typename P6)
-  a7c(typename P7),
-  void (DEFOBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  a7c(typename P7)
+  a8c(typename P8)
+  ,
+  void (DEFOBJ::*F)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8))>
 class name(MethodWrapper_0_)
 {
 public:
@@ -284,7 +310,7 @@ public:
 
   static int Wrapper(lua_State* L)
   {
-    void (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
+    void (DEFOBJ::*f)(a1(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8)) = F;
     OBJ* obj = Unpack<OBJ*>::convert(L, 1);
     (obj->*f)(a1(Unpack<P1>::convert(L, 2))
 	      a2c(Unpack<P2>::convert(L, 3))
@@ -292,7 +318,9 @@ public:
 	      a4c(Unpack<P4>::convert(L, 5))
 	      a5c(Unpack<P5>::convert(L, 6))
 	      a6c(Unpack<P6>::convert(L, 7))
-	      a7c(Unpack<P7>::convert(L, 8)));
+	      a7c(Unpack<P7>::convert(L, 8))
+	      a8c(Unpack<P8>::convert(L, 9))
+	     );
     runAutoRelease();
     return 0;
   }
@@ -310,8 +338,10 @@ template <
   a4c(typename P4)
   a5c(typename P5)
   a6c(typename P6)
-  a7c(typename P7),
-  int (DEFOBJ::*F)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7))>
+  a7c(typename P7)
+  a8c(typename P8)
+  ,
+  int (DEFOBJ::*F)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8))>
 class name(MethodWrapper_N_)
 {
 public:
@@ -319,7 +349,7 @@ public:
 
   static int Wrapper(lua_State* L)
   {
-    int (DEFOBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)) = F;
+    int (DEFOBJ::*f)(lua_State* a1c(P1)a2c(P2)a3c(P3)a4c(P4)a5c(P5)a6c(P6)a7c(P7)a8c(P8)) = F;
     OBJ* obj = Unpack<OBJ*>::convert(L, 1);
     int n = (obj->*f)(L
 		      a1c(Unpack<P1>::convert(L, 2))
@@ -328,7 +358,9 @@ public:
 		      a4c(Unpack<P4>::convert(L, 5))
 		      a5c(Unpack<P5>::convert(L, 6))
 		      a6c(Unpack<P6>::convert(L, 7))
-		      a7c(Unpack<P7>::convert(L, 8)));
+		      a7c(Unpack<P7>::convert(L, 8))
+		      a8c(Unpack<P8>::convert(L, 9))
+		     );
     runAutoRelease();
     return n;
   }
@@ -346,7 +378,9 @@ template <
   a4c(typename P4)
   a5c(typename P5)
   a6c(typename P6)
-  a7c(typename P7)>
+  a7c(typename P7)
+  a8c(typename P8)
+  >
 class name(CtorWrapper_)
 {
 public:
@@ -361,7 +395,9 @@ public:
 				a4c(Unpack<P4>::convert(L, 4))
 				a5c(Unpack<P5>::convert(L, 5))
 				a6c(Unpack<P6>::convert(L, 6))
-				a7c(Unpack<P7>::convert(L, 7))));
+				a7c(Unpack<P7>::convert(L, 7))
+				a8c(Unpack<P8>::convert(L, 8))
+			       ));
     runAutoRelease();
     return 1;
   }
@@ -380,11 +416,13 @@ template <
   a4c(typename P4)
   a5c(typename P5)
   a6c(typename P6)
-  a7c(typename P7),
+  a7c(typename P7)
+  a8c(typename P8)
+  ,
   typename DEF
   >
 RET name(Call_1_)(lua_State* L, LuaFunctionBase& f
-		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
+		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7)a8c(P8 p8))
   {
     if (f.prepareStack (L)) {
       a1(Pack<P1>::convert(L, p1);)
@@ -394,6 +432,7 @@ RET name(Call_1_)(lua_State* L, LuaFunctionBase& f
       a5(Pack<P5>::convert(L, p5);)
       a6(Pack<P6>::convert(L, p6);)
       a7(Pack<P7>::convert(L, p7);)
+      a8(Pack<P8>::convert(L, p8);)
 
       lua_call(L, N + f.addValues, 1);
       RET val = Unpack<RET, DEF>::convert(L, -1);
@@ -414,12 +453,13 @@ template <
   a5c(typename P5)
   a6c(typename P6)
   a7c(typename P7)
+  a8c(typename P8)
   >
 RET name(Call_1_)(lua_State* L, LuaFunctionBase& f
-		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
+		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7)a8c(P8 p8))
   {
-    return name(Call_1_)<RET a1c(P1) a2c(P2) a3c(P3) a4c(P4) a5c(P5) a6c(P6) a7c(P7), DefaultInitializer<RET> >(
-      L, f a1c(p1) a2c(p2) a3c(p3) a4c(p4) a5c(p5) a6c(p6) a7c(p7)
+    return name(Call_1_)<RET a1c(P1) a2c(P2) a3c(P3) a4c(P4) a5c(P5) a6c(P6) a7c(P7) a8c(P8), DefaultInitializer<RET> >(
+      L, f a1c(p1) a2c(p2) a3c(p3) a4c(p4) a5c(p5) a6c(p6) a7c(p7) a8c(p8)
     );
   }
 
@@ -433,13 +473,15 @@ a1(template <
    a4c(typename P4)
    a5c(typename P5)
    a6c(typename P6)
-   a7c(typename P7)>)
+   a7c(typename P7)
+   a8c(typename P8)
+   >)
   static void
 #ifdef __GNUC__
   __attribute__((unused))
 #endif
   name(Call_0_)(lua_State* L, LuaFunctionBase& f
-		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7))
+		  a1c(P1 p1)a2c(P2 p2)a3c(P3 p3)a4c(P4 p4)a5c(P5 p5)a6c(P6 p6)a7c(P7 p7)a8c(P8 p8))
   {
     if (f.prepareStack(L)) {
       a1(Pack<P1>::convert(L, p1);)
@@ -449,6 +491,7 @@ a1(template <
       a5(Pack<P5>::convert(L, p5);)
       a6(Pack<P6>::convert(L, p6);)
       a7(Pack<P7>::convert(L, p7);)
+      a8(Pack<P8>::convert(L, p8);)
 
       lua_call(L, N + f.addValues, 0);
       f.cleanStack(L);
@@ -478,5 +521,7 @@ a1(template <
 #undef a6c
 #undef a7
 #undef a7c
+#undef a8
+#undef a8c
 #undef name
 #endif
