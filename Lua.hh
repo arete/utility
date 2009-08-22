@@ -1050,7 +1050,7 @@ namespace LuaWrapper {
   }
 
   // convenient helper
-  inline void dumpStack (lua_State *L)
+  inline void dumpStack (lua_State* L)
   {
     int top = lua_gettop(L);
     for (int i = 1; i <= top; ++i)
@@ -1064,6 +1064,35 @@ namespace LuaWrapper {
       }
     }
     printf("\n");
+  }
+
+  inline void insertLoader(lua_State* L, int (*fptr)(lua_State* L))
+  {
+    luaL_findtable(L, LUA_GLOBALSINDEX,  "package.loaders", 0);
+    LuaWrapper::LuaTable loaders(L, -1);
+    lua_pop(L, 1);
+
+    int i = 1;
+    while (loaders.exists(i))
+      ++i;
+
+    // move all loaders by one, to insert ours at the first index
+    for (; i > 0; --i)
+    {
+      loaders.push(); // tables registry handle
+      lua_pushinteger(L, i);
+      if (i > 1) {
+        lua_pushinteger(L, i - 1);
+        lua_gettable(L, -3);
+        lua_settable(L, -3);
+      }
+      else {
+        lua_pushcclosure(L, fptr, 0);
+        lua_settable(L, -3);
+      }
+      lua_pop(L, 1); // table ref
+    }
+    loaders.releaseReference();
   }
 }
 
