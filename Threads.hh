@@ -1,4 +1,3 @@
-
 /*
  * --- GSMP-COPYRIGHT-NOTE-BEGIN ---
  * 
@@ -8,8 +7,8 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/include/Threads.hh
- * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and René Rebe
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2009
+ *   Valentin Ziegler and RenÃ© Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,10 +58,21 @@ namespace Utility
     public:
       
       static THREAD_API MutexAttr Default;
+      
       operator Impl* ()  { return (Impl*)(&mutex); }
 
       Mutex (const MutexAttr attr = Default) {
 	pthread_mutex_init (&mutex, attr.impl);
+      };
+
+      Mutex (int type) {
+	pthread_mutexattr_t attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, type);
+
+	pthread_mutex_init (&mutex, &attr);
+
+	pthread_mutexattr_destroy(&attr); // TODO: required to hold during mutex lifetime?
       };
       
       // (needs work) 
@@ -178,11 +188,13 @@ namespace Utility
 	 actions valid for the given plaform) from the calling
 	 thread. */
       static void StopInDebugger ();
-      
+
+#ifdef __linux__
       /* EnableRealtimeScheduling () enables rea-time scheduling for
 	 the calling thread. */
       static bool EnableRealtimeScheduling ();
-      
+#endif
+
       /* USleep () suspends execution of the calling thread/process
 	 for (at least) usec microseconds.  The sleep may be
 	 lengthened slightly by any system activity or by the time

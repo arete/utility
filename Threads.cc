@@ -7,8 +7,8 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/src/Threads.cc
- * General Sound Manipulation Program is Copyright (C) 2000 - 2004
- *   Valentin Ziegler and René Rebe
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2009
+ *   Valentin Ziegler and RenÃ© Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,6 +93,8 @@ void Thread::StopInDebugger ()
   kill (m_pid, SIGTRAP);
 }
 
+#ifdef __linux__
+
 bool Thread::EnableRealtimeScheduling ()
 {
   int t_pri = sched_get_priority_min (SCHED_FIFO);
@@ -114,6 +116,7 @@ bool Thread::EnableRealtimeScheduling ()
 		      << std::endl;
   return false;
 }
+#endif
 
 void Thread::USleep (int delay, bool high_precission)
 {
