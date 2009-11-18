@@ -613,7 +613,7 @@ namespace LuaWrapper {
     {
       if (lua_type(L, index) != LUA_TBOOLEAN)
 	return getDefault<bool, DEF>(L, index);
-      return (bool)lua_toboolean(L, index);
+      return lua_toboolean(L, index) == 0 ? false : true; 
     }
   };
 
