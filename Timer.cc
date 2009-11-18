@@ -95,14 +95,17 @@ uint64_t Utility::TimebaseTimer::Delta () const
 uint64_t Utility::TimebaseTimer::Value () const
 {
 #if defined(__i386__) || defined(_MSC_VER)
-  uint64_t x;
 #ifdef _MSC_VER
+  uint32_t lo, hi;
   __asm rdtsc
-  __asm mov x, eax
+  __asm mov lo, eax
+  __asm mov hi, edx
+  return ((uint64_t)hi << 32) | lo;
 #else
+  uint64_t x;
   __asm__ __volatile__ (".byte 0x0f, 0x31" : "=A" (x));
-#endif
   return x;
+#endif
 #elif defined(__x86_64__)
   uint32_t hi, lo;
   __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
