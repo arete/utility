@@ -7,7 +7,7 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/src/Timer.cc
- * General Sound Manipulation Program is Copyright (C) 2000 - 2009
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2010
  *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -148,7 +148,7 @@ uint64_t Utility::TimebaseTimer::Value () const
 		   );
   return ((uint64_t)hi << 32) | lo;
 #endif
-#elif define(__mips__)
+#elif defined(__mips__)
   unsigned int ticks;
   __asm__ __volatile__ ("dmfc0 %0,$9" : "=r" (ticks));
   return ticks;
