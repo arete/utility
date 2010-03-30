@@ -161,8 +161,9 @@ uint64_t Utility::TimebaseTimer::Value () const
    __asm__ __volatile__ ("%0 = CYCLES;\n\t" : "=&d" (ticks) : : "R1");
   return ticks
 #else
-  // TODO (at least): ARM, SuperH, then AVR32, Alpha, ...
-#error "No CPU timebase read implemented for this architecture, yet!"
+  // TODO (at least): Alpha, ARM, AVR32, SuperH, ...
+#warning "No CPU timebase read implemented for this architecture, yet!"
+  return 0;
 #endif
 }
 
