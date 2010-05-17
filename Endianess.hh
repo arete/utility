@@ -7,7 +7,7 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: pcm/include/Types.hh
- * General Sound Manipulation Program is Copyright (C) 2000 - 2009
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2010
  *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -83,7 +83,7 @@ namespace Exact {
     static const bool IsBigendian = true;
   };
 
-#if defined __BIG_ENDIAN__ || defined _BIG_ENDIAN
+#if defined(__BIG_ENDIAN__) || BYTE_ORDER == BIG_ENDIAN
   typedef BigEndianTraits NativeEndianTraits;
 #else
   typedef LittleEndianTraits NativeEndianTraits;
