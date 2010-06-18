@@ -52,6 +52,15 @@
   #define bswap_32 OSSwapConstInt32
   #define bswap_64 OSSwapConstInt64
 #elif defined (_MSC_VER)
+  inline uint16_t bswap_16(uint16_t x) {
+	return (x & 0xff00) >> 8 | (x & 0x00ff) << 8;
+  }
+  inline uint32_t bswap_32(uint32_t x) {
+	return (x & 0xff000000) >> 24 | (x & 0x00ff0000) >> 8 |
+  		   (x & 0x0000ff00) <<  8 | (x & 0x000000ff) << 24;
+  }
+#undef __BIG_ENDIAN__
+#undef BYTE_ORDER 
 #else
   #include <endian.h>
   #include <byteswap.h>
@@ -83,7 +92,7 @@ namespace Exact {
     static const bool IsBigendian = true;
   };
 
-#if defined(__BIG_ENDIAN__) || BYTE_ORDER == BIG_ENDIAN
+#if defined(__BIG_ENDIAN__) || (defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN)
   typedef BigEndianTraits NativeEndianTraits;
 #else
   typedef LittleEndianTraits NativeEndianTraits;
