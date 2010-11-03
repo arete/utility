@@ -177,7 +177,7 @@ bool DecodeZlib(std::ostream& stream,
 		const T& data, size_t length,
 		const int windowBits = 15)
 {
-  static const unsigned CHUNK = 16384;
+  static const unsigned CHUNK = 16 * 1024;
   
   z_stream strm;
   char out[CHUNK];
@@ -231,7 +231,7 @@ bool DecodeZlib(std::ostream& stream,
 inline bool EncodeZlib (std::ostream& stream, const char* data,
 			size_t length, int level = 9)
 {
-  static const unsigned CHUNK = 16384;
+  static const unsigned CHUNK = 16 * 1024;
   
   z_stream strm;
   char out[CHUNK];
@@ -245,25 +245,31 @@ inline bool EncodeZlib (std::ostream& stream, const char* data,
     return false;
   
   /* compress until end of file */
-  for (size_t i = 0; i < length; i += CHUNK) {
-    strm.avail_in = (length - i > CHUNK) ? CHUNK : (length - i);
-
-    const int flush = ((length - i - strm.avail_in) == 0 ? Z_FINISH : Z_NO_FLUSH);
-    strm.next_in = (Bytef*) &data[i];
+  strm.avail_in = 0;
+  strm.next_out = (Bytef*)out;
+  strm.avail_out = CHUNK;
+  for (int i = 0, flush = Z_NO_FLUSH; flush != Z_FINISH;)
+  {
+    if (strm.avail_in == 0) {
+	strm.next_in = (Bytef*)&data[i];
+	strm.avail_in = (length - i) > CHUNK ? CHUNK : length - i;
+	i += strm.avail_in;
+    }
     
-    /* run deflate() on input until output buffer not full, finish
-       compression if all of source has been read in */
-    do {
-      strm.avail_out = CHUNK;
-      strm.next_out = (Bytef*) out;
-      ret = deflate(&strm, flush);    /* no bad return value */
-      unsigned have = CHUNK - strm.avail_out;
-      stream.write(out, have);
-      if (!stream) {
+    if (strm.avail_in == 0)
+	flush = Z_FINISH;
+
+    deflate(&strm, flush);
+    const unsigned have = CHUNK - strm.avail_out;
+    if (have) stream.write(out, have);
+ 
+    strm.next_out = (Bytef*)out;
+    strm.avail_out = CHUNK;
+
+    if (!stream) {
 	(void)deflateEnd(&strm);
 	return false;
-      }
-    } while (strm.avail_out == 0);
+    }
   }
 
   /* clean up and return */
