@@ -179,52 +179,52 @@ bool DecodeZlib(std::ostream& stream,
 {
   static const unsigned CHUNK = 16 * 1024;
   
-  z_stream strm;
+  z_stream z;
   char out[CHUNK];
   
   /* allocate deflate state */
-  strm.zalloc = Z_NULL;
-  strm.zfree = Z_NULL;
-  strm.opaque = Z_NULL;
-  int ret = inflateInit2(&strm, windowBits);
+  z.zalloc = Z_NULL;
+  z.zfree = Z_NULL;
+  z.opaque = Z_NULL;
+  int ret = inflateInit2(&z, windowBits);
   if (ret != Z_OK)
     return false;
   
-  strm.next_in = (Bytef*)&data[0];
-  strm.avail_in = length;
+  z.next_in = (Bytef*)&data[0];
+  z.avail_in = length;
   
   /* decompress until end of file */
-  while (strm.avail_in) {
+  while (z.avail_in) {
     if (false)
-    std::cerr << " @ " << strm.next_in - (Bytef*)&data[0]
-	      << " avail in: " << strm.avail_in << std::endl;
+    std::cerr << " @ " << z.next_in - (Bytef*)&data[0]
+	      << " avail in: " << z.avail_in << std::endl;
       
     /* run inflate() on input until output buffer is full, finish
        decompression if all of source has been read in */
-    strm.next_out = (Bytef*) out;
-    strm.avail_out = CHUNK;
-    ret = inflate(&strm, Z_SYNC_FLUSH);
+    z.next_out = (Bytef*) out;
+    z.avail_out = CHUNK;
+    ret = inflate(&z, Z_SYNC_FLUSH);
     if (false)
     std::cerr << "  ret: " << ret
-	      << ", avail_out: " << strm.avail_out
-	      << ", next_in: " << (void*)strm.next_in
-	      << ", next_out: " << (void*)strm.next_out
+	      << ", avail_out: " << z.avail_out
+	      << ", next_in: " << (void*)z.next_in
+	      << ", next_out: " << (void*)z.next_out
 	      << std::endl;
     
-    unsigned have = CHUNK - strm.avail_out;
+    unsigned have = CHUNK - z.avail_out;
     stream.write(out, have);
     if (!stream) {
-      (void)inflateEnd(&strm);
+      (void)inflateEnd(&z);
       return false;
     }
     if (ret != Z_OK && ret != Z_STREAM_END) {
-      (void)inflateEnd(&strm);
+      (void)inflateEnd(&z);
       return false;
     }
   }
 
   /* clean up and return */
-  (void)deflateEnd(&strm);
+  (void)deflateEnd(&z);
   return true;  
 }
 
@@ -233,47 +233,47 @@ inline bool EncodeZlib (std::ostream& stream, const char* data,
 {
   static const unsigned CHUNK = 16 * 1024;
   
-  z_stream strm;
+  z_stream z;
   char out[CHUNK];
   
   /* allocate deflate state */
-  strm.zalloc = Z_NULL;
-  strm.zfree = Z_NULL;
-  strm.opaque = Z_NULL;
-  int ret = deflateInit(&strm, level);
+  z.zalloc = Z_NULL;
+  z.zfree = Z_NULL;
+  z.opaque = Z_NULL;
+  int ret = deflateInit(&z, level);
   if (ret != Z_OK)
     return false;
   
   /* compress until end of file */
-  strm.avail_in = 0;
-  strm.next_out = (Bytef*)out;
-  strm.avail_out = CHUNK;
+  z.avail_in = 0;
+  z.next_out = (Bytef*)out;
+  z.avail_out = CHUNK;
   for (int i = 0, flush = Z_NO_FLUSH; flush != Z_FINISH;)
   {
-    if (strm.avail_in == 0) {
-	strm.next_in = (Bytef*)&data[i];
-	strm.avail_in = (length - i) > CHUNK ? CHUNK : length - i;
-	i += strm.avail_in;
+    if (z.avail_in == 0) {
+	z.next_in = (Bytef*)&data[i];
+	z.avail_in = (length - i) > CHUNK ? CHUNK : length - i;
+	i += z.avail_in;
     }
     
-    if (strm.avail_in == 0)
+    if (z.avail_in == 0)
 	flush = Z_FINISH;
 
-    deflate(&strm, flush);
-    const unsigned have = CHUNK - strm.avail_out;
+    deflate(&z, flush);
+    const unsigned have = CHUNK - z.avail_out;
     if (have) stream.write(out, have);
  
-    strm.next_out = (Bytef*)out;
-    strm.avail_out = CHUNK;
+    z.next_out = (Bytef*)out;
+    z.avail_out = CHUNK;
 
     if (!stream) {
-	(void)deflateEnd(&strm);
+	(void)deflateEnd(&z);
 	return false;
     }
   }
 
   /* clean up and return */
-  (void)deflateEnd(&strm);
+  (void)deflateEnd(&z);
   return true;
 }
 
