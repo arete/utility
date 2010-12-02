@@ -1,6 +1,6 @@
 /*
  * General purpose encoding and decoding.
- * Copyright (C) 2007 - 2009 Rene Rebe, ExactCODE GmbH
+ * Copyright (C) 2007 - 2010 Rene Rebe, ExactCODE GmbH
  * Copyright (c) 2008 Valentin Ziegle, ExactCODE GmbH
  * Copyright (C) 2007 Susanne Klaus, ExactCODE GmbH
  * 
@@ -194,14 +194,15 @@ bool DecodeZlib(std::ostream& stream,
   z.avail_in = length;
   
   /* decompress until end of file */
-  while (z.avail_in) {
+  while (z.avail_in)
+  {
     if (false)
     std::cerr << " @ " << z.next_in - (Bytef*)&data[0]
 	      << " avail in: " << z.avail_in << std::endl;
       
     /* run inflate() on input until output buffer is full, finish
        decompression if all of source has been read in */
-    z.next_out = (Bytef*) out;
+    z.next_out = (Bytef*)out;
     z.avail_out = CHUNK;
     ret = inflate(&z, Z_SYNC_FLUSH);
     if (false)
@@ -245,32 +246,38 @@ inline bool EncodeZlib (std::ostream& stream, const char* data,
     return false;
   
   /* compress until end of file */
-  z.avail_in = 0;
-  z.next_out = (Bytef*)out;
-  z.avail_out = CHUNK;
-  for (int i = 0, flush = Z_NO_FLUSH; flush != Z_FINISH;)
-  {
-    if (z.avail_in == 0) {
-	z.next_in = (Bytef*)&data[i];
-	z.avail_in = (length - i) > CHUNK ? CHUNK : length - i;
-	i += z.avail_in;
-    }
-    
+  z.next_in = (Bytef*)&data[0];
+  z.avail_in = length;
+
+  int flush = Z_NO_FLUSH;
+  do {
     if (z.avail_in == 0)
 	flush = Z_FINISH;
 
-    deflate(&z, flush);
-    const unsigned have = CHUNK - z.avail_out;
-    if (have) stream.write(out, have);
- 
     z.next_out = (Bytef*)out;
     z.avail_out = CHUNK;
+    deflate(&z, flush);
+    const unsigned have = CHUNK - z.avail_out;
 
+    if (false)
+    std::cerr << "  ret: " << ret << ", have: " << have
+	      << ", avail_in: " << z.avail_in
+	      << ", avail_out: " << z.avail_out
+	      << ", next_in: " << (void*)z.next_in
+	      << ", next_out: " << (void*)z.next_out
+	      << std::endl;
+
+    if (have) stream.write(out, have);
+ 
+    // if there is space in the output buffer start to flush
+    if (z.avail_out)
+	flush = Z_FINISH;
+ 
     if (!stream) {
 	(void)deflateEnd(&z);
 	return false;
     }
-  }
+  } while (z.avail_out < CHUNK);
 
   /* clean up and return */
   (void)deflateEnd(&z);
