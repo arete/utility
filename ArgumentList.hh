@@ -7,6 +7,10 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: utility/include/ArgumentList.hh
+ *
+ * Copyright (C) 2005 - 2011
+ *   Ren\xe9\xa0\x92ebe, ExactCODE GmbH Germany
+ *
  * General Sound Manipulation Program is Copyright (C) 2000 - 2004
  *   Valentin Ziegler and Ren頒ebe
  * 
@@ -158,6 +162,7 @@ namespace Utility
     }
     
     int Size () const { return values.size(); }
+    int Count () const { return count; }
     
     void Bind (bool (*function)(const Argument<T>&)) {
       callback = function;
