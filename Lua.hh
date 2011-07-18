@@ -764,6 +764,16 @@ namespace LuaWrapper {
   };
 
   template <>
+  class Pack<float>
+  {
+  public:
+    static void convert(lua_State* L, float value)
+    {
+      lua_pushnumber(L, value);
+    }
+  };
+
+  template <>
   class Pack<double>
   {
   public:
