@@ -7,7 +7,7 @@
  * the ./scripts/Create-CopyPatch script. Do not edit this copyright text!
  * 
  * GSMP: pcm/include/Types.hh
- * General Sound Manipulation Program is Copyright (C) 2000 - 2010
+ * General Sound Manipulation Program is Copyright (C) 2000 - 2012
  *   Valentin Ziegler and René Rebe
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -51,13 +51,19 @@
   #define bswap_16 OSSwapConstInt16
   #define bswap_32 OSSwapConstInt32
   #define bswap_64 OSSwapConstInt64
-#elif defined (_MSC_VER)
+#elif defined (_MSC_VER) || defined (_WIN32)
   inline uint16_t bswap_16(uint16_t x) {
 	return (x & 0xff00) >> 8 | (x & 0x00ff) << 8;
   }
   inline uint32_t bswap_32(uint32_t x) {
 	return (x & 0xff000000) >> 24 | (x & 0x00ff0000) >> 8 |
   		   (x & 0x0000ff00) <<  8 | (x & 0x000000ff) << 24;
+  }
+  inline uint64_t bswap_64(uint64_t x) {
+        return (x & 0xff000000000000LL) >> 56 | (x & 0xff0000000000LL) >> 32 |
+               (x & 0xff0000000000LL) >> 16 | (x & 0xff00000000LL) >> 8 |
+               (x & 0xff000000LL) << 8 | (x & 0x00ff0000LL) << 16 |
+               (x & 0xff00LL) << 32 | (x & 0xffLL) << 56;
   }
 #undef __BIG_ENDIAN__
 #undef BYTE_ORDER 
