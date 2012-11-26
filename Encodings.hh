@@ -1,6 +1,6 @@
 /*
  * General purpose encoding and decoding.
- * Copyright (C) 2007 - 2010 Rene Rebe, ExactCODE GmbH
+ * Copyright (C) 2007 - 2012 Rene Rebe, ExactCODE GmbH
  * Copyright (c) 2008 Valentin Ziegle, ExactCODE GmbH
  * Copyright (C) 2007 Susanne Klaus, ExactCODE GmbH
  * 
@@ -288,6 +288,39 @@ inline bool EncodeZlib (std::ostream& stream, const char* data,
 
 
 /* Some miscellaneous de- and encoders */
+
+// TODO: make more generic
+inline void EncodeUtf8 (std::ostream& stream, uint32_t glyph_code)
+{
+  // utf8 encoding
+  char utf8[5];
+  if (glyph_code <= 0x7f) {
+    utf8[0] = glyph_code;
+    utf8[1] = 0;
+  }
+  else if (glyph_code <= 0x7FF) {
+    utf8[0] = 0xC0 | (glyph_code  >> 6);
+    utf8[1] = 0x80 | ((glyph_code >> 0) & 0x3F);
+    utf8[2] = 0;
+  }
+  else if (glyph_code <= 0xFFFF) {
+    utf8[0] = 0xE0 | (glyph_code  >> 12);
+    utf8[1] = 0x80 | ((glyph_code >>  6) & 0x3F);
+    utf8[2] = 0x80 | ((glyph_code >>  0) & 0x3F);
+    utf8[3] = 0;
+  }
+  else if (glyph_code <= 0x10FFFF) {
+    utf8[0] = 0xF0 | (glyph_code  >> 18);
+    utf8[1] = 0x80 | ((glyph_code >> 12) & 0x3F);
+    utf8[2] = 0x80 | ((glyph_code >>  6) & 0x3F);
+    utf8[3] = 0x80 | ((glyph_code >>  0) & 0x3F);
+    utf8[4] = 0;
+  }
+  else {
+    std::cerr << "invalid glyph_code: " << glyph_code << std::endl;
+  }
+  stream << utf8;
+}
 
 inline std::vector<uint32_t>
 DecodeUtf8(const char* data, size_t length)
